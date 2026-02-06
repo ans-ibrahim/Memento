@@ -46,9 +46,17 @@ export const MementoMovieDetailPage = GObject.registerClass({
     GTypeName: 'MementoMovieDetailPage',
     Template: 'resource:///app/memento/memento/pages/movie-detail-page.ui',
     InternalChildren: [
-        'poster_image',
         'title_label',
         'tagline_label',
+        'poster_image',
+        'watchlist_button',
+        'add_play_button',
+        'plays_count_label',
+        'plays_list',
+        'main_content_box',
+        'left_sidebar',
+        'right_content',
+        'metadata_group',
         'year_row',
         'runtime_row',
         'rating_row',
@@ -65,10 +73,6 @@ export const MementoMovieDetailPage = GObject.registerClass({
         'producers_label',
         'cast_box',
         'cast_label',
-        'watchlist_button',
-        'add_play_button',
-        'plays_count_label',
-        'plays_list'
     ],
     Signals: {
         'watchlist-changed': {},
@@ -78,10 +82,41 @@ export const MementoMovieDetailPage = GObject.registerClass({
     _movieId = null;
     _movieData = null;
 
-    constructor(params = {}) {
-        super(params);
+    _init(params = {}) {
+        super._init(params);
+        this._movieId = null;
+        this._setupActions();
+        this._setupResponsiveLayout();
     }
 
+    _setupResponsiveLayout() {
+        // Set up a breakpoint to switch layout on narrow screens
+        const win = this.get_root();
+        if (!win) return;
+
+        // Use a size allocate signal to detect width changes
+        this._main_content_box.connect('notify::allocation', () => {
+            const width = this._main_content_box.get_allocation().width;
+            
+            // Switch to vertical layout on screens narrower than 700px
+            if (width < 700) {
+                this._main_content_box.set_orientation(Gtk.Orientation.VERTICAL);
+                this._main_content_box.set_spacing(20);
+                // Make poster smaller on mobile
+                this._poster_image.set_width_request(200);
+                this._poster_image.set_height_request(300);
+                // Center sideb ar content
+                this._left_sidebar.set_halign(Gtk.Align.CENTER);
+            } else {
+                this._main_content_box.set_orientation(Gtk.Orientation.HORIZONTAL);
+                this._main_content_box.set_spacing(32);
+                // Restore normal poster size
+                this._poster_image.set_width_request(250);
+                this._poster_image.set_height_request(375);
+                this._left_sidebar.set_halign(Gtk.Align.FILL);
+            }
+        });
+    }    
     async loadMovie(tmdbId) {
         this._tmdbId = tmdbId;
         

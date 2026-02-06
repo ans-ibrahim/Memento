@@ -23,8 +23,8 @@ CREATE TABLE IF NOT EXISTS movies (
     tmdb_vote_count INTEGER,
     revenue INTEGER,
     letterboxd_url TEXT,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS credits (
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS credits (
 CREATE TABLE IF NOT EXISTS watchlist (
     id INTEGER PRIMARY KEY,
     movie_id INTEGER NOT NULL,
-    created_at TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS places (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     is_cinema INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS plays (

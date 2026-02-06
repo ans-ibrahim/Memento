@@ -14,271 +14,196 @@
             <property name="hscrollbar-policy">never</property>
             <property name="vexpand">true</property>
             <child>
-              <object class="GtkBox">
-                <property name="orientation">horizontal</property>
-                <property name="spacing">32</property>
-                <property name="margin-start">32</property>
-                <property name="margin-end">32</property>
-                <property name="margin-top">24</property>
-                <property name="margin-bottom">32</property>
-                <property name="halign">center</property>
-                <property name="valign">start</property>
-
-                <!-- LEFT SIDE: Poster, Watchlist, and Viewing History -->
+              <object class="AdwClamp">
+                <property name="maximum-size">1200</property>
+                <property name="tightening-threshold">800</property>
                 <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">20</property>
+                  <object class="GtkBox" id="main_content_box">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">32</property>
+                    <property name="margin-start">32</property>
+                    <property name="margin-end">32</property>
+                    <property name="margin-top">24</property>
+                    <property name="margin-bottom">32</property>
+                    <property name="halign">fill</property>
                     <property name="valign">start</property>
-                    <property name="width-request">300</property>
 
-                    <!-- Poster -->
+                    <!-- LEFT SIDE: Poster, Watchlist, and Viewing History -->
                     <child>
-                      <object class="GtkFrame" id="poster_frame">
-                        <style>
-                          <class name="movie-detail-poster-frame" />
-                        </style>
+                      <object class="GtkBox" id="left_sidebar">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">20</property>
+                        <property name="valign">start</property>
+
+                        <!-- Poster -->
                         <child>
-                          <object class="GtkPicture" id="poster_image">
-                            <property name="content-fit">cover</property>
-                            <property name="width-request">300</property>
-                            <property name="height-request">450</property>
+                          <object class="GtkFrame" id="poster_frame">
                             <style>
-                              <class name="movie-detail-poster" />
+                              <class name="movie-detail-poster-frame" />
                             </style>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-
-                    <!-- Watchlist Section -->
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title">Watchlist</property>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="orientation">horizontal</property>
-                            <property name="halign">center</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin-bottom">12</property>
                             <child>
-                              <object class="GtkButton" id="watchlist_button">
-                                <property name="label">Add to Watchlist</property>
+                              <object class="GtkPicture" id="poster_image">
+                                <property name="content-fit">cover</property>
+                                <property name="width-request">250</property>
+                                <property name="height-request">375</property>
                                 <style>
-                                  <class name="pill" />
-                                  <class name="suggested-action" />
+                                  <class name="movie-detail-poster" />
                                 </style>
                               </object>
                             </child>
                           </object>
                         </child>
-                      </object>
-                    </child>
 
-                    <!-- Viewing History Section -->
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title">Viewing History</property>
+                        <!-- Watchlist Section -->
                         <child>
-                          <object class="GtkBox">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">12</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin-bottom">12</property>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title">Watchlist</property>
                             <child>
-                              <object class="GtkButton" id="add_play_button">
-                                <property name="label">Add a Play</property>
+                              <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
                                 <property name="halign">center</property>
-                                <style>
-                                  <class name="pill" />
-                                </style>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <child>
+                                  <object class="GtkButton" id="watchlist_button">
+                                    <property name="label">Add to Watchlist</property>
+                                    <style>
+                                      <class name="pill" />
+                                      <class name="suggested-action" />
+                                    </style>
+                                  </object>
+                                </child>
                               </object>
                             </child>
+                          </object>
+                        </child>
+
+                        <!-- Viewing History Section -->
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title">Viewing History</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="orientation">vertical</property>
-                                <property name="spacing">6</property>
+                                <property name="spacing">12</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
                                 <child>
-                                  <object class="GtkLabel" id="plays_count_label">
-                                    <property name="label">No plays recorded</property>
-                                    <property name="xalign">0</property>
-                                    <property name="margin-start">12</property>
+                                  <object class="GtkButton" id="add_play_button">
+                                    <property name="label">Add a Play</property>
+                                    <property name="halign">center</property>
                                     <style>
-                                      <class name="dim-label" />
-                                      <class name="caption" />
+                                      <class name="pill" />
                                     </style>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkBox" id="plays_list">
+                                  <object class="GtkBox">
                                     <property name="orientation">vertical</property>
-                                    <property name="spacing">0</property>
+                                    <property name="spacing">6</property>
+                                    <child>
+                                      <object class="GtkLabel" id="plays_count_label">
+                                        <property name="label">No plays recorded</property>
+                                        <property name="xalign">0</property>
+                                        <property name="margin-start">12</property>
+                                        <style>
+                                          <class name="dim-label" />
+                                          <class name="caption" />
+                                        </style>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox" id="plays_list">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">0</property>
+                                      </object>
+                                    </child>
                                   </object>
                                 </child>
                               </object>
                             </child>
                           </object>
                         </child>
+
                       </object>
                     </child>
 
-                  </object>
-                </child>
-
-                <!-- RIGHT SIDE: Movie Information -->
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">24</property>
-                    <property name="hexpand">true</property>
-                    <property name="width-request">500</property>
-
-                    <!-- Title and Tagline -->
+                    <!-- RIGHT SIDE: Movie Information -->
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="right_content">
                         <property name="orientation">vertical</property>
-                        <property name="spacing">8</property>
-                        <child>
-                          <object class="GtkLabel" id="title_label">
-                            <property name="label">Movie Title</property>
-                            <property name="wrap">true</property>
-                            <property name="xalign">0</property>
-                            <style>
-                              <class name="title-1" />
-                            </style>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="tagline_label">
-                            <property name="label">Tagline</property>
-                            <property name="wrap">true</property>
-                            <property name="xalign">0</property>
-                            <property name="visible">false</property>
-                            <style>
-                              <class name="dim-label" />
-                            </style>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
+                        <property name="spacing">24</property>
+                        <property name="hexpand">true</property>
 
-                    <!-- Metadata Group -->
-                    <child>
-                      <object class="AdwPreferencesGroup" id="metadata_group">
-                        <property name="title">Details</property>
-                        <child>
-                          <object class="AdwActionRow" id="year_row">
-                            <property name="title">Release Year</property>
-                            <property name="visible">false</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="runtime_row">
-                            <property name="title">Runtime</property>
-                            <property name="visible">false</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="rating_row">
-                            <property name="title">Rating</property>
-                            <property name="visible">false</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow" id="revenue_row">
-                            <property name="title">Box Office</property>
-                            <property name="visible">false</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-
-                    <!-- Overview -->
-                    <child>
-                      <object class="GtkBox" id="overview_box">
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">8</property>
-                        <property name="visible">false</property>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label">Overview</property>
-                            <property name="xalign">0</property>
-                            <style>
-                              <class name="title-4" />
-                            </style>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="overview_label">
-                            <property name="label">Movie overview</property>
-                            <property name="wrap">true</property>
-                            <property name="xalign">0</property>
-                            <property name="justify">fill</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-
-                    <!-- External Links -->
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="title">External Links</property>
+                        <!-- Title and Tagline -->
                         <child>
                           <object class="GtkBox">
-                            <property name="orientation">horizontal</property>
-                            <property name="spacing">12</property>
-                            <property name="halign">start</property>
-                            <property name="margin-top">12</property>
-                            <property name="margin-bottom">12</property>
-                            <property name="margin-start">12</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">8</property>
                             <child>
-                              <object class="GtkButton" id="imdb_button">
-                                <property name="label">IMDb</property>
-                                <property name="tooltip-text">Open on IMDb</property>
+                              <object class="GtkLabel" id="title_label">
+                                <property name="label">Movie Title</property>
+                                <property name="wrap">true</property>
+                                <property name="xalign">0</property>
                                 <style>
-                                  <class name="pill" />
+                                  <class name="title-1" />
                                 </style>
                               </object>
                             </child>
                             <child>
-                              <object class="GtkButton" id="tmdb_button">
-                                <property name="label">TMDB</property>
-                                <property name="tooltip-text">Open on TMDB</property>
+                              <object class="GtkLabel" id="tagline_label">
+                                <property name="label">Tagline</property>
+                                <property name="wrap">true</property>
+                                <property name="xalign">0</property>
+                                <property name="visible">false</property>
                                 <style>
-                                  <class name="pill" />
-                                </style>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="letterboxd_button">
-                                <property name="label">Letterboxd</property>
-                                <property name="tooltip-text">Open on Letterboxd</property>
-                                <style>
-                                  <class name="pill" />
+                                  <class name="dim-label" />
                                 </style>
                               </object>
                             </child>
                           </object>
                         </child>
-                      </object>
-                    </child>
 
-                    <!-- Credits -->
-                    <child>
-                      <object class="GtkBox" id="credits_box">
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">16</property>
-                        <property name="visible">false</property>
-
-                        <!-- Directors -->
+                        <!-- Metadata Group -->
                         <child>
-                          <object class="GtkBox" id="directors_box">
+                          <object class="AdwPreferencesGroup" id="metadata_group">
+                            <property name="title">Details</property>
+                            <child>
+                              <object class="AdwActionRow" id="year_row">
+                                <property name="title">Release Year</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="runtime_row">
+                                <property name="title">Runtime</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="rating_row">
+                                <property name="title">Rating</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="revenue_row">
+                                <property name="title">Box Office</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <!-- Overview -->
+                        <child>
+                          <object class="GtkBox" id="overview_box">
                             <property name="orientation">vertical</property>
                             <property name="spacing">8</property>
                             <property name="visible">false</property>
                             <child>
                               <object class="GtkLabel">
-                                <property name="label">Directed By</property>
+                                <property name="label">Overview</property>
                                 <property name="xalign">0</property>
                                 <style>
                                   <class name="title-4" />
@@ -286,67 +211,146 @@
                               </object>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="directors_label">
+                              <object class="GtkLabel" id="overview_label">
+                                <property name="label">Movie overview</property>
                                 <property name="wrap">true</property>
                                 <property name="xalign">0</property>
+                                <property name="justify">fill</property>
                               </object>
                             </child>
                           </object>
                         </child>
 
-                        <!-- Producers -->
+                        <!-- External Links -->
                         <child>
-                          <object class="GtkBox" id="producers_box">
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">8</property>
-                            <property name="visible">false</property>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title">External Links</property>
                             <child>
-                              <object class="GtkLabel">
-                                <property name="label">Produced By</property>
-                                <property name="xalign">0</property>
-                                <style>
-                                  <class name="title-4" />
-                                </style>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="producers_label">
-                                <property name="wrap">true</property>
-                                <property name="xalign">0</property>
+                              <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">12</property>
+                                <property name="halign">start</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <property name="margin-start">12</property>
+                                <child>
+                                  <object class="GtkButton" id="imdb_button">
+                                    <property name="label">IMDb</property>
+                                    <property name="tooltip-text">Open on IMDb</property>
+                                    <style>
+                                      <class name="pill" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="tmdb_button">
+                                    <property name="label">TMDB</property>
+                                    <property name="tooltip-text">Open on TMDB</property>
+                                    <style>
+                                      <class name="pill" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="letterboxd_button">
+                                    <property name="label">Letterboxd</property>
+                                    <property name="tooltip-text">Open on Letterboxd</property>
+                                    <style>
+                                      <class name="pill" />
+                                    </style>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
                         </child>
 
-                        <!-- Cast -->
+                        <!-- Credits -->
                         <child>
-                          <object class="GtkBox" id="cast_box">
+                          <object class="GtkBox" id="credits_box">
                             <property name="orientation">vertical</property>
-                            <property name="spacing">8</property>
+                            <property name="spacing">16</property>
                             <property name="visible">false</property>
+
+                            <!-- Directors -->
                             <child>
-                              <object class="GtkLabel">
-                                <property name="label">Cast</property>
-                                <property name="xalign">0</property>
-                                <style>
-                                  <class name="title-4" />
-                                </style>
+                              <object class="GtkBox" id="directors_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label">Directed By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="directors_label">
+                                    <property name="wrap">true</property>
+                                    <property name="xalign">0</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
+
+                            <!-- Producers -->
                             <child>
-                              <object class="GtkLabel" id="cast_label">
-                                <property name="wrap">true</property>
-                                <property name="xalign">0</property>
+                              <object class="GtkBox" id="producers_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label">Produced By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="producers_label">
+                                    <property name="wrap">true</property>
+                                    <property name="xalign">0</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <!-- Cast -->
+                            <child>
+                              <object class="GtkBox" id="cast_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label">Cast</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="cast_label">
+                                    <property name="wrap">true</property>
+                                    <property name="xalign">0</property>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
                         </child>
+
                       </object>
                     </child>
 
                   </object>
                 </child>
-
               </object>
             </child>
           </object>
