@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=app.memento.memento
+Exec=@bindir@/app.memento.memento --gapplication-service

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="memento">
+	<schema id="app.memento.memento" path="/app/memento/memento/">
+	</schema>
+</schemalist>

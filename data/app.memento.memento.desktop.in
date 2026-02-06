@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=memento
+Exec=app.memento.memento
+Icon=app.memento.memento
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

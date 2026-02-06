@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/app/memento/memento/js">
+    <file>main.js</file>
+    <file>window.js</file>
+    <file>utils/database-utils.js</file>
+    <file>utils/image-utils.js</file>
+    <file>services/tmdb-service.js</file>
+    <file>dialogs/search-dialog.js</file>
+    <file>pages/movie-detail-page.js</file>
+    <file>widgets/play-entry.js</file>
+  </gresource>
+  <gresource prefix="/app/memento/memento">
+    <file preprocess="xml-stripblanks">window.ui</file>
+    <file preprocess="xml-stripblanks">dialogs/search-dialog.ui</file>
+    <file preprocess="xml-stripblanks">pages/movie-detail-page.ui</file>
+    <file preprocess="xml-stripblanks">widgets/play-entry.ui</file>
+    <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
+    <file>style.css</file>
+  </gresource>
+</gresources>

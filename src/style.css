@@ -1,0 +1,74 @@
+/* style.css - Memento App Styles */
+
+/* Movie poster frame styling */
+.movie-poster-frame {
+  border-radius: 12px;
+}
+
+.movie-poster-frame > picture {
+  border-radius: 12px;
+}
+
+/* Movie card styling */
+.movie-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.movie-card .heading {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.movie-card .caption {
+  font-size: 12px;
+}
+
+/* Star rating icon */
+.star-icon {
+  color: @warning_color;
+}
+
+/* Remove default focus ring from grid cell */
+flowboxchild:focus {
+  outline: none;
+}
+
+/* Apply focus ring directly to the card content */
+flowboxchild:focus .movie-card {
+  outline: 2px solid @accent_color;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* Movie detail dialog styles */
+.movie-detail-poster-frame {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.movie-detail-poster {
+  border-radius: 16px;
+}
+
+/* Clickable movie card button */
+.movie-card-button {
+  padding: 0;
+  border-radius: 12px;
+  transition: all 200ms ease-in-out;
+}
+
+.movie-card-button:hover {
+  transform: translateY(-2px);
+}
+
+.movie-card-button:hover .movie-poster-frame {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.movie-card-button:active {
+  transform: translateY(0);
+}
+
