@@ -24,13 +24,14 @@ import Adw from 'gi://Adw';
 
 import { MementoSearchDialog } from './dialogs/search-dialog.js';
 import { MementoMovieDetailPage } from './pages/movie-detail-page.js';
+import { MementoPlaysPage } from './pages/plays-page.js';
 import { initializeDatabase, getWatchlistMovies } from './utils/database-utils.js';
 import { loadTextureFromUrl } from './utils/image-utils.js';
 
 export const MementoWindow = GObject.registerClass({
     GTypeName: 'MementoWindow',
     Template: 'resource:///app/memento/memento/window.ui',
-    InternalChildren: ['add_button', 'main_stack', 'watchlist_grid', 'navigation_view'],
+    InternalChildren: ['add_button', 'plays_button', 'main_stack', 'watchlist_grid', 'navigation_view'],
 }, class MementoWindow extends Adw.ApplicationWindow {
     constructor(application) {
         super({ application });
@@ -41,6 +42,10 @@ export const MementoWindow = GObject.registerClass({
     _setupActions() {
         this._add_button.connect('clicked', () => {
             this._showSearchDialog();
+        });
+
+        this._plays_button.connect('clicked', () => {
+            this._showPlaysPage();
         });
     }
 
@@ -211,5 +216,21 @@ export const MementoWindow = GObject.registerClass({
         
         // Load the movie data
         detailPage.loadMovie(tmdbId);
+    }
+
+    _showPlaysPage() {
+        const playsPage = new MementoPlaysPage();
+        
+        playsPage.connect('play-deleted', () => {
+            // Reload watchlist in case plays were deleted
+            this._loadWatchlist();
+        });
+
+        playsPage.connect('view-movie', (page, tmdbId) => {
+            this._showMovieDetail(tmdbId);
+        });
+        
+        // Push the plays page onto the navigation stack
+        this._navigation_view.push(playsPage);
     }
 });

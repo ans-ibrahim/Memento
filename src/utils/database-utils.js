@@ -322,7 +322,24 @@ ORDER BY watched_at DESC;
 }
 
 export async function deletePlay(playId) {
-    execute(`DELETE FROM plays WHERE id = ${toSqlLiteral(playId)};`);
+    await execute(`DELETE FROM plays WHERE id = ${toSqlLiteral(playId)};`);
+}
+
+export async function getAllPlays() {
+    const sql = `
+SELECT
+    plays.id,
+    plays.movie_id,
+    plays.watched_at,
+    movies.title,
+    movies.poster,
+    movies.release_date,
+    movies.tmdb_id
+FROM plays
+JOIN movies ON plays.movie_id = movies.id
+ORDER BY plays.watched_at DESC;
+`;
+    return queryAll(sql);
 }
 
 export async function removeFromWatchlist(movieId) {

@@ -24,6 +24,12 @@
                         </style>
                       </object>
                     </child>
+                    <child type="start">
+                      <object class="GtkButton" id="plays_button">
+                        <property name="icon-name">view-list-symbolic</property>
+                        <property name="tooltip-text" translatable="yes">Viewing History</property>
+                      </object>
+                    </child>
                     <child type="end">
                       <object class="GtkMenuButton">
                         <property name="primary">True</property>
