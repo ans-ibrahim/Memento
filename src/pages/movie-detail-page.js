@@ -360,6 +360,18 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const calendar = new Gtk.Calendar();
         contentArea.append(calendar);
 
+        // Watch order
+        const orderLabel = new Gtk.Label({
+            label: 'Watch Order (if multiple movies same day):',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(orderLabel);
+
+        const orderSpinButton = Gtk.SpinButton.new_with_range(1, 10, 1);
+        orderSpinButton.set_value(1);
+        contentArea.append(orderSpinButton);
+
         // Place selector
         const placeLabel = new Gtk.Label({
             label: 'Place (optional):',
@@ -398,7 +410,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     placeId = places[selectedIndex - 1].id;
                 }
                 
-                await addPlay(this._movieId, isoDate, placeId);
+                const watchOrder = orderSpinButton.get_value_as_int();
+                
+                await addPlay(this._movieId, isoDate, placeId, watchOrder);
                 await this._loadPlays();
             }
             dlg.close();
@@ -551,7 +565,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         const calendar = new Gtk.Calendar();
         
-        // Set calendar to the play's date
+        // Set calendar to the play's date - GTK4 API uses GDateTime directly
         try {
             const playDate = new Date(play.watched_at);
             const gDateTime = GLib.DateTime.new_local(
@@ -560,12 +574,24 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 playDate.getDate(),
                 0, 0, 0
             );
-            calendar.set_date(gDateTime);
+            calendar.select_day(gDateTime);
         } catch (error) {
             console.error('Failed to set calendar date:', error);
         }
         
         contentArea.append(calendar);
+
+        // Watch order
+        const orderLabel = new Gtk.Label({
+            label: 'Watch Order:',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(orderLabel);
+
+        const orderSpinButton = Gtk.SpinButton.new_with_range(1, 10, 1);
+        orderSpinButton.set_value(play.watch_order || 1);
+        contentArea.append(orderSpinButton);
 
         // Place selector
         const placeLabel = new Gtk.Label({
@@ -613,8 +639,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     placeId = places[selectedIndex - 1].id;
                 }
                 
+                const watchOrder = orderSpinButton.get_value_as_int();
+                
                 try {
-                    await updatePlay(play.id, isoDate, placeId);
+                    await updatePlay(play.id, isoDate, placeId, watchOrder);
                     await this._loadPlays();
                 } catch (error) {
                     console.error('Failed to update play:', error);

@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS plays (
     id INTEGER PRIMARY KEY,
     movie_id INTEGER NOT NULL,
     watched_at TEXT NOT NULL,
+    watch_order INTEGER NOT NULL DEFAULT 1,
     place_id INTEGER,
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
@@ -310,18 +311,28 @@ VALUES (
     }
 }
 
-export async function addPlay(movieId, watchedDate, placeId = null) {
+export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null) {
+    // If watch_order not provided, calculate it based on same-day plays
+    if (watchOrder === null) {
+        const sameDayPlays = await queryAll(`
+            SELECT MAX(watch_order) as max_order
+            FROM plays
+            WHERE watched_at = ${toSqlLiteral(watchedDate)};
+        `);
+        watchOrder = (sameDayPlays[0]?.max_order || 0) + 1;
+    }
+    
     const sql = `
-INSERT INTO plays (movie_id, watched_at, place_id)
-VALUES (${toSqlLiteral(movieId)}, ${toSqlLiteral(watchedDate)}, ${toSqlLiteral(placeId)});
+INSERT INTO plays (movie_id, watched_at, watch_order, place_id)
+VALUES (${toSqlLiteral(movieId)}, ${toSqlLiteral(watchedDate)}, ${toSqlLiteral(watchOrder)}, ${toSqlLiteral(placeId)});
 `;
     execute(sql);
 }
 
-export async function updatePlay(playId, watchedDate, placeId = null) {
+export async function updatePlay(playId, watchedDate, placeId = null, watchOrder = 1) {
     const sql = `
 UPDATE plays
-SET watched_at = ${toSqlLiteral(watchedDate)}, place_id = ${toSqlLiteral(placeId)}
+SET watched_at = ${toSqlLiteral(watchedDate)}, place_id = ${toSqlLiteral(placeId)}, watch_order = ${toSqlLiteral(watchOrder)}
 WHERE id = ${toSqlLiteral(playId)};
 `;
     await execute(sql);
@@ -332,13 +343,14 @@ export async function getPlaysForMovie(movieId) {
 SELECT
     plays.id,
     plays.watched_at,
+    plays.watch_order,
     plays.place_id,
     places.name as place_name,
     places.is_cinema
 FROM plays
 LEFT JOIN places ON plays.place_id = places.id
 WHERE plays.movie_id = ${toSqlLiteral(movieId)}
-ORDER BY plays.watched_at DESC;
+ORDER BY plays.watched_at DESC, plays.watch_order DESC;
 `;
     return queryAll(sql);
 }
@@ -353,6 +365,7 @@ SELECT
     plays.id,
     plays.movie_id,
     plays.watched_at,
+    plays.watch_order,
    plays.place_id,
     movies.title,
     movies.poster,
@@ -363,7 +376,7 @@ SELECT
 FROM plays
 JOIN movies ON plays.movie_id = movies.id
 LEFT JOIN places ON plays.place_id = places.id
-ORDER BY plays.watched_at DESC;
+ORDER BY plays.watched_at DESC, plays.watch_order DESC;
 `;
     return queryAll(sql);
 }
