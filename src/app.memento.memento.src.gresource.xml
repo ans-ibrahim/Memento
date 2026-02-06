@@ -7,6 +7,7 @@
     <file>utils/image-utils.js</file>
     <file>services/tmdb-service.js</file>
     <file>dialogs/search-dialog.js</file>
+    <file>dialogs/places-dialog.js</file>
     <file>pages/movie-detail-page.js</file>
     <file>pages/plays-page.js</file>
     <file>widgets/play-entry.js</file>
@@ -14,6 +15,7 @@
   <gresource prefix="/app/memento/memento">
     <file preprocess="xml-stripblanks">window.ui</file>
     <file preprocess="xml-stripblanks">dialogs/search-dialog.ui</file>
+    <file preprocess="xml-stripblanks">dialogs/places-dialog.ui</file>
     <file preprocess="xml-stripblanks">pages/movie-detail-page.ui</file>
     <file preprocess="xml-stripblanks">pages/plays-page.ui</file>
     <file preprocess="xml-stripblanks">widgets/play-entry.ui</file>

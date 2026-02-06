@@ -21,10 +21,12 @@
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
+import Gio from 'gi://Gio';
 
 import { MementoSearchDialog } from './dialogs/search-dialog.js';
 import { MementoMovieDetailPage } from './pages/movie-detail-page.js';
 import { MementoPlaysPage } from './pages/plays-page.js';
+import { MementoPlacesDialog } from './dialogs/places-dialog.js';
 import { initializeDatabase, getWatchlistMovies } from './utils/database-utils.js';
 import { loadTextureFromUrl } from './utils/image-utils.js';
 
@@ -35,8 +37,18 @@ export const MementoWindow = GObject.registerClass({
 }, class MementoWindow extends Adw.ApplicationWindow {
     constructor(application) {
         super({ application });
+        this._setupWindowActions();
         this._setupActions();
         this._initApp();
+    }
+
+    _setupWindowActions() {
+        // Create places action
+        const placesAction = new Gio.SimpleAction({ name: 'places' });
+        placesAction.connect('activate', () => {
+            this._showPlacesDialog();
+        });
+        this.add_action(placesAction);
     }
 
     _setupActions() {
@@ -232,5 +244,10 @@ export const MementoWindow = GObject.registerClass({
         
         // Push the plays page onto the navigation stack
         this._navigation_view.push(playsPage);
+    }
+
+    _showPlacesDialog() {
+        const dialog = new MementoPlacesDialog();
+        dialog.present(this);
     }
 });

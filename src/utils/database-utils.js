@@ -44,11 +44,20 @@ CREATE TABLE IF NOT EXISTS watchlist (
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS places (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    is_cinema INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS plays (
     id INTEGER PRIMARY KEY,
     movie_id INTEGER NOT NULL,
     watched_at TEXT NOT NULL,
-    FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
+    place_id INTEGER,
+    FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+    FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
 `;
 
@@ -301,22 +310,35 @@ VALUES (
     }
 }
 
-export async function addPlay(movieId, watchedDate) {
+export async function addPlay(movieId, watchedDate, placeId = null) {
     const sql = `
-INSERT INTO plays (movie_id, watched_at)
-VALUES (${toSqlLiteral(movieId)}, ${toSqlLiteral(watchedDate)});
+INSERT INTO plays (movie_id, watched_at, place_id)
+VALUES (${toSqlLiteral(movieId)}, ${toSqlLiteral(watchedDate)}, ${toSqlLiteral(placeId)});
 `;
     execute(sql);
+}
+
+export async function updatePlay(playId, watchedDate, placeId = null) {
+    const sql = `
+UPDATE plays
+SET watched_at = ${toSqlLiteral(watchedDate)}, place_id = ${toSqlLiteral(placeId)}
+WHERE id = ${toSqlLiteral(playId)};
+`;
+    await execute(sql);
 }
 
 export async function getPlaysForMovie(movieId) {
     const sql = `
 SELECT
-    id,
-    watched_at
+    plays.id,
+    plays.watched_at,
+    plays.place_id,
+    places.name as place_name,
+    places.is_cinema
 FROM plays
-WHERE movie_id = ${toSqlLiteral(movieId)}
-ORDER BY watched_at DESC;
+LEFT JOIN places ON plays.place_id = places.id
+WHERE plays.movie_id = ${toSqlLiteral(movieId)}
+ORDER BY plays.watched_at DESC;
 `;
     return queryAll(sql);
 }
@@ -331,12 +353,16 @@ SELECT
     plays.id,
     plays.movie_id,
     plays.watched_at,
+   plays.place_id,
     movies.title,
     movies.poster,
     movies.release_date,
-    movies.tmdb_id
+    movies.tmdb_id,
+    places.name as place_name,
+    places.is_cinema
 FROM plays
 JOIN movies ON plays.movie_id = movies.id
+LEFT JOIN places ON plays.place_id = places.id
 ORDER BY plays.watched_at DESC;
 `;
     return queryAll(sql);
@@ -347,6 +373,33 @@ export async function removeFromWatchlist(movieId) {
 }
 
 export async function isInWatchlist(movieId) {
-    const row = queryOne(`SELECT 1 FROM watchlist WHERE movie_id = ${toSqlLiteral(movieId)};`);
-    return row !== null;
+    const result = await queryOne(`SELECT id FROM watchlist WHERE movie_id = ${toSqlLiteral(movieId)};`);
+    return result !== null;
+}
+
+// Places functions
+export async function getAllPlaces() {
+    return queryAll('SELECT * FROM places ORDER BY name;');
+}
+
+export async function addPlace(name, isCinema = false) {
+    const now = new Date().toISOString();
+    const sql = `
+INSERT INTO places (name, is_cinema, created_at)
+VALUES (${toSqlLiteral(name)}, ${toSqlLiteral(isCinema ? 1 : 0)}, ${toSqlLiteral(now)});
+`;
+    await execute(sql);
+}
+
+export async function updatePlace(id, name, isCinema) {
+    const sql = `
+UPDATE places
+SET name = ${toSqlLiteral(name)}, is_cinema = ${toSqlLiteral(isCinema ? 1 : 0)}
+WHERE id = ${toSqlLiteral(id)};
+`;
+    await execute(sql);
+}
+
+export async function deletePlace(id) {
+await execute(`DELETE FROM places WHERE id = ${toSqlLiteral(id)};`);
 }

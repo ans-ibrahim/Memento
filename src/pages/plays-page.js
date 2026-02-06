@@ -159,9 +159,24 @@ export const MementoPlaysPage = GObject.registerClass({
         });
 
         deleteButton.connect('clicked', async () => {
-            await deletePlay(play.id);
-            this.emit('play-deleted');
-            this._loadPlays();
+            const dialog = new Adw.AlertDialog({
+                heading: 'Delete Play?',
+                body: `Are you sure you want to delete this play of "${play.title}" from ${this._formatDate(play.watched_at)}?`,
+            });
+
+            dialog.add_response('cancel', 'Cancel');
+            dialog.add_response('delete', 'Delete');
+            dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
+
+            dialog.connect('response', async (dlg, response) => {
+                if (response === 'delete') {
+                    await deletePlay(play.id);
+                    this.emit('play-deleted');
+                    this._loadPlays();
+                }
+            });
+
+            dialog.present(this.get_root());
         });
 
         actionsBox.append(deleteButton);

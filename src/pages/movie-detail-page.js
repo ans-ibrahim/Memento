@@ -35,8 +35,10 @@ import {
     removeFromWatchlist,
     isInWatchlist,
     addPlay,
+    updatePlay,
     getPlaysForMovie,
-    deletePlay
+    deletePlay,
+    getAllPlaces
 } from '../utils/database-utils.js';
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 
@@ -346,9 +348,40 @@ export const MementoMovieDetailPage = GObject.registerClass({
         contentArea.set_margin_end(24);
         contentArea.set_margin_top(24);
         contentArea.set_margin_bottom(24);
+        contentArea.set_spacing(12);
+
+        // Date picker
+        const dateLabel = new Gtk.Label({
+            label: 'Watch Date:',
+            xalign: 0,
+        });
+        contentArea.append(dateLabel);
 
         const calendar = new Gtk.Calendar();
         contentArea.append(calendar);
+
+        // Place selector
+        const placeLabel = new Gtk.Label({
+            label: 'Place (optional):',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(placeLabel);
+
+        const placeDropdown = new Gtk.DropDown({
+            model: null,
+        });
+
+        // Load places
+        const places = await getAllPlaces();
+        const placeNames = ['None', ...places.map(p => p.name)];
+        const stringList = new Gtk.StringList();
+        for (const name of placeNames) {
+            stringList.append(name);
+        }
+        placeDropdown.set_model(stringList);
+
+        contentArea.append(placeDropdown);
 
         dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
         dialog.add_button('Add', Gtk.ResponseType.OK);
@@ -358,7 +391,14 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 const date = calendar.get_date();
                 const isoDate = `${date.get_year()}-${String(date.get_month() + 1).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
                 
-                await addPlay(this._movieId, isoDate);
+                // Get selected place
+                const selectedIndex = placeDropdown.get_selected();
+                let placeId = null;
+                if (selectedIndex > 0) {
+                    placeId = places[selectedIndex - 1].id;
+                }
+                
+                await addPlay(this._movieId, isoDate, placeId);
                 await this._loadPlays();
             }
             dlg.close();
@@ -404,13 +444,53 @@ export const MementoMovieDetailPage = GObject.registerClass({
             margin_bottom: 6,
         });
 
+        // Left side: Date and optional place
+        const leftBox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            hexpand: true,
+            spacing: 4,
+        });
+
         // Format date
         const dateLabel = new Gtk.Label({
             label: this._formatDate(play.watched_at),
-            hexpand: true,
             xalign: 0,
         });
-        box.append(dateLabel);
+        leftBox.append(dateLabel);
+
+        // Show place if available
+        if (play.place_id && play.place_name) {
+            const placeLabel = new Gtk.Label({
+                label: play.is_cinema ? `🎬 ${play.place_name}` : `🏠 ${play.place_name}`,
+                xalign: 0,
+                css_classes: ['dim-label', 'caption'],
+            });
+            leftBox.append(placeLabel);
+        }
+
+        box.append(leftBox);
+
+        // Action buttons box
+        const actionsBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 6,
+        });
+
+        // Edit button
+        const editButton = new Gtk.Button({
+            icon_name: 'document-edit-symbolic',
+            valign: Gtk.Align.CENTER,
+            tooltip_text: 'Edit Play',
+            css_classes: ['flat'],
+        });
+
+        editButton.connect('clicked', () => {
+            this._showEditPlayDialog(play).catch(error => {
+                console.error('Failed to show edit dialog:', error);
+            });
+        });
+
+        actionsBox.append(editButton);
 
         // Delete button
         const deleteButton = new Gtk.Button({
@@ -421,13 +501,130 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
 
         deleteButton.connect('clicked', async () => {
-            await deletePlay(play.id);
-            await this._loadPlays();
+            const dialog = new Adw.AlertDialog({
+                heading: 'Delete Play?',
+                body: `Are you sure you want to delete this play from ${this._formatDate(play.watched_at)}?`,
+            });
+
+            dialog.add_response('cancel', 'Cancel');
+            dialog.add_response('delete', 'Delete');
+            dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
+
+            dialog.connect('response', async (dlg, response) => {
+                if (response === 'delete') {
+                    await deletePlay(play.id);
+                    await this._loadPlays();
+                }
+            });
+
+            dialog.present(this.get_root());
         });
 
-        box.append(deleteButton);
+        actionsBox.append(deleteButton);
+        box.append(actionsBox);
 
         return box;
+    }
+
+    async _showEditPlayDialog(play) {
+        console.log('Opening edit dialog for play:', play.id);
+        
+        const dialog = new Gtk.Dialog({
+            title: 'Edit Play',
+            modal: true,
+            transient_for: this.get_root(),
+        });
+
+        const contentArea = dialog.get_content_area();
+        contentArea.set_margin_start(24);
+        contentArea.set_margin_end(24);
+        contentArea.set_margin_top(24);
+        contentArea.set_margin_bottom(24);
+        contentArea.set_spacing(12);
+
+        // Date picker
+        const dateLabel = new Gtk.Label({
+            label: 'Watch Date:',
+            xalign: 0,
+        });
+        contentArea.append(dateLabel);
+
+        const calendar = new Gtk.Calendar();
+        
+        // Set calendar to the play's date
+        try {
+            const playDate = new Date(play.watched_at);
+            const gDateTime = GLib.DateTime.new_local(
+                playDate.getFullYear(),
+                playDate.getMonth() + 1,
+                playDate.getDate(),
+                0, 0, 0
+            );
+            calendar.set_date(gDateTime);
+        } catch (error) {
+            console.error('Failed to set calendar date:', error);
+        }
+        
+        contentArea.append(calendar);
+
+        // Place selector
+        const placeLabel = new Gtk.Label({
+            label: 'Place (optional):',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(placeLabel);
+
+        const placeDropdown = new Gtk.DropDown({
+            model: null,
+        });
+
+        // Load places
+        const places = await getAllPlaces();
+        const placeNames = ['None', ...places.map(p => p.name)];
+        const stringList = new Gtk.StringList();
+        for (const name of placeNames) {
+            stringList.append(name);
+        }
+        placeDropdown.set_model(stringList);
+
+        // Set current place selection
+        if (play.place_id) {
+            const placeIndex = places.findIndex(p => p.id === play.place_id);
+            if (placeIndex >= 0) {
+                placeDropdown.set_selected(placeIndex + 1);
+            }
+        }
+
+        contentArea.append(placeDropdown);
+
+        dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
+        dialog.add_button('Save', Gtk.ResponseType.OK);
+
+        dialog.connect('response', async (dlg, response) => {
+            if (response === Gtk.ResponseType.OK) {
+                const date = calendar.get_date();
+                const isoDate = `${date.get_year()}-${String(date.get_month() + 1).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                
+                // Get selected place
+                const selectedIndex = placeDropdown.get_selected();
+                let placeId = null;
+                if (selectedIndex > 0) {
+                    placeId = places[selectedIndex - 1].id;
+                }
+                
+                try {
+                    await updatePlay(play.id, isoDate, placeId);
+                    await this._loadPlays();
+                } catch (error) {
+                    console.error('Failed to update play:', error);
+                }
+            }
+            dlg.close();
+        });
+
+        console.log('Presenting edit dialog');
+        dialog.present();
     }
 
     _formatDate(isoDate) {

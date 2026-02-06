@@ -9,7 +9,7 @@ const PROFILE_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
 const session = new Soup.Session();
 
 function getApiKey() {
-    return '????????????';
+    return 'b9daa1bbe95994edfbe0be7fe9df9196';
 }
 
 function sendAndReadAsync(message) {
