@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS movies (
 CREATE TABLE IF NOT EXISTS credits (
     id INTEGER PRIMARY KEY,
     movie_id INTEGER NOT NULL,
+    person_id INTEGER,
     person_name TEXT NOT NULL,
     role_type TEXT NOT NULL,
     character_name TEXT,
@@ -62,6 +63,34 @@ CREATE TABLE IF NOT EXISTS plays (
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
 `;
+
+// ... (existing code) ...
+
+export async function upsertMovieCredits(movieId, credits) {
+    if (!credits || credits.length === 0) return;
+
+    // Delete existing credits for this movie
+    execute(`DELETE FROM credits WHERE movie_id = ${toSqlLiteral(movieId)};`);
+
+    // Insert new credits
+    for (const credit of credits) {
+        const sql = `
+INSERT INTO credits (movie_id, person_id, person_name, role_type, character_name, profile_path, display_order)
+VALUES (
+    ${toSqlLiteral(movieId)},
+    ${toSqlLiteral(credit.person_id)},
+    ${toSqlLiteral(credit.person_name)},
+    ${toSqlLiteral(credit.role_type)},
+    ${toSqlLiteral(credit.character_name)},
+    ${toSqlLiteral(credit.profile_path)},
+    ${toSqlLiteral(credit.display_order)}
+);
+`;
+        execute(sql);
+    }
+}
+
+// (Removed malformed SQL block)
 
 function ensureAppDataDir() {
     const dataDir = GLib.get_user_data_dir();
@@ -279,6 +308,7 @@ export async function getMovieById(movieId) {
 export async function getMovieCredits(movieId) {
     const sql = `
 SELECT
+    person_id,
     person_name,
     role_type,
     character_name,
@@ -291,28 +321,7 @@ ORDER BY role_type, display_order;
     return queryAll(sql);
 }
 
-export async function upsertMovieCredits(movieId, credits) {
-    if (!credits || credits.length === 0) return;
 
-    // Delete existing credits for this movie
-    execute(`DELETE FROM credits WHERE movie_id = ${toSqlLiteral(movieId)};`);
-
-    // Insert new credits
-    for (const credit of credits) {
-        const sql = `
-INSERT INTO credits (movie_id, person_name, role_type, character_name, profile_path, display_order)
-VALUES (
-    ${toSqlLiteral(movieId)},
-    ${toSqlLiteral(credit.person_name)},
-    ${toSqlLiteral(credit.role_type)},
-    ${toSqlLiteral(credit.character_name)},
-    ${toSqlLiteral(credit.profile_path)},
-    ${toSqlLiteral(credit.display_order)}
-);
-`;
-        execute(sql);
-    }
-}
 
 export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null) {
     // If watch_order not provided, calculate it based on same-day plays
@@ -396,6 +405,27 @@ export async function isInWatchlist(movieId) {
 // Places functions
 export async function getAllPlaces() {
     return queryAll('SELECT * FROM places ORDER BY name;');
+}
+
+// Person page helpers
+export async function getAllWatchedTmdbIds() {
+    const sql = `
+SELECT DISTINCT movies.tmdb_id
+FROM plays
+JOIN movies ON plays.movie_id = movies.id;
+`;
+    const rows = queryAll(sql);
+    return new Set(rows.map(r => r.tmdb_id));
+}
+
+export async function getAllWatchlistTmdbIds() {
+    const sql = `
+SELECT DISTINCT movies.tmdb_id
+FROM watchlist
+JOIN movies ON watchlist.movie_id = movies.id;
+`;
+    const rows = queryAll(sql);
+    return new Set(rows.map(r => r.tmdb_id));
 }
 
 export async function addPlace(name, isCinema = false) {

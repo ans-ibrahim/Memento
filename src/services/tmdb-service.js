@@ -71,6 +71,18 @@ export async function getMovieCredits(tmdbId) {
     return fetchJson(url);
 }
 
+export async function getPersonDetails(personId) {
+    const apiKey = getApiKey();
+    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    return fetchJson(url);
+}
+
+export async function getPersonMovieCredits(personId) {
+    const apiKey = getApiKey();
+    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}/movie_credits?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    return fetchJson(url);
+}
+
 export function buildPosterUrl(posterPath) {
     if (!posterPath)
         return null;

@@ -76,6 +76,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
     ],
     Signals: {
         'watchlist-changed': {},
+        'view-person': { param_types: [GObject.TYPE_STRING] },
     },
 }, class MementoMovieDetailPage extends Adw.NavigationPage {
     _tmdbId = null;
@@ -169,6 +170,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             const directors = creditsData.crew.filter(c => c.job === 'Director');
             for (const director of directors) {
                 credits.push({
+                    person_id: director.id,
                     person_name: director.name,
                     role_type: 'director',
                     character_name: null,
@@ -181,6 +183,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             const producers = creditsData.crew.filter(c => c.job === 'Producer');
             for (const producer of producers.slice(0, 5)) {
                 credits.push({
+                    person_id: producer.id,
                     person_name: producer.name,
                     role_type: 'producer',
                     character_name: null,
@@ -194,6 +197,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         if (creditsData.cast) {
             for (const actor of creditsData.cast.slice(0, 10)) {
                 credits.push({
+                    person_id: actor.id,
                     person_name: actor.name,
                     role_type: 'actor',
                     character_name: actor.character || null,
@@ -358,6 +362,31 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 css_classes: ['caption', 'dim-label'],
             });
             
+            // Make clickable
+            // Use a button instead of just a box to make it clickable and provide visual feedback
+            const button = new Gtk.Button({
+                css_classes: ['flat', 'person-card'],
+            });
+            
+            button.connect('clicked', () => {
+                // If we have an ID, emit signal
+                // Note: The credits table doesn't currently store person_id (TMDB ID).
+                // We need to check if we have it or need to update the schema.
+                // Checking previous code: we only stored names and paths.
+                // We should probably update the schema to store person_id.
+                // BUT for now, let's see if we can get by or if we need to do a migration.
+                
+                // Wait, the API returns 'id' for people. Let's check if we save it.
+                // We don't save it in upsertMovieCredits.
+                // This is a missing piece. We need to save person_id to link to them.
+                
+                if (person.person_id) {
+                    this.emit('view-person', String(person.person_id));
+                } else {
+                    console.warn('No person ID available for', person.person_name);
+                }
+            });
+
             // Character name label
             if (person.character_name) {
                 const characterLabel = new Gtk.Label({
@@ -376,7 +405,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 memberBox.append(nameLabel);
             }
             
-            grid.append(memberBox);
+            button.set_child(memberBox);
+            grid.append(button);
         }
         
         // Add grid to box

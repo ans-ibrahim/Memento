@@ -27,6 +27,7 @@ import { MementoSearchDialog } from './dialogs/search-dialog.js';
 import { MementoMovieDetailPage } from './pages/movie-detail-page.js';
 import { MementoPlaysPage } from './pages/plays-page.js';
 import { MementoPreferencesPage } from './pages/preferences-page.js';
+import { MementoPersonPage } from './pages/person-page.js';
 import { MementoPlacesDialog } from './dialogs/places-dialog.js';
 import { initializeDatabase, getWatchlistMovies } from './utils/database-utils.js';
 import { loadTextureFromUrl } from './utils/image-utils.js';
@@ -230,12 +231,25 @@ export const MementoWindow = GObject.registerClass({
         detailPage.connect('watchlist-changed', () => {
             this._loadWatchlist();
         });
+        detailPage.connect('view-person', (page, personId) => {
+            this._showPersonPage(personId);
+        });
         
         // Push the detail page onto the navigation stack
         this._navigation_view.push(detailPage);
         
         // Load the movie data
         detailPage.loadMovie(tmdbId);
+    }
+
+    _showPersonPage(personId) {
+        const personPage = new MementoPersonPage();
+        personPage.connect('view-movie', (page, tmdbId) => {
+            this._showMovieDetail(tmdbId);
+        });
+
+        this._navigation_view.push(personPage);
+        personPage.loadPerson(personId);
     }
 
     _showPlaysPage() {
