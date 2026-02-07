@@ -26,6 +26,31 @@
   font-size: 12px;
 }
 
+/* Play entry styles */
+.play-entry {
+  padding: 12px;
+  background: alpha(@window_bg_color, 0.5);
+  border-radius: 8px;
+}
+
+.play-entry .body {
+  font-size: 14px;
+}
+
+/* Cast profile photos */
+.profile-photo {
+  border-radius: 50%;
+  border: 2px solid alpha(@accent_color, 0.2);
+}
+
+.profile-photo > picture {
+  border-radius: 50%;
+}
+
+.profile-photo picture.circular {
+  border-radius: 50%;
+}
+
 /* Star rating icon */
 .star-icon {
   color: @warning_color;
@@ -71,4 +96,3 @@ flowboxchild:focus .movie-card {
 .movie-card-button:active {
   transform: translateY(0);
 }
-

@@ -3,6 +3,7 @@ import GLib from 'gi://GLib';
 import Gdk from 'gi://Gdk?version=4.0';
 import GdkPixbuf from 'gi://GdkPixbuf?version=2.0';
 import Soup from 'gi://Soup?version=3.0';
+import Gtk from 'gi://Gtk';
 
 const session = new Soup.Session();
 
@@ -17,6 +18,33 @@ function sendAndReadAsync(message) {
             }
         });
     });
+}
+
+function getFallbackTexture() {
+    const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+    const iconPaintable = iconTheme.lookup_icon(
+        'application-x-executable',
+        null,
+        64,
+        1,
+        Gtk.TextDirection.NONE,
+        0
+    );
+    return iconPaintable;
+}
+
+export async function loadTextureFromUrlWithFallback(url) {
+    try {
+        if (!url) {
+            return getFallbackTexture();
+        }
+        
+        const texture = await loadTextureFromUrl(url);
+        return texture || getFallbackTexture();
+    } catch (error) {
+        console.warn(`Failed to load image from ${url}, using fallback:`, error.message);
+        return getFallbackTexture();
+    }
 }
 
 export async function loadTextureFromUrl(url) {

@@ -24,7 +24,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
-import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
+import { getMovieDetails, getMovieCredits, buildPosterUrl, buildProfileUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
 import { 
     findMovieByTmdbId, 
     upsertMovieFromTmdb, 
@@ -40,7 +40,7 @@ import {
     deletePlay,
     getAllPlaces
 } from '../utils/database-utils.js';
-import { loadTextureFromUrl } from '../utils/image-utils.js';
+import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 
 export const MementoMovieDetailPage = GObject.registerClass({
     GTypeName: 'MementoMovieDetailPage',
@@ -172,6 +172,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     person_name: director.name,
                     role_type: 'director',
                     character_name: null,
+                    profile_path: director.profile_path || null,
                     display_order: order++
                 });
             }
@@ -183,6 +184,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     person_name: producer.name,
                     role_type: 'producer',
                     character_name: null,
+                    profile_path: producer.profile_path || null,
                     display_order: order++
                 });
             }
@@ -195,6 +197,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     person_name: actor.name,
                     role_type: 'actor',
                     character_name: actor.character || null,
+                    profile_path: actor.profile_path || null,
                     display_order: order++
                 });
             }
@@ -252,7 +255,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Poster
         if (this._movieData.poster) {
-            loadTextureFromUrl(this._movieData.poster).then(texture => {
+            loadTextureFromUrlWithFallback(this._movieData.poster).then(texture => {
                 if (texture) {
                     this._poster_image.set_paintable(texture);
                 }
@@ -274,31 +277,111 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const producers = credits.filter(c => c.role_type === 'producer');
         const cast = credits.filter(c => c.role_type === 'actor');
 
-        // Display directors
+        // Display directors with photos
         if (directors.length > 0) {
-            const directorNames = directors.map(d => d.person_name).join(', ');
-            this._directors_label.set_label(directorNames);
-            this._directors_box.set_visible(true);
+            this._displayPeopleGrid(directors, this._directors_label, this._directors_box);
         }
 
-        // Display producers
+        // Display producers with photos
         if (producers.length > 0) {
-            const producerNames = producers.map(p => p.person_name).join(', ');
-            this._producers_label.set_label(producerNames);
-            this._producers_box.set_visible(true);
+            this._displayPeopleGrid(producers, this._producers_label, this._producers_box);
         }
 
-        // Display cast
+        // Display cast with photos
         if (cast.length > 0) {
-            const castText = cast.map(c => {
-                if (c.character_name) {
-                    return `${c.person_name} as ${c.character_name}`;
-                }
-                return c.person_name;
-            }).join(', ');
-            this._cast_label.set_label(castText);
-            this._cast_box.set_visible(true);
+            this._displayPeopleGrid(cast, this._cast_label, this._cast_box);
         }
+    }
+
+    _displayPeopleGrid(people, label, box) {
+        // Hide the text label
+        label.set_visible(false);
+        
+        // Remove any existing grid (check if last child is a FlowBox)
+        const parent = label.get_parent();
+        const lastChild = parent.get_last_child();
+        if (lastChild instanceof Gtk.FlowBox) {
+            parent.remove(lastChild);
+        }
+        
+        // Create a horizontal flow box for people
+        const grid = new Gtk.FlowBox({
+            selection_mode: Gtk.SelectionMode.NONE,
+            max_children_per_line: 5,
+            min_children_per_line: 2,
+            column_spacing: 16,
+            row_spacing: 16,
+            homogeneous: true,
+            margin_top: 12,
+        });
+        
+        // Add people with photos
+        for (const person of people) {
+            const memberBox = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                spacing: 8,
+                halign: Gtk.Align.CENTER,
+            });
+            
+            // Profile photo with circular frame
+            const pictureFrame = new Gtk.Frame({
+                css_classes: ['profile-photo'],
+            });
+            
+            const picture = new Gtk.Picture({
+                width_request: 80,
+                height_request: 80,
+                css_classes: ['circular'],
+                can_shrink: false,
+            });
+            
+            pictureFrame.set_child(picture);
+            
+            // Load profile photo asynchronously
+            (async () => {
+                try {
+                    const profileUrl = buildProfileUrl(person.profile_path);
+                    const texture = await loadTextureFromUrlWithFallback(profileUrl);
+                    picture.set_paintable(texture);
+                } catch (error) {
+                    console.error('Failed to load profile photo:', error);
+                }
+            })();
+            
+            // Name label
+            const nameLabel = new Gtk.Label({
+                label: person.person_name,
+                wrap: true,
+                wrap_mode: 2, // WORD_CHAR
+                max_width_chars: 15,
+                justify: Gtk.Justification.CENTER,
+                css_classes: ['caption', 'dim-label'],
+            });
+            
+            // Character name label
+            if (person.character_name) {
+                const characterLabel = new Gtk.Label({
+                    label: person.character_name,
+                    wrap: true,
+                    wrap_mode: 2,
+                    max_width_chars: 15,
+                    justify: Gtk.Justification.CENTER,
+                    css_classes: ['caption-heading'],
+                });
+                memberBox.append(pictureFrame);
+                memberBox.append(characterLabel);
+                memberBox.append(nameLabel);
+            } else {
+                memberBox.append(pictureFrame);
+                memberBox.append(nameLabel);
+            }
+            
+            grid.append(memberBox);
+        }
+        
+        // Add grid to box
+        parent.append(grid);
+        box.set_visible(true);
     }
 
     _setupActions() {

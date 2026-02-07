@@ -33,7 +33,8 @@ CREATE TABLE IF NOT EXISTS credits (
     person_name TEXT NOT NULL,
     role_type TEXT NOT NULL,
     character_name TEXT,
-    display_order INTEGER,
+    profile_path TEXT,
+    display_order INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
 );
 
@@ -281,6 +282,7 @@ SELECT
     person_name,
     role_type,
     character_name,
+    profile_path,
     display_order
 FROM credits
 WHERE movie_id = ${toSqlLiteral(movieId)}
@@ -298,12 +300,13 @@ export async function upsertMovieCredits(movieId, credits) {
     // Insert new credits
     for (const credit of credits) {
         const sql = `
-INSERT INTO credits (movie_id, person_name, role_type, character_name, display_order)
+INSERT INTO credits (movie_id, person_name, role_type, character_name, profile_path, display_order)
 VALUES (
     ${toSqlLiteral(movieId)},
     ${toSqlLiteral(credit.person_name)},
     ${toSqlLiteral(credit.role_type)},
     ${toSqlLiteral(credit.character_name)},
+    ${toSqlLiteral(credit.profile_path)},
     ${toSqlLiteral(credit.display_order)}
 );
 `;
