@@ -272,7 +272,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Poster
         if (this._movieData.poster) {
-            loadTextureFromUrlWithFallback(this._movieData.poster).then(texture => {
+            const posterUrl = buildPosterUrl(this._movieData.poster);
+            loadTextureFromUrlWithFallback(posterUrl).then(texture => {
                 if (texture) {
                     this._poster_image.set_paintable(texture);
                 }

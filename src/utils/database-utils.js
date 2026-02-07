@@ -1,8 +1,6 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-import {buildPosterUrl} from '../services/tmdb-service.js';
-
 const DATABASE_FILENAME = 'memento.db';
 
 const SCHEMA_SQL = `
@@ -214,7 +212,7 @@ export async function upsertMovieFromTmdb(details) {
         'Untitled';
 
     const now = new Date().toISOString();
-    const posterUrl = buildPosterUrl(details.poster_path);
+    // Store relative path, not full URL
     const sql = `
 INSERT INTO movies (
     title,
@@ -235,7 +233,7 @@ INSERT INTO movies (
     ${toSqlLiteral(title)},
     ${toSqlLiteral(details.imdb_id)},
     ${toSqlLiteral(tmdbId)},
-    ${toSqlLiteral(posterUrl)},
+    ${toSqlLiteral(details.poster_path)},
     ${toSqlLiteral(details.tagline)},
     ${toSqlLiteral(details.overview)},
     ${toSqlLiteral(details.original_language)},

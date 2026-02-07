@@ -31,6 +31,7 @@ import { MementoPersonPage } from './pages/person-page.js';
 import { MementoPlacesDialog } from './dialogs/places-dialog.js';
 import { initializeDatabase, getWatchlistMovies } from './utils/database-utils.js';
 import { loadTextureFromUrl } from './utils/image-utils.js';
+import { buildPosterUrl } from './services/tmdb-service.js';
 
 export const MementoWindow = GObject.registerClass({
     GTypeName: 'MementoWindow',
@@ -151,7 +152,8 @@ export const MementoWindow = GObject.registerClass({
 
         // Load poster image
         if (movie.poster) {
-            loadTextureFromUrl(movie.poster).then(texture => {
+            const posterUrl = buildPosterUrl(movie.poster);
+            loadTextureFromUrl(posterUrl).then(texture => {
                 if (texture) {
                     posterImage.set_paintable(texture);
                 }
