@@ -1,15 +1,20 @@
 /* style.css - Memento App Styles */
 
-/* Movie poster frame styling */
+/* ========================================
+   Movie Poster and Card Styling
+   ======================================== */
+
+/* Poster frame with enhanced shadow and depth */
 .movie-poster-frame {
   border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .movie-poster-frame > picture {
   border-radius: 12px;
 }
 
-/* Movie card styling */
+/* Movie card - clean, minimal container */
 .movie-card {
   background: transparent;
   border: none;
@@ -26,21 +31,77 @@
   font-size: 12px;
 }
 
-/* Play entry styles */
+/* Clickable movie card button with hover effects */
+.movie-card-button {
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.movie-card-button:hover .movie-poster-frame {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.movie-card-button:focus .movie-poster-frame {
+  outline: 2px solid @accent_color;
+  outline-offset: 4px;
+}
+
+/* ========================================
+   Star Rating Styling
+   ======================================== */
+
+.star-icon {
+  color: @warning_color;
+}
+
+.rating-badge {
+  background: alpha(@warning_color, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* ========================================
+   Play Entry Styling
+   ======================================== */
+
 .play-entry {
-  padding: 12px;
-  background: alpha(@window_bg_color, 0.5);
-  border-radius: 8px;
+  padding: 12px 16px;
+  background: alpha(@card_bg_color, 0.5);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.play-entry:hover {
+  background: alpha(@card_bg_color, 0.8);
 }
 
 .play-entry .body {
   font-size: 14px;
 }
 
-/* Cast profile photos */
+/* Play date badge overlay on poster */
+.play-date-badge {
+  background: alpha(@window_bg_color, 0.85);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ========================================
+   Cast and Crew Profile Photos
+   ======================================== */
+
 .profile-photo {
   border-radius: 50%;
   border: 2px solid alpha(@accent_color, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-photo:hover {
+  border-color: alpha(@accent_color, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .profile-photo > picture {
@@ -51,10 +112,44 @@
   border-radius: 50%;
 }
 
-/* Star rating icon */
-.star-icon {
-  color: @warning_color;
+/* Person card button styling */
+.person-card {
+  padding: 8px;
+  border-radius: 12px;
 }
+
+.person-card:hover {
+  background: alpha(@accent_color, 0.1);
+}
+
+/* ========================================
+   Movie Detail Page Styles
+   ======================================== */
+
+.movie-detail-poster-frame {
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.movie-detail-poster {
+  border-radius: 16px;
+}
+
+/* Section headers in detail page */
+.section-header {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid alpha(@borders, 0.5);
+}
+
+/* External link buttons */
+.external-link-button {
+  min-width: 90px;
+}
+
+/* ========================================
+   FlowBox Focus States
+   ======================================== */
 
 /* Remove default focus ring from grid cell */
 flowboxchild:focus {
@@ -68,31 +163,67 @@ flowboxchild:focus .movie-card {
   border-radius: 12px;
 }
 
-/* Movie detail dialog styles */
-.movie-detail-poster-frame {
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* ========================================
+   Dialog and Search Styling
+   ======================================== */
+
+.search-result-row {
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
-.movie-detail-poster {
-  border-radius: 16px;
+.search-result-row:hover {
+  background: alpha(@accent_color, 0.08);
 }
 
-/* Clickable movie card button */
-.movie-card-button {
-  padding: 0;
+/* ========================================
+   Loading and Empty States
+   ======================================== */
+
+.loading-spinner {
+  opacity: 0.6;
+}
+
+/* ========================================
+   Typography Enhancements
+   ======================================== */
+
+.title-large {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.caption-heading {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ========================================
+   Viewing History Page Styles
+   ======================================== */
+
+.play-card {
   border-radius: 12px;
-  transition: all 200ms ease-in-out;
 }
 
-.movie-card-button:hover {
-  transform: translateY(-2px);
+/* ========================================
+   Accent Color Highlights
+   ======================================== */
+
+.accent-border {
+  border-left: 3px solid @accent_color;
+  padding-left: 12px;
 }
 
-.movie-card-button:hover .movie-poster-frame {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+/* Watchlist/Add buttons */
+.watchlist-added {
+  background: alpha(@success_color, 0.15);
 }
 
-.movie-card-button:active {
-  transform: translateY(0);
+/* ========================================
+   Preferences and Settings
+   ======================================== */
+
+.preferences-group {
+  margin-bottom: 24px;
 }

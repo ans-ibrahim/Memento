@@ -107,7 +107,7 @@ export const MementoSearchDialog = GObject.registerClass({
     _createResultRow(movie) {
         const row = new Adw.ActionRow({
             title: movie.title || 'Unknown Title',
-            subtitle: movie.release_date ? movie.release_date.substring(0, 4) : 'Unknown Year',
+            subtitle: this._buildSubtitle(movie),
             activatable: true,
         });
 
@@ -116,9 +116,9 @@ export const MementoSearchDialog = GObject.registerClass({
             this._showMovieDetail(movie.id);
         });
 
-        // Poster image
+        // Poster image - larger for better visibility
         const avatar = new Adw.Avatar({
-            size: 48,
+            size: 64,
             text: movie.title || '?',
         });
         row.add_prefix(avatar);
@@ -136,14 +136,15 @@ export const MementoSearchDialog = GObject.registerClass({
         // Button box for actions
         const buttonBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
+            spacing: 8,
+            valign: Gtk.Align.CENTER,
         });
 
         // View details button
         const detailsButton = new Gtk.Button({
             icon_name: 'dialog-information-symbolic',
             valign: Gtk.Align.CENTER,
-            css_classes: ['flat'],
+            css_classes: ['flat', 'circular'],
             tooltip_text: 'View Details',
         });
 
@@ -153,11 +154,11 @@ export const MementoSearchDialog = GObject.registerClass({
 
         buttonBox.append(detailsButton);
 
-        // Add button
+        // Add button - more prominent
         const addButton = new Gtk.Button({
             icon_name: 'list-add-symbolic',
             valign: Gtk.Align.CENTER,
-            css_classes: ['flat'],
+            css_classes: ['suggested-action', 'circular'],
             tooltip_text: 'Add to Watchlist',
         });
 
@@ -169,6 +170,20 @@ export const MementoSearchDialog = GObject.registerClass({
         row.add_suffix(buttonBox);
 
         return row;
+    }
+
+    _buildSubtitle(movie) {
+        const parts = [];
+        
+        if (movie.release_date) {
+            parts.push(movie.release_date.substring(0, 4));
+        }
+        
+        if (movie.vote_average && movie.vote_average > 0) {
+            parts.push(`★ ${movie.vote_average.toFixed(1)}`);
+        }
+        
+        return parts.join(' • ') || 'Unknown Year';
     }
 
     _showMovieDetail(tmdbId) {

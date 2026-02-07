@@ -12,7 +12,7 @@
         <property name="content">
           <object class="GtkStack" id="plays_stack">
             <property name="transition-type">crossfade</property>
-            
+
             <!-- Empty State -->
             <child>
               <object class="GtkStackPage">
@@ -21,12 +21,13 @@
                   <object class="AdwStatusPage">
                     <property name="icon-name">video-display-symbolic</property>
                     <property name="title" translatable="yes">No Plays Recorded</property>
-                    <property name="description" translatable="yes">Start tracking your movie viewing history</property>
+                    <property name="description" translatable="yes">Start tracking your movie
+                      viewing history</property>
                   </object>
                 </property>
               </object>
             </child>
-            
+
             <!-- Plays Grid -->
             <child>
               <object class="GtkStackPage">
@@ -40,14 +41,14 @@
                         <property name="valign">start</property>
                         <property name="halign">fill</property>
                         <property name="homogeneous">true</property>
-                        <property name="column-spacing">24</property>
-                        <property name="row-spacing">24</property>
-                        <property name="margin-start">24</property>
-                        <property name="margin-end">24</property>
-                        <property name="margin-top">24</property>
-                        <property name="margin-bottom">24</property>
+                        <property name="column-spacing">20</property>
+                        <property name="row-spacing">28</property>
+                        <property name="margin-start">28</property>
+                        <property name="margin-end">28</property>
+                        <property name="margin-top">20</property>
+                        <property name="margin-bottom">28</property>
                         <property name="min-children-per-line">2</property>
-                        <property name="max-children-per-line">6</property>
+                        <property name="max-children-per-line">7</property>
                         <property name="selection-mode">none</property>
                       </object>
                     </property>
@@ -55,7 +56,7 @@
                 </property>
               </object>
             </child>
-            
+
           </object>
         </property>
       </object>

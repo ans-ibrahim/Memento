@@ -14,11 +14,11 @@
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
-                <property name="spacing">24</property>
-                <property name="margin-top">24</property>
-                <property name="margin-bottom">24</property>
-                <property name="margin-start">24</property>
-                <property name="margin-end">24</property>
+                <property name="spacing">28</property>
+                <property name="margin-top">28</property>
+                <property name="margin-bottom">28</property>
+                <property name="margin-start">28</property>
+                <property name="margin-end">28</property>
 
                 <!-- Header Section -->
                 <child>
