@@ -16,7 +16,7 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
 import { getPersonDetails, getPersonMovieCredits, buildPosterUrl, buildProfileUrl } from '../services/tmdb-service.js';
-import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds, getPersonByTmdbId, upsertPerson } from '../utils/database-utils.js';
+import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds, getPersonByTmdbId, upsertPerson, getMoviesByPersonId } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback, loadTextureFromUrl } from '../utils/image-utils.js';
 
 export const MementoPersonPage = GObject.registerClass({
@@ -29,12 +29,13 @@ export const MementoPersonPage = GObject.registerClass({
         'place_of_birth_label',
         'bio_box',
         'biography_label',
+        'stack',
         'watched_grid',
         'watched_empty_label',
         'watchlist_grid',
         'watchlist_empty_label',
-        'unwatched_grid',
-        'unwatched_empty_label',
+        'explore_grid',
+        'explore_empty_label',
     ],
     Signals: {
         'view-movie': { param_types: [GObject.TYPE_STRING] },
@@ -43,10 +44,17 @@ export const MementoPersonPage = GObject.registerClass({
     _init(params = {}) {
         super._init(params);
         this._personId = null;
+        this._exploreLoaded = false;
+        
+        // Connect to stack page changes to detect when Explore More tab is shown
+        this._stack.connect('notify::visible-child-name', () => {
+            this._onTabChanged();
+        });
     }
 
     async loadPerson(personId) {
         this._personId = personId;
+        this._exploreLoaded = false;
         
         try {
             // Check local database first
@@ -63,20 +71,128 @@ export const MementoPersonPage = GObject.registerClass({
                 details = await getPersonByTmdbId(personId);
             }
 
-            // Fetch movie credits and watch status
-            const [credits, watchedIds, watchlistIds] = await Promise.all([
-                getPersonMovieCredits(personId),
+            // Fetch watch status
+            const [watchedIds, watchlistIds] = await Promise.all([
                 getAllWatchedTmdbIds(),
                 getAllWatchlistTmdbIds()
             ]);
 
             this._displayPersonInfo(details);
-            this._categorizeAndDisplayMovies(credits, watchedIds, watchlistIds);
+            
+            // Load only watched and watchlist movies from database (no API call)
+            await this._loadWatchedAndWatchlistMovies(watchedIds, watchlistIds);
             
         } catch (error) {
             console.error('Failed to load person details:', error);
             // TODO: Show error state
         }
+    }
+
+    async _onTabChanged() {
+        const currentPage = this._stack.get_visible_child_name();
+        
+        // When user switches to Explore More tab and we haven't loaded it yet
+        if (currentPage === 'explore' && !this._exploreLoaded && this._personId) {
+            this._exploreLoaded = true;
+            await this._loadExploreMovies();
+        }
+    }
+
+    async _loadWatchedAndWatchlistMovies(watchedIds, watchlistIds) {
+        // Get person's credits from database only (movies we know about)
+        const dbMovies = await this._getPersonMoviesFromDb();
+        
+        this._clearGrid(this._watched_grid);
+        this._clearGrid(this._watchlist_grid);
+
+        let watchedCount = 0;
+        let watchlistCount = 0;
+
+        for (const movie of dbMovies) {
+            const card = this._createMovieCard(movie);
+            
+            if (watchedIds.has(movie.tmdb_id)) {
+                this._watched_grid.append(card);
+                watchedCount++;
+            } else if (watchlistIds.has(movie.tmdb_id)) {
+                this._watchlist_grid.append(card);
+                watchlistCount++;
+            }
+        }
+
+        this._watched_empty_label.set_visible(watchedCount === 0);
+        this._watchlist_empty_label.set_visible(watchlistCount === 0);
+    }
+
+    async _loadExploreMovies() {
+        try {
+            // Fetch full filmography from TMDB (only when needed)
+            const credits = await getPersonMovieCredits(this._personId);
+            
+            const [watchedIds, watchlistIds] = await Promise.all([
+                getAllWatchedTmdbIds(),
+                getAllWatchlistTmdbIds()
+            ]);
+            
+            // Filter to only show unwatched movies (acting & directing only)
+            const seenIds = new Set();
+            const unwatchedMovies = [];
+            
+            // Process cast (acting roles)
+            if (credits.cast) {
+                credits.cast.forEach(credit => {
+                    if (!seenIds.has(credit.id) && !watchedIds.has(credit.id) && !watchlistIds.has(credit.id)) {
+                        seenIds.add(credit.id);
+                        unwatchedMovies.push(credit);
+                    }
+                });
+            }
+
+            // Process crew - only directors
+            if (credits.crew) {
+                const directors = credits.crew.filter(c => c.job === 'Director');
+                directors.forEach(credit => {
+                    if (!seenIds.has(credit.id) && !watchedIds.has(credit.id) && !watchlistIds.has(credit.id)) {
+                        seenIds.add(credit.id);
+                        unwatchedMovies.push(credit);
+                    }
+                });
+            }
+
+            // Sort by release date descending
+            unwatchedMovies.sort((a, b) => {
+                if (!a.release_date) return 1;
+                if (!b.release_date) return -1;
+                return new Date(b.release_date) - new Date(a.release_date);
+            });
+
+            this._clearGrid(this._explore_grid);
+
+            for (const movie of unwatchedMovies) {
+                const card = this._createMovieCard(movie);
+                this._explore_grid.append(card);
+            }
+
+            this._explore_empty_label.set_visible(unwatchedMovies.length === 0);
+            if (unwatchedMovies.length === 0) {
+                this._explore_empty_label.set_label('No other movies found.');
+            }
+            
+        } catch (error) {
+            console.error('Failed to load explore movies:', error);
+            this._explore_empty_label.set_label('Failed to load movies.');
+        }
+    }
+
+    async _getPersonMoviesFromDb() {
+        // Get the local person record first
+        const person = await getPersonByTmdbId(this._personId);
+        if (!person) {
+            return [];
+        }
+        
+        // Query movies this person is credited in
+        return await getMoviesByPersonId(person.id);
     }
 
     _displayPersonInfo(details) {

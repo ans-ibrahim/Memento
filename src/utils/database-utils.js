@@ -331,6 +331,22 @@ export async function getPersonByTmdbId(tmdbPersonId) {
     return queryOne(`SELECT * FROM persons WHERE tmdb_person_id = ${toSqlLiteral(tmdbPersonId)};`);
 }
 
+export async function getMoviesByPersonId(personId) {
+    const sql = `
+SELECT DISTINCT
+    movies.id,
+    movies.title,
+    movies.tmdb_id,
+    movies.poster,
+    movies.release_date
+FROM movies
+JOIN credits ON credits.movie_id = movies.id
+WHERE credits.person_id = ${toSqlLiteral(personId)}
+ORDER BY movies.release_date DESC;
+`;
+    return queryAll(sql);
+}
+
 export async function addMovieToWatchlist(movieId) {
     const now = new Date().toISOString();
     const sql = `
