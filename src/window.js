@@ -153,7 +153,7 @@ export const MementoWindow = GObject.registerClass({
         // Load poster image
         if (movie.poster) {
             const posterUrl = buildPosterUrl(movie.poster);
-            loadTextureFromUrl(posterUrl).then(texture => {
+            loadTextureFromUrl(posterUrl, movie.poster).then(texture => {
                 if (texture) {
                     posterImage.set_paintable(texture);
                 }

@@ -123,18 +123,27 @@ export const MementoMovieDetailPage = GObject.registerClass({
         this._tmdbId = tmdbId;
         
         try {
-            // Fetch movie details from TMDB
-            const details = await getMovieDetails(tmdbId);
-            const credits = await getMovieCredits(tmdbId);
+            // Check database first
+            const existingMovie = await findMovieByTmdbId(tmdbId);
             
-            // Save to database
-            this._movieId = await upsertMovieFromTmdb(details);
-            
-            // Process and save credits
-            await this._saveCredits(credits);
-            
-            // Load from database to get complete info
-            this._movieData = await getMovieById(this._movieId);
+            if (existingMovie) {
+                // Movie already in database - load from DB (fast!)
+                this._movieId = existingMovie.id;
+                this._movieData = existingMovie;
+            } else {
+                // Movie not in database - fetch from TMDB
+                const details = await getMovieDetails(tmdbId);
+                const credits = await getMovieCredits(tmdbId);
+                
+                // Save to database
+                this._movieId = await upsertMovieFromTmdb(details);
+                
+                // Process and save credits
+                await this._saveCredits(credits);
+                
+                // Load from database to get complete info
+                this._movieData = await getMovieById(this._movieId);
+            }
             
             if (!this._movieData) {
                 console.error('Failed to load movie data from database');
@@ -158,9 +167,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
             // Show error to user
             this._title_label.set_label('Error loading movie');
             this._overview_label.set_label(error.message || 'An error occurred while loading movie details.');
-            this._overview_box.set_visible(true);
         }
     }
+
 
     async _saveCredits(creditsData) {
         const credits = [];
@@ -273,7 +282,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Poster
         if (this._movieData.poster) {
             const posterUrl = buildPosterUrl(this._movieData.poster);
-            loadTextureFromUrlWithFallback(posterUrl).then(texture => {
+            loadTextureFromUrlWithFallback(posterUrl, this._movieData.poster).then(texture => {
                 if (texture) {
                     this._poster_image.set_paintable(texture);
                 }
@@ -359,7 +368,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             (async () => {
                 try {
                     const profileUrl = buildProfileUrl(person.profile_path);
-                    const texture = await loadTextureFromUrlWithFallback(profileUrl);
+                    const texture = await loadTextureFromUrlWithFallback(profileUrl, person.profile_path);
                     picture.set_paintable(texture);
                 } catch (error) {
                     console.error('Failed to load profile photo:', error);

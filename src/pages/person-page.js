@@ -227,7 +227,7 @@ export const MementoPersonPage = GObject.registerClass({
 
         if (details.profile_path) {
             const profileUrl = buildProfileUrl(details.profile_path);
-            loadTextureFromUrlWithFallback(profileUrl).then(texture => {
+            loadTextureFromUrlWithFallback(profileUrl, details.profile_path).then(texture => {
                 this._profile_image.set_paintable(texture);
             }).catch(console.error);
         }
@@ -334,9 +334,11 @@ export const MementoPersonPage = GObject.registerClass({
         });
 
         // Load poster image
-        if (movie.poster_path) {
-            const posterUrl = buildPosterUrl(movie.poster_path);
-            loadTextureFromUrl(posterUrl).then(texture => {
+        // Handle both TMDB API format (poster_path) and DB format (poster)
+        const posterPath = movie.poster_path || movie.poster;
+        if (posterPath) {
+            const posterUrl = buildPosterUrl(posterPath);
+            loadTextureFromUrl(posterUrl, posterPath).then(texture => {
                 if (texture) {
                     posterImage.set_paintable(texture);
                 }
@@ -394,9 +396,9 @@ export const MementoPersonPage = GObject.registerClass({
         card.append(infoBox);
         button.set_child(card);
 
-        // Add click handler to emit signal
+        // Add click handler to emit signal - use tmdb_id for navigation
         button.connect('clicked', () => {
-            this.emit('view-movie', String(movie.id));
+            this.emit('view-movie', String(movie.tmdb_id || movie.id));
         });
 
         return button;
