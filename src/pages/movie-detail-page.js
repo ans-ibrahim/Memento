@@ -28,6 +28,7 @@ import { getMovieDetails, getMovieCredits, buildPosterUrl, buildProfileUrl, buil
 import { 
     findMovieByTmdbId, 
     upsertMovieFromTmdb, 
+    upsertPerson,
     upsertMovieCredits,
     getMovieById,
     getMovieCredits as getDbCredits,
@@ -169,12 +170,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
         if (creditsData.crew) {
             const directors = creditsData.crew.filter(c => c.job === 'Director');
             for (const director of directors) {
+                // Upsert person first
+                const personId = await upsertPerson(director.id, {
+                    name: director.name,
+                    profile_path: director.profile_path || null
+                });
+
                 credits.push({
-                    person_id: director.id,
-                    person_name: director.name,
+                    person_id: personId,
                     role_type: 'director',
                     character_name: null,
-                    profile_path: director.profile_path || null,
                     display_order: order++
                 });
             }
@@ -182,12 +187,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
             // Process producers
             const producers = creditsData.crew.filter(c => c.job === 'Producer');
             for (const producer of producers.slice(0, 5)) {
+                // Upsert person first
+                const personId = await upsertPerson(producer.id, {
+                    name: producer.name,
+                    profile_path: producer.profile_path || null
+                });
+
                 credits.push({
-                    person_id: producer.id,
-                    person_name: producer.name,
+                    person_id: personId,
                     role_type: 'producer',
                     character_name: null,
-                    profile_path: producer.profile_path || null,
                     display_order: order++
                 });
             }
@@ -196,12 +205,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Process cast
         if (creditsData.cast) {
             for (const actor of creditsData.cast.slice(0, 10)) {
+                // Upsert person first
+                const personId = await upsertPerson(actor.id, {
+                    name: actor.name,
+                    profile_path: actor.profile_path || null
+                });
+
                 credits.push({
-                    person_id: actor.id,
-                    person_name: actor.name,
+                    person_id: personId,
                     role_type: 'actor',
                     character_name: actor.character || null,
-                    profile_path: actor.profile_path || null,
                     display_order: order++
                 });
             }
@@ -369,21 +382,11 @@ export const MementoMovieDetailPage = GObject.registerClass({
             });
             
             button.connect('clicked', () => {
-                // If we have an ID, emit signal
-                // Note: The credits table doesn't currently store person_id (TMDB ID).
-                // We need to check if we have it or need to update the schema.
-                // Checking previous code: we only stored names and paths.
-                // We should probably update the schema to store person_id.
-                // BUT for now, let's see if we can get by or if we need to do a migration.
-                
-                // Wait, the API returns 'id' for people. Let's check if we save it.
-                // We don't save it in upsertMovieCredits.
-                // This is a missing piece. We need to save person_id to link to them.
-                
-                if (person.person_id) {
-                    this.emit('view-person', String(person.person_id));
+                // Emit the TMDB person ID for navigation
+                if (person.tmdb_person_id) {
+                    this.emit('view-person', String(person.tmdb_person_id));
                 } else {
-                    console.warn('No person ID available for', person.person_name);
+                    console.warn('No TMDB person ID available for', person.person_name);
                 }
             });
 

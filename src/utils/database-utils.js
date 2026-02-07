@@ -27,16 +27,28 @@ CREATE TABLE IF NOT EXISTS movies (
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS persons (
+    id INTEGER PRIMARY KEY,
+    tmdb_person_id INTEGER UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    profile_path TEXT,
+    biography TEXT,
+    birthday TEXT,
+    place_of_birth TEXT,
+    deathday TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS credits (
     id INTEGER PRIMARY KEY,
     movie_id INTEGER NOT NULL,
-    person_id INTEGER,
-    person_name TEXT NOT NULL,
+    person_id INTEGER NOT NULL,
     role_type TEXT NOT NULL,
     character_name TEXT,
-    profile_path TEXT,
     display_order INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE
+    FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES persons (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS watchlist (
@@ -75,14 +87,12 @@ export async function upsertMovieCredits(movieId, credits) {
     // Insert new credits
     for (const credit of credits) {
         const sql = `
-INSERT INTO credits (movie_id, person_id, person_name, role_type, character_name, profile_path, display_order)
+INSERT INTO credits (movie_id, person_id, role_type, character_name, display_order)
 VALUES (
     ${toSqlLiteral(movieId)},
     ${toSqlLiteral(credit.person_id)},
-    ${toSqlLiteral(credit.person_name)},
     ${toSqlLiteral(credit.role_type)},
     ${toSqlLiteral(credit.character_name)},
-    ${toSqlLiteral(credit.profile_path)},
     ${toSqlLiteral(credit.display_order)}
 );
 `;
@@ -263,6 +273,64 @@ ON CONFLICT(tmdb_id) DO UPDATE SET
     return row.id;
 }
 
+export async function upsertPerson(tmdbPersonId, details) {
+    const personId = Number(tmdbPersonId);
+    if (!Number.isFinite(personId)) {
+        throw new Error('TMDB person id is missing.');
+    }
+
+    const now = new Date().toISOString();
+    const sql = `
+INSERT INTO persons (
+    tmdb_person_id,
+    name,
+    profile_path,
+    biography,
+    birthday,
+    place_of_birth,
+    deathday,
+    created_at,
+    updated_at
+) VALUES (
+    ${toSqlLiteral(personId)},
+    ${toSqlLiteral(details.name)},
+    ${toSqlLiteral(details.profile_path)},
+    ${toSqlLiteral(details.biography)},
+    ${toSqlLiteral(details.birthday)},
+    ${toSqlLiteral(details.place_of_birth)},
+    ${toSqlLiteral(details.deathday)},
+    ${toSqlLiteral(now)},
+    ${toSqlLiteral(now)}
+)
+ON CONFLICT(tmdb_person_id) DO UPDATE SET
+    name = excluded.name,
+    profile_path = excluded.profile_path,
+    biography = excluded.biography,
+    birthday = excluded.birthday,
+    place_of_birth = excluded.place_of_birth,
+    deathday = excluded.deathday,
+    updated_at = excluded.updated_at;
+`;
+
+    execute(sql);
+
+    const row = queryOne(
+        `SELECT id FROM persons WHERE tmdb_person_id = ${toSqlLiteral(personId)};`
+    );
+    if (!row)
+        throw new Error('Failed to locate person after upsert.');
+
+    return row.id;
+}
+
+export async function getPersonById(personId) {
+    return queryOne(`SELECT * FROM persons WHERE id = ${toSqlLiteral(personId)};`);
+}
+
+export async function getPersonByTmdbId(tmdbPersonId) {
+    return queryOne(`SELECT * FROM persons WHERE tmdb_person_id = ${toSqlLiteral(tmdbPersonId)};`);
+}
+
 export async function addMovieToWatchlist(movieId) {
     const now = new Date().toISOString();
     const sql = `
@@ -308,15 +376,18 @@ export async function getMovieById(movieId) {
 export async function getMovieCredits(movieId) {
     const sql = `
 SELECT
-    person_id,
-    person_name,
-    role_type,
-    character_name,
-    profile_path,
-    display_order
+    credits.id,
+    credits.role_type,
+    credits.character_name,
+    credits.display_order,
+    persons.id as person_id,
+    persons.tmdb_person_id,
+    persons.name as person_name,
+    persons.profile_path
 FROM credits
-WHERE movie_id = ${toSqlLiteral(movieId)}
-ORDER BY role_type, display_order;
+JOIN persons ON credits.person_id = persons.id
+WHERE credits.movie_id = ${toSqlLiteral(movieId)}
+ORDER BY credits.role_type, credits.display_order;
 `;
     return queryAll(sql);
 }

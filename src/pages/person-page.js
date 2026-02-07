@@ -16,7 +16,7 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
 import { getPersonDetails, getPersonMovieCredits, buildPosterUrl, buildProfileUrl } from '../services/tmdb-service.js';
-import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds } from '../utils/database-utils.js';
+import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds, getPersonByTmdbId, upsertPerson } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback, loadTextureFromUrl } from '../utils/image-utils.js';
 
 export const MementoPersonPage = GObject.registerClass({
@@ -49,9 +49,22 @@ export const MementoPersonPage = GObject.registerClass({
         this._personId = personId;
         
         try {
-            // Fetch all data in parallel
-            const [details, credits, watchedIds, watchlistIds] = await Promise.all([
-                getPersonDetails(personId),
+            // Check local database first
+            let details = await getPersonByTmdbId(personId);
+            
+            // If not in DB or missing biography, fetch from TMDB
+            if (!details || !details.biography) {
+                const tmdbDetails = await getPersonDetails(personId);
+                
+                // Save to database for future use
+                await upsertPerson(personId, tmdbDetails);
+                
+                // Re-fetch from DB to get consistent format
+                details = await getPersonByTmdbId(personId);
+            }
+
+            // Fetch movie credits and watch status
+            const [credits, watchedIds, watchlistIds] = await Promise.all([
                 getPersonMovieCredits(personId),
                 getAllWatchedTmdbIds(),
                 getAllWatchlistTmdbIds()
