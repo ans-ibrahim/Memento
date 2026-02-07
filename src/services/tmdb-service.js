@@ -1,4 +1,5 @@
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 import Soup from 'gi://Soup?version=3.0';
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
@@ -9,7 +10,20 @@ const PROFILE_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
 const session = new Soup.Session();
 
 function getApiKey() {
-    return 'b9daa1bbe95994edfbe0be7fe9df9196';
+    try {
+        const settings = new Gio.Settings({ schema_id: 'app.memento.memento' });
+        const customKey = settings.get_string('tmdb-api-key');
+        
+        if (customKey && customKey.length > 0) {
+            return customKey;
+        }
+    } catch (error) {
+        console.warn('Failed to read API key from settings:', error);
+    }
+    
+    // No API key configured
+    console.warn('TMDB API key not configured. Please set it in Preferences.');
+    return '';
 }
 
 function sendAndReadAsync(message) {

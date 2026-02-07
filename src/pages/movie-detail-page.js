@@ -139,6 +139,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 return;
             }
             
+            // Check if movie is in watchlist
+            this._isInWatchlist = await isInWatchlist(this._movieId);
+            
             // Display the data
             this._displayMovieInfo();
             this._displayCredits();
@@ -346,6 +349,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
     async _updateWatchlistButton() {
         const inWatchlist = await isInWatchlist(this._movieId);
+        this._isInWatchlist = inWatchlist;
         
         if (inWatchlist) {
             this._watchlist_button.set_label('Remove from Watchlist');
@@ -449,6 +453,27 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 
                 await addPlay(this._movieId, isoDate, placeId, watchOrder);
                 await this._loadPlays();
+                
+                // Check if auto-remove from watchlist is enabled
+                try {
+                    const settings = new Gio.Settings({ schema_id: 'app.memento.memento' });
+                    const autoRemove = settings.get_boolean('auto-remove-from-watchlist');
+                    
+                    console.log('Auto-remove setting:', autoRemove);
+                    console.log('Is in watchlist:', this._isInWatchlist);
+                    console.log('Movie ID:', this._movieId);
+                    
+                    if (autoRemove && this._isInWatchlist) {
+                        console.log('Removing movie from watchlist...');
+                        await removeFromWatchlist(this._movieId);
+                        this._isInWatchlist = false;
+                        this._updateWatchlistButton();
+                        this.emit('watchlist-changed');
+                        console.log('Movie removed from watchlist');
+                    }
+                } catch (error) {
+                    console.error('Failed to check auto-remove setting:', error);
+                }
             }
             dlg.close();
         });

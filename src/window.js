@@ -26,6 +26,7 @@ import Gio from 'gi://Gio';
 import { MementoSearchDialog } from './dialogs/search-dialog.js';
 import { MementoMovieDetailPage } from './pages/movie-detail-page.js';
 import { MementoPlaysPage } from './pages/plays-page.js';
+import { MementoPreferencesPage } from './pages/preferences-page.js';
 import { MementoPlacesDialog } from './dialogs/places-dialog.js';
 import { initializeDatabase, getWatchlistMovies } from './utils/database-utils.js';
 import { loadTextureFromUrl } from './utils/image-utils.js';
@@ -49,6 +50,13 @@ export const MementoWindow = GObject.registerClass({
             this._showPlacesDialog();
         });
         this.add_action(placesAction);
+
+        // Create preferences action
+        const preferencesAction = new Gio.SimpleAction({ name: 'preferences' });
+        preferencesAction.connect('activate', () => {
+            this._showPreferencesPage();
+        });
+        this.add_action(preferencesAction);
     }
 
     _setupActions() {
@@ -244,6 +252,11 @@ export const MementoWindow = GObject.registerClass({
         
         // Push the plays page onto the navigation stack
         this._navigation_view.push(playsPage);
+    }
+
+    _showPreferencesPage() {
+        const preferencesPage = new MementoPreferencesPage();
+        this._navigation_view.push(preferencesPage);
     }
 
     _showPlacesDialog() {

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0" />
+  <requires lib="Adw" version="1.0" />
+  <template class="MementoPreferencesPage" parent="AdwNavigationPage">
+    <property name="title">Preferences</property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar" />
+        </child>
+        <property name="content">
+          <object class="AdwPreferencesPage">
+            
+            <!-- TMDB Configuration -->
+            <child>
+              <object class="AdwPreferencesGroup">
+                <property name="title">The Movie Database (TMDB)</property>
+                <property name="description">Configure your TMDB API key for movie search and information</property>
+                <child>
+                  <object class="AdwEntryRow" id="api_key_row">
+                    <property name="title">API Key</property>
+                    <property name="show-apply-button">true</property>
+                    <signal name="apply" handler="_onApiKeyApply" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title">Get API Key</property>
+                    <property name="subtitle">Visit themoviedb.org to create a free account and generate an API key</property>
+                    <property name="activatable">true</property>
+                    <signal name="activated" handler="_onGetApiKeyActivated" swapped="no"/>
+                    <child type="suffix">
+                      <object class="GtkImage">
+                        <property name="icon-name">adw-external-link-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <!-- Behavior Settings -->
+            <child>
+              <object class="AdwPreferencesGroup">
+                <property name="title">Behavior</property>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title">Auto-remove from Watchlist</property>
+                    <property name="subtitle">Automatically remove movies from watchlist when you add a play</property>
+                    <child type="suffix">
+                      <object class="GtkSwitch" id="auto_remove_switch">
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

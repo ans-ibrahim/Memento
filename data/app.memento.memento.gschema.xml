@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="memento">
 	<schema id="app.memento.memento" path="/app/memento/memento/">
+		<key name="tmdb-api-key" type="s">
+			<default>""</default>
+			<summary>TMDB API Key</summary>
+			<description>API key for The Movie Database (TMDB) service</description>
+		</key>
+		<key name="auto-remove-from-watchlist" type="b">
+			<default>false</default>
+			<summary>Auto-remove from watchlist</summary>
+			<description>Automatically remove movie from watchlist when adding a play</description>
+		</key>
 	</schema>
 </schemalist>
