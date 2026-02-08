@@ -478,6 +478,72 @@ ORDER BY plays.watched_at DESC, plays.watch_order DESC;
     return queryAll(sql);
 }
 
+export async function getRecentPlays(limit = 8) {
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 8;
+    const sql = `
+SELECT
+    plays.id,
+    plays.movie_id,
+    plays.watched_at,
+    plays.watch_order,
+    plays.place_id,
+    movies.title,
+    movies.poster,
+    movies.release_date,
+    movies.tmdb_id,
+    places.name as place_name,
+    places.is_cinema
+FROM plays
+JOIN movies ON plays.movie_id = movies.id
+LEFT JOIN places ON plays.place_id = places.id
+ORDER BY plays.watched_at DESC, plays.watch_order DESC
+LIMIT ${safeLimit};
+`;
+    return queryAll(sql);
+}
+
+export async function getDashboardStats() {
+    const sql = `
+SELECT
+    (SELECT COUNT(*) FROM plays) AS total_plays,
+    (SELECT COUNT(DISTINCT movie_id) FROM plays) AS unique_movies,
+    (SELECT COUNT(*) FROM watchlist) AS watchlist_count,
+    (SELECT COALESCE(SUM(movies.runtime), 0)
+     FROM plays
+     JOIN movies ON plays.movie_id = movies.id) AS total_runtime_minutes;
+`;
+    const row = queryOne(sql) ?? {};
+    return {
+        total_plays: Number(row.total_plays) || 0,
+        unique_movies: Number(row.unique_movies) || 0,
+        watchlist_count: Number(row.watchlist_count) || 0,
+        total_runtime_minutes: Number(row.total_runtime_minutes) || 0,
+    };
+}
+
+export async function getTopPeopleByRole(roleType, limit = 8) {
+    if (!roleType || typeof roleType !== 'string') {
+        return [];
+    }
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.floor(limit) : 8;
+    const sql = `
+SELECT
+    persons.id,
+    persons.tmdb_person_id,
+    persons.name,
+    persons.profile_path,
+    COUNT(plays.id) AS play_count
+FROM plays
+JOIN credits ON credits.movie_id = plays.movie_id
+JOIN persons ON credits.person_id = persons.id
+WHERE credits.role_type = ${toSqlLiteral(roleType)}
+GROUP BY persons.id, persons.tmdb_person_id, persons.name, persons.profile_path
+ORDER BY play_count DESC, persons.name ASC
+LIMIT ${safeLimit};
+`;
+    return queryAll(sql);
+}
+
 export async function removeFromWatchlist(movieId) {
     execute(`DELETE FROM watchlist WHERE movie_id = ${toSqlLiteral(movieId)};`);
 }

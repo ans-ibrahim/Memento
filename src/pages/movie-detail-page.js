@@ -78,6 +78,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
     ],
     Signals: {
         'watchlist-changed': {},
+        'plays-changed': {},
         'view-person': { param_types: [GObject.TYPE_STRING] },
     },
 }, class MementoMovieDetailPage extends Adw.NavigationPage {
@@ -611,6 +612,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 
                 await addPlay(this._movieId, isoDate, placeId, watchOrder);
                 await this._loadPlays();
+                this.emit('plays-changed');
                 
                 // Check if auto-remove from watchlist is enabled
                 try {
@@ -746,6 +748,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 if (response === 'delete') {
                     await deletePlay(play.id);
                     await this._loadPlays();
+                    this.emit('plays-changed');
                 }
             });
 
@@ -862,6 +865,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 try {
                     await updatePlay(play.id, isoDate, placeId, watchOrder);
                     await this._loadPlays();
+                    this.emit('plays-changed');
                 } catch (error) {
                     console.error('Failed to update play:', error);
                 }
