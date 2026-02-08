@@ -5,6 +5,8 @@ import { buildProfileUrl } from '../services/tmdb-service.js';
 
 export function createPersonStatCard(person, options = {}) {
     const onActivate = options.onActivate;
+    const width = options.width ?? 140;
+    const height = options.height ?? 210;
 
     const button = new Gtk.Button({
         css_classes: ['flat', 'person-card'],
@@ -14,16 +16,18 @@ export function createPersonStatCard(person, options = {}) {
         orientation: Gtk.Orientation.VERTICAL,
         spacing: 8,
         halign: Gtk.Align.CENTER,
+        width_request: width,
     });
 
     const pictureFrame = new Gtk.Frame({
-        css_classes: ['profile-photo'],
+        css_classes: ['movie-poster-frame'],
     });
 
     const picture = new Gtk.Picture({
-        width_request: 64,
-        height_request: 64,
-        css_classes: ['circular'],
+        width_request: width,
+        height_request: height,
+        css_classes: ['movie-poster'],
+        content_fit: Gtk.ContentFit.COVER,
         can_shrink: false,
     });
 
@@ -43,15 +47,17 @@ export function createPersonStatCard(person, options = {}) {
         label: person.name || 'Unknown',
         wrap: true,
         wrap_mode: 2,
-        max_width_chars: 14,
-        justify: Gtk.Justification.CENTER,
-        css_classes: ['caption', 'dim-label'],
+        max_width_chars: 18,
+        justify: Gtk.Justification.LEFT,
+        xalign: 0,
+        css_classes: ['heading'],
     });
     box.append(nameLabel);
 
     const countLabel = new Gtk.Label({
         label: `${person.play_count || 0} plays`,
-        css_classes: ['caption'],
+        css_classes: ['caption', 'dim-label'],
+        xalign: 0,
     });
     box.append(countLabel);
 

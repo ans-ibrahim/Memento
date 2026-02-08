@@ -376,23 +376,27 @@ export const MementoMovieDetailPage = GObject.registerClass({
             margin_top: 12,
         });
         
-        // Add people with photos
+        // Add people with poster-style cards
         for (const person of people) {
+            const cardWidth = 140;
+            const cardHeight = 210;
             const memberBox = new Gtk.Box({
                 orientation: Gtk.Orientation.VERTICAL,
                 spacing: 8,
                 halign: Gtk.Align.CENTER,
+                width_request: cardWidth,
             });
             
-            // Profile photo with circular frame
+            // Profile photo with poster frame
             const pictureFrame = new Gtk.Frame({
-                css_classes: ['profile-photo'],
+                css_classes: ['movie-poster-frame'],
             });
             
             const picture = new Gtk.Picture({
-                width_request: 80,
-                height_request: 80,
-                css_classes: ['circular'],
+                width_request: cardWidth,
+                height_request: cardHeight,
+                css_classes: ['movie-poster'],
+                content_fit: Gtk.ContentFit.COVER,
                 can_shrink: false,
             });
             
@@ -414,9 +418,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 label: person.person_name,
                 wrap: true,
                 wrap_mode: 2, // WORD_CHAR
-                max_width_chars: 15,
-                justify: Gtk.Justification.CENTER,
-                css_classes: ['caption', 'dim-label'],
+                max_width_chars: 16,
+                justify: Gtk.Justification.LEFT,
+                xalign: 0,
+                css_classes: ['heading'],
             });
             
             // Make clickable
@@ -440,9 +445,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     label: person.character_name,
                     wrap: true,
                     wrap_mode: 2,
-                    max_width_chars: 15,
-                    justify: Gtk.Justification.CENTER,
-                    css_classes: ['caption-heading'],
+                    max_width_chars: 16,
+                    justify: Gtk.Justification.LEFT,
+                    xalign: 0,
+                    css_classes: ['caption', 'dim-label'],
                 });
                 memberBox.append(pictureFrame);
                 memberBox.append(characterLabel);
