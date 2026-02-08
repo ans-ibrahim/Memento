@@ -50,6 +50,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         'title_label',
         'tagline_label',
         'poster_image',
+        'refresh_button',
         'watchlist_button',
         'add_play_button',
         'plays_count_label',
@@ -87,6 +88,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
     _init(params = {}) {
         super._init(params);
         this._movieId = null;
+        this._refresh_button.connect('clicked', () => {
+            this._refreshMovieData();
+        });
         this._setupActions();
         this._setupResponsiveLayout();
     }
@@ -167,6 +171,34 @@ export const MementoMovieDetailPage = GObject.registerClass({
             // Show error to user
             this._title_label.set_label('Error loading movie');
             this._overview_label.set_label(error.message || 'An error occurred while loading movie details.');
+        }
+    }
+
+    async _refreshMovieData() {
+        if (!this._tmdbId) {
+            return;
+        }
+
+        try {
+            const details = await getMovieDetails(this._tmdbId);
+            const credits = await getMovieCredits(this._tmdbId);
+
+            this._movieId = await upsertMovieFromTmdb(details);
+            await this._saveCredits(credits);
+
+            this._movieData = await getMovieById(this._movieId);
+            if (!this._movieData) {
+                throw new Error('Failed to load movie data from database.');
+            }
+
+            this._displayMovieInfo();
+            await this._displayCredits();
+            await this._updateWatchlistButton();
+            await this._loadPlays();
+        } catch (error) {
+            console.error('Failed to refresh movie:', error);
+            this._title_label.set_label('Error refreshing movie');
+            this._overview_label.set_label(error.message || 'An error occurred while refreshing movie details.');
         }
     }
 

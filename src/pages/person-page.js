@@ -24,6 +24,7 @@ export const MementoPersonPage = GObject.registerClass({
     Template: 'resource:///app/memento/memento/pages/person-page.ui',
     InternalChildren: [
         'profile_image',
+        'refresh_button',
         'name_label',
         'birthday_label',
         'place_of_birth_label',
@@ -45,6 +46,10 @@ export const MementoPersonPage = GObject.registerClass({
         super._init(params);
         this._personId = null;
         this._exploreLoaded = false;
+
+        this._refresh_button.connect('clicked', () => {
+            this._refreshPersonData();
+        });
         
         // Connect to stack page changes to detect when Explore More tab is shown
         this._stack.connect('notify::visible-child-name', () => {
@@ -85,6 +90,41 @@ export const MementoPersonPage = GObject.registerClass({
         } catch (error) {
             console.error('Failed to load person details:', error);
             // TODO: Show error state
+        }
+    }
+
+    async _refreshPersonData() {
+        if (!this._personId) {
+            return;
+        }
+
+        try {
+            const tmdbDetails = await getPersonDetails(this._personId);
+            await upsertPerson(this._personId, tmdbDetails);
+
+            const details = await getPersonByTmdbId(this._personId);
+            if (!details) {
+                throw new Error('Failed to load person data from database.');
+            }
+
+            const [watchedIds, watchlistIds] = await Promise.all([
+                getAllWatchedTmdbIds(),
+                getAllWatchlistTmdbIds()
+            ]);
+
+            this._displayPersonInfo(details);
+            await this._loadWatchedAndWatchlistMovies(watchedIds, watchlistIds);
+
+            this._exploreLoaded = false;
+            this._clearGrid(this._explore_grid);
+            this._explore_empty_label.set_label('Click to explore more movies...');
+            this._explore_empty_label.set_visible(true);
+
+            if (this._stack.get_visible_child_name() === 'explore') {
+                await this._loadExploreMovies();
+            }
+        } catch (error) {
+            console.error('Failed to refresh person details:', error);
         }
     }
 
