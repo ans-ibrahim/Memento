@@ -406,6 +406,24 @@ ORDER BY credits.role_type, credits.display_order;
     return queryAll(sql);
 }
 
+export async function getAllMovieTmdbIds() {
+    const sql = `
+SELECT tmdb_id
+FROM movies
+WHERE tmdb_id IS NOT NULL
+ORDER BY updated_at ASC;
+`;
+    const rows = queryAll(sql);
+    const ids = [];
+    for (const row of rows) {
+        const tmdbId = Number(row.tmdb_id);
+        if (Number.isFinite(tmdbId)) {
+            ids.push(tmdbId);
+        }
+    }
+    return ids;
+}
+
 
 
 export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null) {

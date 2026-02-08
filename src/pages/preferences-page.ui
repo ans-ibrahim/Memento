@@ -58,6 +58,44 @@
               </object>
             </child>
 
+            <!-- Data Settings -->
+            <child>
+              <object class="AdwPreferencesGroup">
+                <property name="title">Data</property>
+                <child>
+                  <object class="AdwActionRow" id="refresh_movies_row">
+                    <property name="title">Refresh all movies</property>
+                    <property name="subtitle">Re-download details and credits for every saved movie</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="refresh_all_button">
+                        <property name="label">Refresh</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow" id="refresh_progress_row">
+                    <property name="title">Refresh progress</property>
+                    <property name="visible">false</property>
+                    <child type="suffix">
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="hexpand">true</property>
+                        <property name="halign">fill</property>
+                        <child>
+                          <object class="GtkProgressBar" id="refresh_progress_bar">
+                            <property name="hexpand">true</property>
+                            <property name="show-text">true</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
           </object>
         </property>
       </object>
