@@ -19,11 +19,11 @@
  */
 
 import GObject from 'gi://GObject';
-import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 
 import { getAllPlays, deletePlay } from '../utils/database-utils.js';
-import { loadTextureFromUrl } from '../utils/image-utils.js';
+import { clearGrid } from '../utils/ui-utils.js';
+import { createPlayCard } from '../widgets/play-card.js';
 
 export const MementoPlaysPage = GObject.registerClass({
     GTypeName: 'MementoPlaysPage',
@@ -45,12 +45,7 @@ export const MementoPlaysPage = GObject.registerClass({
             const plays = await getAllPlays();
 
             // Clear existing items
-            let child = this._plays_grid.get_first_child();
-            while (child) {
-                const next = child.get_next_sibling();
-                this._plays_grid.remove(child);
-                child = next;
-            }
+            clearGrid(this._plays_grid);
 
             if (plays.length === 0) {
                 this._plays_stack.set_visible_child_name('empty');
@@ -59,144 +54,21 @@ export const MementoPlaysPage = GObject.registerClass({
 
             // Add play cards
             for (const play of plays) {
-                const card = this._createPlayCard(play);
+                const card = createPlayCard(play, {
+                    onActivate: tmdbId => this.emit('view-movie', tmdbId),
+                    onDelete: async playToDelete => {
+                        await deletePlay(playToDelete.id);
+                        this.emit('play-deleted');
+                        await this._loadPlays();
+                    },
+                    dialogParent: this.get_root(),
+                });
                 this._plays_grid.append(card);
             }
 
             this._plays_stack.set_visible_child_name('plays');
         } catch (error) {
             console.error('Failed to load plays:', error);
-        }
-    }
-
-    _createPlayCard(play) {
-        const card = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 8,
-            width_request: 160,
-            hexpand: false,
-            vexpand: false,
-            halign: Gtk.Align.CENTER,
-            css_classes: ['movie-card'],
-        });
-
-        // Poster container
-        const posterFrame = new Gtk.Frame({
-            css_classes: ['movie-poster-frame'],
-        });
-
-        const posterButton = new Gtk.Button({
-            css_classes: ['flat'],
-        });
-
-        const posterImage = new Gtk.Picture({
-            content_fit: Gtk.ContentFit.COVER,
-            width_request: 160,
-            height_request: 240,
-            hexpand: false,
-            vexpand: false,
-            css_classes: ['movie-poster'],
-        });
-
-        // Load poster image
-        if (play.poster) {
-            loadTextureFromUrl(play.poster).then(texture => {
-                if (texture) {
-                    posterImage.set_paintable(texture);
-                }
-            }).catch(() => {});
-        }
-
-        posterButton.set_child(posterImage);
-        posterButton.connect('clicked', () => {
-            this.emit('view-movie', play.tmdb_id);
-        });
-
-        posterFrame.set_child(posterButton);
-        card.append(posterFrame);
-
-        // Movie info section
-        const infoBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 4,
-            margin_start: 8,
-            margin_end: 8,
-            margin_bottom: 8,
-        });
-
-        // Title
-        const titleLabel = new Gtk.Label({
-            label: play.title || 'Unknown',
-            css_classes: ['heading'],
-            xalign: 0,
-            ellipsize: 3, // PANGO_ELLIPSIZE_END
-            lines: 2,
-            wrap: true,
-            max_width_chars: 18,
-        });
-        infoBox.append(titleLabel);
-
-        // Watch date
-        const dateLabel = new Gtk.Label({
-            label: this._formatDate(play.watched_at),
-            css_classes: ['dim-label', 'caption'],
-            xalign: 0,
-        });
-        infoBox.append(dateLabel);
-
-        // Actions box
-        const actionsBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
-            halign: Gtk.Align.START,
-        });
-
-        // Delete button
-        const deleteButton = new Gtk.Button({
-            icon_name: 'user-trash-symbolic',
-            tooltip_text: 'Delete Play',
-            css_classes: ['flat', 'destructive-action'],
-        });
-
-        deleteButton.connect('clicked', async () => {
-            const dialog = new Adw.AlertDialog({
-                heading: 'Delete Play?',
-                body: `Are you sure you want to delete this play of "${play.title}" from ${this._formatDate(play.watched_at)}?`,
-            });
-
-            dialog.add_response('cancel', 'Cancel');
-            dialog.add_response('delete', 'Delete');
-            dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
-
-            dialog.connect('response', async (dlg, response) => {
-                if (response === 'delete') {
-                    await deletePlay(play.id);
-                    this.emit('play-deleted');
-                    this._loadPlays();
-                }
-            });
-
-            dialog.present(this.get_root());
-        });
-
-        actionsBox.append(deleteButton);
-        infoBox.append(actionsBox);
-
-        card.append(infoBox);
-
-        return card;
-    }
-
-    _formatDate(isoDate) {
-        try {
-            const date = new Date(isoDate);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
-            });
-        } catch {
-            return isoDate;
         }
     }
 

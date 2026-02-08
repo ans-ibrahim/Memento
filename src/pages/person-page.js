@@ -11,13 +11,13 @@
  */
 
 import GObject from 'gi://GObject';
-import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
-import Gio from 'gi://Gio';
 
-import { getPersonDetails, getPersonMovieCredits, buildPosterUrl, buildProfileUrl } from '../services/tmdb-service.js';
+import { getPersonDetails, getPersonMovieCredits, buildProfileUrl } from '../services/tmdb-service.js';
 import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds, getPersonByTmdbId, upsertPerson, getMoviesByPersonId } from '../utils/database-utils.js';
-import { loadTextureFromUrlWithFallback, loadTextureFromUrl } from '../utils/image-utils.js';
+import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
+import { clearGrid } from '../utils/ui-utils.js';
+import { createMovieCard } from '../widgets/movie-card.js';
 
 export const MementoPersonPage = GObject.registerClass({
     GTypeName: 'MementoPersonPage',
@@ -116,7 +116,7 @@ export const MementoPersonPage = GObject.registerClass({
             await this._loadWatchedAndWatchlistMovies(watchedIds, watchlistIds);
 
             this._exploreLoaded = false;
-            this._clearGrid(this._explore_grid);
+            clearGrid(this._explore_grid);
             this._explore_empty_label.set_label('Click to explore more movies...');
             this._explore_empty_label.set_visible(true);
 
@@ -142,14 +142,26 @@ export const MementoPersonPage = GObject.registerClass({
         // Get person's credits from database only (movies we know about)
         const dbMovies = await this._getPersonMoviesFromDb();
         
-        this._clearGrid(this._watched_grid);
-        this._clearGrid(this._watchlist_grid);
+        clearGrid(this._watched_grid);
+        clearGrid(this._watchlist_grid);
 
         let watchedCount = 0;
         let watchlistCount = 0;
 
         for (const movie of dbMovies) {
-            const card = this._createMovieCard(movie);
+            const card = createMovieCard(movie, {
+                compact: true,
+                width: 140,
+                height: 210,
+                titleMaxChars: 16,
+                marginStart: 4,
+                marginEnd: 4,
+                marginBottom: 8,
+                showRating: false,
+                showYear: true,
+                jobText: movie.character || movie.job || '',
+                onActivate: tmdbId => this.emit('view-movie', String(tmdbId || movie.id)),
+            });
             
             if (watchedIds.has(movie.tmdb_id)) {
                 this._watched_grid.append(card);
@@ -206,10 +218,22 @@ export const MementoPersonPage = GObject.registerClass({
                 return new Date(b.release_date) - new Date(a.release_date);
             });
 
-            this._clearGrid(this._explore_grid);
+            clearGrid(this._explore_grid);
 
             for (const movie of unwatchedMovies) {
-                const card = this._createMovieCard(movie);
+                const card = createMovieCard(movie, {
+                    compact: true,
+                    width: 140,
+                    height: 210,
+                    titleMaxChars: 16,
+                    marginStart: 4,
+                    marginEnd: 4,
+                    marginBottom: 8,
+                    showRating: false,
+                    showYear: true,
+                    jobText: movie.character || movie.job || '',
+                    onActivate: tmdbId => this.emit('view-movie', String(tmdbId || movie.id)),
+                });
                 this._explore_grid.append(card);
             }
 
@@ -271,176 +295,5 @@ export const MementoPersonPage = GObject.registerClass({
                 this._profile_image.set_paintable(texture);
             }).catch(console.error);
         }
-    }
-
-    _categorizeAndDisplayMovies(credits, watchedIds, watchlistIds) {
-        const seenIds = new Set();
-        const allCredits = [];
-        
-        // Process cast (acting roles)
-        if (credits.cast) {
-            credits.cast.forEach(credit => {
-                if (!seenIds.has(credit.id)) {
-                    seenIds.add(credit.id);
-                    allCredits.push(credit);
-                }
-            });
-        }
-
-        // Process crew - only directors
-        if (credits.crew) {
-            const directors = credits.crew.filter(c => c.job === 'Director');
-            directors.forEach(credit => {
-                if (!seenIds.has(credit.id)) {
-                    seenIds.add(credit.id);
-                    allCredits.push(credit);
-                }
-            });
-        }
-
-        // Sort by release date descending
-        allCredits.sort((a, b) => {
-            if (!a.release_date) return 1;
-            if (!b.release_date) return -1;
-            return new Date(b.release_date) - new Date(a.release_date);
-        });
-
-        // Clear existing grids
-        this._clearGrid(this._watched_grid);
-        this._clearGrid(this._watchlist_grid);
-        this._clearGrid(this._unwatched_grid);
-
-        let watchedCount = 0;
-        let watchlistCount = 0;
-        let unwatchedCount = 0;
-
-        for (const movie of allCredits) {
-            const card = this._createMovieCard(movie);
-            
-            if (watchedIds.has(movie.id)) {
-                this._watched_grid.append(card);
-                watchedCount++;
-            } else if (watchlistIds.has(movie.id)) {
-                this._watchlist_grid.append(card);
-                watchlistCount++;
-            } else {
-                this._unwatched_grid.append(card);
-                unwatchedCount++;
-            }
-        }
-
-        this._watched_empty_label.set_visible(watchedCount === 0);
-        this._watchlist_empty_label.set_visible(watchlistCount === 0);
-        this._unwatched_empty_label.set_visible(unwatchedCount === 0);
-    }
-
-    _clearGrid(grid) {
-        let child = grid.get_first_child();
-        while (child) {
-            const next = child.get_next_sibling();
-            grid.remove(child);
-            child = next;
-        }
-    }
-
-    _createMovieCard(movie) {
-        // Create a clickable button wrapper
-        const button = new Gtk.Button({
-            css_classes: ['flat', 'movie-card-button'],
-        });
-
-        const card = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 8,
-            width_request: 140,
-            hexpand: false,
-            vexpand: false,
-            halign: Gtk.Align.CENTER,
-            css_classes: ['movie-card'],
-        });
-
-        // Poster container with fixed aspect ratio
-        const posterFrame = new Gtk.Frame({
-            css_classes: ['movie-poster-frame'],
-        });
-
-        const posterImage = new Gtk.Picture({
-            content_fit: Gtk.ContentFit.COVER,
-            width_request: 140,
-            height_request: 210,
-            hexpand: false,
-            vexpand: false,
-            css_classes: ['movie-poster'],
-        });
-
-        // Load poster image
-        // Handle both TMDB API format (poster_path) and DB format (poster)
-        const posterPath = movie.poster_path || movie.poster;
-        if (posterPath) {
-            const posterUrl = buildPosterUrl(posterPath);
-            loadTextureFromUrl(posterUrl, posterPath).then(texture => {
-                if (texture) {
-                    posterImage.set_paintable(texture);
-                }
-            }).catch(() => {});
-        }
-
-        posterFrame.set_child(posterImage);
-        card.append(posterFrame);
-
-        // Movie info section
-        const infoBox = new Gtk.Box({
-            orientation: Gtk.Orientation.VERTICAL,
-            spacing: 4,
-            margin_start: 4,
-            margin_end: 4,
-            margin_bottom: 8,
-        });
-
-        // Title
-        const titleLabel = new Gtk.Label({
-            label: movie.title || 'Unknown',
-            css_classes: ['heading'],
-            xalign: 0,
-            ellipsize: 3, // PANGO_ELLIPSIZE_END
-            lines: 2,
-            wrap: true,
-            max_width_chars: 16,
-        });
-        infoBox.append(titleLabel);
-
-        // Character/Job (if available)
-        const jobText = movie.character || movie.job || '';
-        if (jobText) {
-             const jobLabel = new Gtk.Label({
-                label: jobText,
-                css_classes: ['caption', 'dim-label'],
-                xalign: 0,
-                ellipsize: 3,
-                lines: 1,
-            });
-            infoBox.append(jobLabel);
-        }
-
-        // Year
-        const year = movie.release_date ? movie.release_date.substring(0, 4) : '';
-        if (year) {
-            const yearLabel = new Gtk.Label({
-                label: year,
-                css_classes: ['dim-label', 'caption'],
-                xalign: 0,
-            });
-            infoBox.append(yearLabel);
-        }
-
-        card.append(infoBox);
-        button.set_child(card);
-
-        // Add click handler to emit signal - use tmdb_id for navigation
-        button.connect('clicked', () => {
-            this.emit('view-movie', String(movie.tmdb_id || movie.id));
-        });
-
-        return button;
     }
 });

@@ -42,6 +42,7 @@ import {
     getAllPlaces
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
+import { formatDate } from '../utils/ui-utils.js';
 
 export const MementoMovieDetailPage = GObject.registerClass({
     GTypeName: 'MementoMovieDetailPage',
@@ -687,7 +688,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Format date
         const dateLabel = new Gtk.Label({
-            label: this._formatDate(play.watched_at),
+            label: formatDate(play.watched_at, {month: 'long'}),
             xalign: 0,
         });
         leftBox.append(dateLabel);
@@ -737,7 +738,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         deleteButton.connect('clicked', async () => {
             const dialog = new Adw.AlertDialog({
                 heading: 'Delete Play?',
-                body: `Are you sure you want to delete this play from ${this._formatDate(play.watched_at)}?`,
+                body: `Are you sure you want to delete this play from ${formatDate(play.watched_at, {month: 'long'})}?`,
             });
 
             dialog.add_response('cancel', 'Cancel');
@@ -875,19 +876,6 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         console.log('Presenting edit dialog');
         dialog.present();
-    }
-
-    _formatDate(isoDate) {
-        try {
-            const date = new Date(isoDate);
-            return date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-        } catch {
-            return isoDate;
-        }
     }
 
     _formatCurrency(amount) {
