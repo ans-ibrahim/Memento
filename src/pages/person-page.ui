@@ -153,8 +153,8 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">24</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">2</property>
-                                    <property name="max-children-per-line">6</property>
+                                    <property name="min-children-per-line">6</property>
+                                    <property name="max-children-per-line">8</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>
@@ -190,8 +190,8 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">24</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">2</property>
-                                    <property name="max-children-per-line">6</property>
+                                    <property name="min-children-per-line">6</property>
+                                    <property name="max-children-per-line">8</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>
@@ -227,8 +227,8 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">24</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">2</property>
-                                    <property name="max-children-per-line">6</property>
+                                    <property name="min-children-per-line">6</property>
+                                    <property name="max-children-per-line">8</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>
