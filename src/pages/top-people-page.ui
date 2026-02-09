@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
-  <template class="MementoWatchlistPage" parent="GtkBox">
+  <template class="MementoTopPeoplePage" parent="GtkBox">
     <property name="orientation">vertical</property>
     <property name="spacing">12</property>
     <property name="margin-start">28</property>
@@ -11,24 +11,40 @@
     <property name="margin-bottom">28</property>
 
     <child>
-      <object class="GtkBox" id="watchlist_filter_bar">
+      <object class="GtkBox">
         <property name="orientation">horizontal</property>
         <property name="spacing">12</property>
         <child>
-          <object class="GtkSearchEntry" id="watchlist_search_entry">
+          <object class="GtkSearchEntry" id="people_search_entry">
             <property name="hexpand">true</property>
-            <property name="placeholder-text">Search watchlist</property>
+            <property name="placeholder-text">Search people</property>
           </object>
         </child>
         <child>
-          <object class="GtkDropDown" id="watchlist_sort_dropdown">
+          <object class="GtkDropDown" id="people_role_dropdown">
             <property name="model">
               <object class="GtkStringList">
                 <items>
-                  <item>Recently Added</item>
-                  <item>Title (A–Z)</item>
-                  <item>Release Date</item>
-                  <item>Rating</item>
+                  <item>Directors</item>
+                  <item>Cast</item>
+                  <item>Producers</item>
+                  <item>Cinematography</item>
+                  <item>Music Composers</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkDropDown" id="people_sort_dropdown">
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item>Total Appearances (High-Low)</item>
+                  <item>Total Appearances (Low-High)</item>
+                  <item>Unique Movies (High-Low)</item>
+                  <item>Unique Movies (Low-High)</item>
+                  <item>Name (A-Z)</item>
                 </items>
               </object>
             </property>
@@ -38,37 +54,37 @@
     </child>
 
     <child>
-      <object class="GtkStack" id="watchlist_stack">
+      <object class="GtkStack" id="people_stack">
         <property name="transition-type">crossfade</property>
         <child>
           <object class="GtkStackPage">
             <property name="name">empty</property>
             <property name="child">
-              <object class="AdwStatusPage" id="watchlist_empty_page">
-                <property name="icon-name">video-display-symbolic</property>
-                <property name="title" translatable="yes">Your Watchlist is Empty</property>
-                <property name="description" translatable="yes">Click the + button to add movies</property>
+              <object class="AdwStatusPage">
+                <property name="icon-name">system-users-symbolic</property>
+                <property name="title">No People Found</property>
+                <property name="description">Try a different search or filter</property>
               </object>
             </property>
           </object>
         </child>
         <child>
           <object class="GtkStackPage">
-            <property name="name">watchlist</property>
+            <property name="name">list</property>
             <property name="child">
               <object class="GtkScrolledWindow">
                 <property name="hscrollbar-policy">never</property>
                 <property name="vexpand">true</property>
                 <property name="child">
-                  <object class="GtkFlowBox" id="watchlist_grid">
+                  <object class="GtkFlowBox" id="people_grid">
                     <property name="valign">start</property>
                     <property name="halign">fill</property>
                     <property name="homogeneous">true</property>
-                    <property name="column-spacing">20</property>
-                    <property name="row-spacing">28</property>
+                    <property name="column-spacing">16</property>
+                    <property name="row-spacing">16</property>
                     <property name="margin-top">12</property>
                     <property name="margin-bottom">12</property>
-                    <property name="min-children-per-line">6</property>
+                    <property name="min-children-per-line">2</property>
                     <property name="max-children-per-line">7</property>
                     <property name="selection-mode">none</property>
                   </object>
@@ -81,18 +97,18 @@
     </child>
 
     <child>
-      <object class="GtkBox" id="watchlist_pagination_box">
+      <object class="GtkBox" id="people_pagination_box">
         <property name="orientation">horizontal</property>
         <property name="spacing">12</property>
         <property name="halign">center</property>
         <property name="visible">false</property>
         <child>
-          <object class="GtkButton" id="watchlist_prev_button">
+          <object class="GtkButton" id="people_prev_button">
             <property name="label">Previous</property>
           </object>
         </child>
         <child>
-          <object class="GtkLabel" id="watchlist_page_label">
+          <object class="GtkLabel" id="people_page_label">
             <property name="label">Page 1 of 1</property>
             <style>
               <class name="dim-label" />
@@ -100,7 +116,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkButton" id="watchlist_next_button">
+          <object class="GtkButton" id="people_next_button">
             <property name="label">Next</property>
           </object>
         </child>

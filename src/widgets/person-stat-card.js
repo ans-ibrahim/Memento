@@ -59,6 +59,10 @@ export function createPersonStatCard(person, options = {}) {
         css_classes: ['caption', 'dim-label'],
         xalign: 0,
     });
+    const uniqueMovies = Number(person.unique_movies) || 0;
+    if (uniqueMovies > 0) {
+        countLabel.set_label(`${person.play_count || 0} plays • ${uniqueMovies} unique`);
+    }
     box.append(countLabel);
 
     button.set_child(box);

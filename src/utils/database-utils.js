@@ -562,6 +562,25 @@ LIMIT ${safeLimit};
     return queryAll(sql);
 }
 
+export async function getPeopleAppearanceStats() {
+    const sql = `
+SELECT
+    persons.id,
+    persons.tmdb_person_id,
+    persons.name,
+    persons.profile_path,
+    credits.role_type,
+    COUNT(plays.id) AS total_appearances,
+    COUNT(DISTINCT plays.movie_id) AS unique_movies
+FROM plays
+JOIN credits ON credits.movie_id = plays.movie_id
+JOIN persons ON credits.person_id = persons.id
+WHERE credits.role_type IN ('director', 'actor', 'producer', 'cinematographer', 'music_composer')
+GROUP BY persons.id, persons.tmdb_person_id, persons.name, persons.profile_path, credits.role_type;
+`;
+    return queryAll(sql);
+}
+
 export async function removeFromWatchlist(movieId) {
     execute(`DELETE FROM watchlist WHERE movie_id = ${toSqlLiteral(movieId)};`);
 }

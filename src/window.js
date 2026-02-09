@@ -26,6 +26,7 @@ import { MementoSearchDialog } from './dialogs/search-dialog.js';
 import { MementoMovieDetailPage } from './pages/movie-detail-page.js';
 import { MementoPreferencesPage } from './pages/preferences-page.js';
 import { MementoPersonPage } from './pages/person-page.js';
+import { MementoTopPeoplePage } from './pages/top-people-page.js';
 import { MementoWatchlistPage } from './pages/watchlist-page.js';
 import { MementoPlacesDialog } from './dialogs/places-dialog.js';
 import {
@@ -50,10 +51,15 @@ export const MementoWindow = GObject.registerClass({
         'add_button',
         'main_stack',
         'watchlist_page',
+        'top_people_page',
         'plays_grid',
         'plays_stack',
         'plays_search_entry',
         'plays_sort_dropdown',
+        'plays_pagination_box',
+        'plays_prev_button',
+        'plays_page_label',
+        'plays_next_button',
         'dashboard_plays_grid',
         'dashboard_plays_empty_label',
         'dashboard_watchlist_grid',
@@ -74,8 +80,9 @@ export const MementoWindow = GObject.registerClass({
         super({ application });
         this._watchlistMovies = [];
         this._plays = [];
-        this._dashboardDirectorsExpanded = false;
-        this._dashboardCastExpanded = false;
+        this._filteredPlays = [];
+        this._playsCurrentPage = 0;
+        this._playsItemsPerPage = 24;
         this._setupWindowActions();
         this._setupActions();
         this._setupFilterActions();
@@ -107,14 +114,36 @@ export const MementoWindow = GObject.registerClass({
         this._watchlist_page.connect('view-details', (page, tmdbId) => {
             this._showMovieDetail(tmdbId);
         });
+        this._top_people_page.connect('view-person', (page, personId) => {
+            this._showPersonPage(personId);
+        });
+
+        this._main_stack.connect('notify::visible-child-name', () => {
+            if (this._main_stack.get_visible_child_name() === 'people') {
+                this._top_people_page.reload();
+            }
+        });
     }
 
     _setupFilterActions() {
         this._plays_search_entry.connect('search-changed', () => {
-            this._applyPlaysFilters();
+            this._applyPlaysFilters(true);
         });
         this._plays_sort_dropdown.connect('notify::selected', () => {
-            this._applyPlaysFilters();
+            this._applyPlaysFilters(true);
+        });
+        this._plays_prev_button.connect('clicked', () => {
+            if (this._playsCurrentPage > 0) {
+                this._playsCurrentPage -= 1;
+                this._renderPlaysPage();
+            }
+        });
+        this._plays_next_button.connect('clicked', () => {
+            const totalPages = Math.max(1, Math.ceil(this._filteredPlays.length / this._playsItemsPerPage));
+            if (this._playsCurrentPage < totalPages - 1) {
+                this._playsCurrentPage += 1;
+                this._renderPlaysPage();
+            }
         });
     }
 
@@ -126,12 +155,12 @@ export const MementoWindow = GObject.registerClass({
             this._main_stack.set_visible_child_name('watchlist');
         });
         this._dashboard_directors_toggle_button.connect('clicked', () => {
-            this._dashboardDirectorsExpanded = !this._dashboardDirectorsExpanded;
-            this._loadDashboardPeople();
+            this._top_people_page.showRole('director');
+            this._main_stack.set_visible_child_name('people');
         });
         this._dashboard_cast_toggle_button.connect('clicked', () => {
-            this._dashboardCastExpanded = !this._dashboardCastExpanded;
-            this._loadDashboardPeople();
+            this._top_people_page.showRole('actor');
+            this._main_stack.set_visible_child_name('people');
         });
     }
 
@@ -172,7 +201,7 @@ export const MementoWindow = GObject.registerClass({
     async _loadPlays() {
         try {
             this._plays = await getAllPlays();
-            this._applyPlaysFilters();
+            this._applyPlaysFilters(true);
             this._renderDashboardPlaysPreview();
         } catch (error) {
             console.error('Failed to load plays:', error);
@@ -192,7 +221,7 @@ export const MementoWindow = GObject.registerClass({
         }
     }
 
-    _applyPlaysFilters() {
+    _applyPlaysFilters(resetPage = false) {
         const query = this._plays_search_entry.get_text().trim().toLowerCase();
         const sortIndex = this._plays_sort_dropdown.get_selected();
 
@@ -214,18 +243,32 @@ export const MementoWindow = GObject.registerClass({
             return (secondPlay.watched_at || '').localeCompare(firstPlay.watched_at || '');
         });
 
-        this._renderPlaysGrid(plays);
+        this._filteredPlays = plays;
+        if (resetPage) {
+            this._playsCurrentPage = 0;
+        }
+        this._renderPlaysPage();
     }
 
-    _renderPlaysGrid(plays) {
+    _renderPlaysPage() {
+        const plays = this._filteredPlays;
         clearGrid(this._plays_grid);
 
         if (plays.length === 0) {
             this._plays_stack.set_visible_child_name('empty');
+            this._plays_pagination_box.set_visible(false);
             return;
         }
 
-        for (const play of plays) {
+        const totalPages = Math.max(1, Math.ceil(plays.length / this._playsItemsPerPage));
+        if (this._playsCurrentPage > totalPages - 1) {
+            this._playsCurrentPage = totalPages - 1;
+        }
+
+        const startIndex = this._playsCurrentPage * this._playsItemsPerPage;
+        const pageItems = plays.slice(startIndex, startIndex + this._playsItemsPerPage);
+
+        for (const play of pageItems) {
             const card = createPlayCard(play, {
                 onActivate: tmdbId => this._showMovieDetail(tmdbId),
                 onDelete: async playToDelete => {
@@ -239,10 +282,14 @@ export const MementoWindow = GObject.registerClass({
         }
 
         this._plays_stack.set_visible_child_name('plays');
+        this._plays_pagination_box.set_visible(totalPages > 1);
+        this._plays_prev_button.set_sensitive(this._playsCurrentPage > 0);
+        this._plays_next_button.set_sensitive(this._playsCurrentPage < totalPages - 1);
+        this._plays_page_label.set_text(`Page ${this._playsCurrentPage + 1} of ${totalPages}`);
     }
 
     async _renderDashboardPlaysPreview() {
-        const plays = await getRecentPlays(8);
+        const plays = await getRecentPlays(6);
         clearGrid(this._dashboard_plays_grid);
         this._dashboard_plays_empty_label.set_visible(plays.length === 0);
         for (const play of plays) {
@@ -257,8 +304,8 @@ export const MementoWindow = GObject.registerClass({
 
     async _renderDashboardWatchlistPreview() {
         const movies = this._watchlistMovies.length > 0
-            ? this._watchlistMovies.slice(0, 8)
-            : (await getWatchlistMovies()).slice(0, 8);
+            ? this._watchlistMovies.slice(0, 6)
+            : (await getWatchlistMovies()).slice(0, 6);
 
         clearGrid(this._dashboard_watchlist_grid);
         this._dashboard_watchlist_empty_label.set_visible(movies.length === 0);
@@ -273,20 +320,13 @@ export const MementoWindow = GObject.registerClass({
     }
 
     async _loadDashboardPeople() {
-        const directorsLimit = this._dashboardDirectorsExpanded ? 50 : 8;
-        const castLimit = this._dashboardCastExpanded ? 50 : 8;
-
         const [directors, cast] = await Promise.all([
-            getTopPeopleByRole('director', directorsLimit),
-            getTopPeopleByRole('actor', castLimit),
+            getTopPeopleByRole('director', 6),
+            getTopPeopleByRole('actor', 6),
         ]);
 
-        this._dashboard_directors_toggle_button.set_label(
-            this._dashboardDirectorsExpanded ? 'Show less' : 'See all'
-        );
-        this._dashboard_cast_toggle_button.set_label(
-            this._dashboardCastExpanded ? 'Show less' : 'See all'
-        );
+        this._dashboard_directors_toggle_button.set_label('See all');
+        this._dashboard_cast_toggle_button.set_label('See all');
 
         clearGrid(this._dashboard_directors_grid);
         clearGrid(this._dashboard_cast_grid);

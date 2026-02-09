@@ -209,40 +209,28 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const credits = [];
         let order = 0;
 
-        // Process directors
         if (creditsData.crew) {
-            const directors = creditsData.crew.filter(c => c.job === 'Director');
-            for (const director of directors) {
-                // Upsert person first
-                const personId = await upsertPerson(director.id, {
-                    name: director.name,
-                    profile_path: director.profile_path || null
-                });
+            const addCrewCredits = async (crewJobs, roleType, maxItems = 5) => {
+                const members = creditsData.crew.filter(member => crewJobs.includes(member.job));
+                for (const member of members.slice(0, maxItems)) {
+                    const personId = await upsertPerson(member.id, {
+                        name: member.name,
+                        profile_path: member.profile_path || null
+                    });
 
-                credits.push({
-                    person_id: personId,
-                    role_type: 'director',
-                    character_name: null,
-                    display_order: order++
-                });
-            }
+                    credits.push({
+                        person_id: personId,
+                        role_type: roleType,
+                        character_name: null,
+                        display_order: order++
+                    });
+                }
+            };
 
-            // Process producers
-            const producers = creditsData.crew.filter(c => c.job === 'Producer');
-            for (const producer of producers.slice(0, 5)) {
-                // Upsert person first
-                const personId = await upsertPerson(producer.id, {
-                    name: producer.name,
-                    profile_path: producer.profile_path || null
-                });
-
-                credits.push({
-                    person_id: personId,
-                    role_type: 'producer',
-                    character_name: null,
-                    display_order: order++
-                });
-            }
+            await addCrewCredits(['Director'], 'director', 5);
+            await addCrewCredits(['Producer'], 'producer', 5);
+            await addCrewCredits(['Director of Photography', 'Cinematography'], 'cinematographer', 5);
+            await addCrewCredits(['Original Music Composer', 'Music', 'Composer'], 'music_composer', 5);
         }
 
         // Process cast

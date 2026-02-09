@@ -48,7 +48,7 @@
                       <object class="AdwViewStackPage">
                         <property name="name">dashboard</property>
                         <property name="title">Dashboard</property>
-                        <property name="icon-name">view-dashboard-symbolic</property>
+                        <property name="icon-name">go-home-symbolic</property>
                         <property name="child">
                           <object class="GtkScrolledWindow">
                             <property name="hscrollbar-policy">never</property>
@@ -322,6 +322,18 @@
                       </object>
                     </child>
 
+                    <!-- People -->
+                    <child>
+                      <object class="AdwViewStackPage">
+                        <property name="name">people</property>
+                        <property name="title">People</property>
+                        <property name="icon-name">system-users-symbolic</property>
+                        <property name="child">
+                          <object class="MementoTopPeoplePage" id="top_people_page" />
+                        </property>
+                      </object>
+                    </child>
+
                     <!-- Plays -->
                     <child>
                       <object class="AdwViewStackPage">
@@ -394,13 +406,40 @@
                                             <property name="row-spacing">28</property>
                                             <property name="margin-top">12</property>
                                             <property name="margin-bottom">12</property>
-                                            <property name="min-children-per-line">2</property>
+                                            <property name="min-children-per-line">6</property>
                                             <property name="max-children-per-line">7</property>
                                             <property name="selection-mode">none</property>
                                           </object>
                                         </property>
                                       </object>
                                     </property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="plays_pagination_box">
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">12</property>
+                                <property name="halign">center</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkButton" id="plays_prev_button">
+                                    <property name="label">Previous</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="plays_page_label">
+                                    <property name="label">Page 1 of 1</property>
+                                    <style>
+                                      <class name="dim-label" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="plays_next_button">
+                                    <property name="label">Next</property>
                                   </object>
                                 </child>
                               </object>

@@ -32,6 +32,10 @@ export const MementoWatchlistPage = GObject.registerClass({
         'watchlist_sort_dropdown',
         'watchlist_stack',
         'watchlist_grid',
+        'watchlist_pagination_box',
+        'watchlist_prev_button',
+        'watchlist_page_label',
+        'watchlist_next_button',
     ],
     Signals: {
         'view-details': { param_types: [GObject.TYPE_INT] },
@@ -40,6 +44,9 @@ export const MementoWatchlistPage = GObject.registerClass({
     constructor(params = {}) {
         super(params);
         this._movies = [];
+        this._filteredMovies = [];
+        this._currentPage = 0;
+        this._itemsPerPage = 24;
         this._setupActions();
     }
 
@@ -54,6 +61,19 @@ export const MementoWatchlistPage = GObject.registerClass({
         });
         this._watchlist_sort_dropdown.connect('notify::selected', () => {
             this._applyFilters();
+        });
+        this._watchlist_prev_button.connect('clicked', () => {
+            if (this._currentPage > 0) {
+                this._currentPage -= 1;
+                this._renderCurrentPage();
+            }
+        });
+        this._watchlist_next_button.connect('clicked', () => {
+            const totalPages = Math.max(1, Math.ceil(this._filteredMovies.length / this._itemsPerPage));
+            if (this._currentPage < totalPages - 1) {
+                this._currentPage += 1;
+                this._renderCurrentPage();
+            }
         });
     }
 
@@ -82,18 +102,30 @@ export const MementoWatchlistPage = GObject.registerClass({
             return (secondMovie.added_at || '').localeCompare(firstMovie.added_at || '');
         });
 
-        this._renderGrid(movies);
+        this._filteredMovies = movies;
+        this._currentPage = 0;
+        this._renderCurrentPage();
     }
 
-    _renderGrid(movies) {
+    _renderCurrentPage() {
+        const movies = this._filteredMovies;
         clearGrid(this._watchlist_grid);
 
         if (movies.length === 0) {
             this._watchlist_stack.set_visible_child_name('empty');
+            this._watchlist_pagination_box.set_visible(false);
             return;
         }
 
-        for (const movie of movies) {
+        const totalPages = Math.max(1, Math.ceil(movies.length / this._itemsPerPage));
+        if (this._currentPage > totalPages - 1) {
+            this._currentPage = totalPages - 1;
+        }
+
+        const startIndex = this._currentPage * this._itemsPerPage;
+        const pageItems = movies.slice(startIndex, startIndex + this._itemsPerPage);
+
+        for (const movie of pageItems) {
             const card = createMovieCard(movie, {
                 onActivate: tmdbId => this.emit('view-details', tmdbId),
             });
@@ -101,5 +133,9 @@ export const MementoWatchlistPage = GObject.registerClass({
         }
 
         this._watchlist_stack.set_visible_child_name('watchlist');
+        this._watchlist_pagination_box.set_visible(totalPages > 1);
+        this._watchlist_prev_button.set_sensitive(this._currentPage > 0);
+        this._watchlist_next_button.set_sensitive(this._currentPage < totalPages - 1);
+        this._watchlist_page_label.set_text(`Page ${this._currentPage + 1} of ${totalPages}`);
     }
 });

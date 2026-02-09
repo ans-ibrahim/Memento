@@ -13,6 +13,7 @@
     <file>pages/plays-page.js</file>
     <file>pages/person-page.js</file>
     <file>pages/preferences-page.js</file>
+    <file>pages/top-people-page.js</file>
     <file>pages/watchlist-page.js</file>
     <file>widgets/play-entry.js</file>
     <file>widgets/movie-card.js</file>
@@ -28,6 +29,7 @@
     <file preprocess="xml-stripblanks">pages/plays-page.ui</file>
     <file preprocess="xml-stripblanks">pages/person-page.ui</file>
     <file preprocess="xml-stripblanks">pages/preferences-page.ui</file>
+    <file preprocess="xml-stripblanks">pages/top-people-page.ui</file>
     <file preprocess="xml-stripblanks">pages/watchlist-page.ui</file>
     <file preprocess="xml-stripblanks">widgets/play-entry.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
