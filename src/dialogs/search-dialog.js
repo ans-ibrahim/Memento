@@ -22,9 +22,9 @@ import GObject from 'gi://GObject';
 import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
+import Pango from 'gi://Pango';
 
 import { searchMovies, getMovieDetails, buildPosterUrl } from '../services/tmdb-service.js';
-import { upsertMovieFromTmdb, addMovieToWatchlist } from '../utils/database-utils.js';
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 
 export const MementoSearchDialog = GObject.registerClass({
@@ -32,7 +32,6 @@ export const MementoSearchDialog = GObject.registerClass({
     Template: 'resource:///app/memento/memento/dialogs/search-dialog.ui',
     InternalChildren: ['search_entry', 'content_stack', 'results_list'],
     Signals: {
-        'movie-added': {},
         'view-details': {param_types: [GObject.TYPE_INT]},
     },
 }, class MementoSearchDialog extends Adw.Dialog {
@@ -105,69 +104,126 @@ export const MementoSearchDialog = GObject.registerClass({
     }
 
     _createResultRow(movie) {
-        const row = new Adw.ActionRow({
-            title: movie.title || 'Unknown Title',
-            subtitle: this._buildSubtitle(movie),
+        const row = new Gtk.ListBoxRow({
             activatable: true,
+            selectable: false,
+            css_classes: ['search-result-row'],
         });
 
         // Make row clickable to view details
-        row.connect('activated', () => {
+        row.connect('activate', () => {
             this._showMovieDetail(movie.id);
         });
 
-        // Poster image - larger for better visibility
-        const avatar = new Adw.Avatar({
-            size: 64,
-            text: movie.title || '?',
+        const rowContentBox = new Gtk.Box({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            spacing: 12,
+            margin_start: 4,
+            margin_end: 4,
+            margin_top: 4,
+            margin_bottom: 4,
         });
-        row.add_prefix(avatar);
+        row.set_child(rowContentBox);
+
+        const posterStack = new Gtk.Stack({
+            transition_type: Gtk.StackTransitionType.CROSSFADE,
+            width_request: 84,
+            height_request: 126,
+            vexpand: false,
+        });
+
+        const fallbackPosterBox = new Gtk.CenterBox({
+            width_request: 84,
+            height_request: 126,
+            css_classes: ['search-result-poster-fallback'],
+        });
+        const fallbackPosterIcon = new Gtk.Image({
+            icon_name: 'video-x-generic-symbolic',
+            pixel_size: 30,
+        });
+        fallbackPosterBox.set_center_widget(fallbackPosterIcon);
+
+        const posterImage = new Gtk.Picture({
+            width_request: 84,
+            height_request: 126,
+            can_shrink: true,
+            content_fit: Gtk.ContentFit.COVER,
+            css_classes: ['search-result-poster'],
+        });
+
+        posterStack.add_named(fallbackPosterBox, 'fallback');
+        posterStack.add_named(posterImage, 'poster');
+        posterStack.set_visible_child_name('fallback');
+
+        const posterFrame = new Gtk.Frame({
+            css_classes: ['movie-poster-frame', 'search-result-poster-frame'],
+            valign: Gtk.Align.START,
+            child: posterStack,
+        });
+        rowContentBox.append(posterFrame);
 
         // Load poster asynchronously
         const posterUrl = buildPosterUrl(movie.poster_path);
         if (posterUrl) {
             loadTextureFromUrl(posterUrl).then(texture => {
                 if (texture) {
-                    avatar.set_custom_image(texture);
+                    posterImage.set_paintable(texture);
+                    posterStack.set_visible_child_name('poster');
                 }
             }).catch(() => {});
         }
 
-        // Button box for actions
-        const buttonBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 8,
+        const textContainer = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 6,
+            hexpand: true,
             valign: Gtk.Align.CENTER,
         });
+        rowContentBox.append(textContainer);
 
-        // View details button
-        const detailsButton = new Gtk.Button({
-            icon_name: 'dialog-information-symbolic',
-            valign: Gtk.Align.CENTER,
-            css_classes: ['flat', 'circular'],
-            tooltip_text: 'View Details',
+        const titleLabel = new Gtk.Label({
+            label: movie.title || 'Unknown Title',
+            xalign: 0,
+            wrap: true,
+            wrap_mode: Pango.WrapMode.WORD_CHAR,
+            css_classes: ['heading'],
         });
+        textContainer.append(titleLabel);
 
-        detailsButton.connect('clicked', () => {
-            this._showMovieDetail(movie.id);
+        const subtitleLabel = new Gtk.Label({
+            label: this._buildSubtitle(movie),
+            xalign: 0,
+            wrap: true,
+            wrap_mode: Pango.WrapMode.WORD_CHAR,
+            css_classes: ['caption', 'dim-label'],
         });
+        textContainer.append(subtitleLabel);
 
-        buttonBox.append(detailsButton);
-
-        // Add button - more prominent
-        const addButton = new Gtk.Button({
-            icon_name: 'list-add-symbolic',
-            valign: Gtk.Align.CENTER,
-            css_classes: ['suggested-action', 'circular'],
-            tooltip_text: 'Add to Watchlist',
+        const taglineLabel = new Gtk.Label({
+            xalign: 0,
+            wrap: true,
+            wrap_mode: Pango.WrapMode.WORD_CHAR,
+            ellipsize: Pango.EllipsizeMode.END,
+            lines: 2,
+            css_classes: ['caption'],
         });
+        this._setOptionalLabel(taglineLabel, this._formatTagline(movie.tagline));
+        textContainer.append(taglineLabel);
 
-        addButton.connect('clicked', () => {
-            this._addMovie(movie, addButton);
+        const overviewLabel = new Gtk.Label({
+            xalign: 0,
+            wrap: true,
+            wrap_mode: Pango.WrapMode.WORD_CHAR,
+            ellipsize: Pango.EllipsizeMode.END,
+            lines: 3,
+            css_classes: ['caption', 'dim-label'],
         });
+        this._setOptionalLabel(overviewLabel, this._trimText(movie.overview, 220));
+        textContainer.append(overviewLabel);
 
-        buttonBox.append(addButton);
-        row.add_suffix(buttonBox);
+        if (!movie.tagline) {
+            this._loadTagline(movie.id, taglineLabel);
+        }
 
         return row;
     }
@@ -186,30 +242,38 @@ export const MementoSearchDialog = GObject.registerClass({
         return parts.join(' • ') || 'Unknown Year';
     }
 
+    _formatTagline(tagline) {
+        if (!tagline)
+            return '';
+        return `"${this._trimText(tagline, 140)}"`;
+    }
+
+    _trimText(value, maxLength) {
+        if (!value)
+            return '';
+        const normalized = value.trim().replace(/\s+/g, ' ');
+        if (normalized.length <= maxLength)
+            return normalized;
+        return `${normalized.substring(0, maxLength - 1)}…`;
+    }
+
+    _setOptionalLabel(labelWidget, text) {
+        const textValue = text || '';
+        labelWidget.set_label(textValue);
+        labelWidget.set_visible(Boolean(textValue));
+    }
+
+    async _loadTagline(tmdbId, taglineLabel) {
+        try {
+            const movieDetails = await getMovieDetails(tmdbId);
+            this._setOptionalLabel(taglineLabel, this._formatTagline(movieDetails?.tagline));
+        } catch {
+            // Ignore failures for optional tagline loading.
+        }
+    }
+
     _showMovieDetail(tmdbId) {
         this.emit('view-details', tmdbId);
         this.close();
-    }
-
-    async _addMovie(movie, button) {
-        button.set_sensitive(false);
-        button.set_icon_name('emblem-ok-symbolic');
-
-        try {
-            // Get full movie details
-            const details = await getMovieDetails(movie.id);
-
-            // Save to database
-            const movieId = await upsertMovieFromTmdb(details);
-            await addMovieToWatchlist(movieId);
-
-            // Emit signal and close
-            this.emit('movie-added');
-            this.close();
-        } catch (error) {
-            console.error('Failed to add movie:', error);
-            button.set_sensitive(true);
-            button.set_icon_name('list-add-symbolic');
-        }
     }
 });

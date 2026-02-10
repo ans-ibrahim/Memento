@@ -178,10 +178,6 @@ export const MementoWindow = GObject.registerClass({
 
     _showSearchDialog() {
         const dialog = new MementoSearchDialog();
-        dialog.connect('movie-added', () => {
-            this._loadWatchlist();
-            this._loadDashboard();
-        });
         dialog.connect('view-details', (searchDialog, tmdbId) => {
             this._showMovieDetail(tmdbId);
         });

@@ -176,6 +176,19 @@ flowboxchild:focus .movie-card {
   background: alpha(@accent_color, 0.08);
 }
 
+.search-result-poster-frame {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.search-result-poster {
+  border-radius: 10px;
+}
+
+.search-result-poster-fallback {
+  background: alpha(@card_bg_color, 0.7);
+}
+
 /* ========================================
    Loading and Empty States
    ======================================== */
