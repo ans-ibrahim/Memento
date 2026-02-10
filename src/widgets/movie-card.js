@@ -43,17 +43,36 @@ export function createMovieCard(movie, options = {}) {
         css_classes: ['movie-poster'],
     });
 
-    const posterPath = options.posterPath ?? movie.poster_path ?? movie.poster ?? null;
-    if (posterPath) {
-        const posterUrl = buildPosterUrl(posterPath);
-        loadTextureFromUrl(posterUrl, posterPath).then(texture => {
-            if (texture) {
-                posterImage.set_paintable(texture);
-            }
-        }).catch(() => {});
-    }
+    const fallbackPosterBox = new Gtk.CenterBox({
+        width_request: width,
+        height_request: height,
+        css_classes: ['search-result-poster-fallback'],
+    });
+    const fallbackPosterIcon = new Gtk.Image({
+        icon_name: 'camera-video-symbolic',
+        pixel_size: 34,
+    });
+    fallbackPosterBox.set_center_widget(fallbackPosterIcon);
 
-    posterFrame.set_child(posterImage);
+    const posterStack = new Gtk.Stack({
+        transition_type: Gtk.StackTransitionType.CROSSFADE,
+        width_request: width,
+        height_request: height,
+    });
+    posterStack.add_named(fallbackPosterBox, 'fallback');
+    posterStack.add_named(posterImage, 'poster');
+    posterStack.set_visible_child_name('fallback');
+
+    const posterPath = options.posterPath ?? movie.poster_path ?? movie.poster ?? null;
+    const posterUrl = buildPosterUrl(posterPath);
+    loadTextureFromUrl(posterUrl, posterPath).then(texture => {
+        if (texture) {
+            posterImage.set_paintable(texture);
+            posterStack.set_visible_child_name('poster');
+        }
+    }).catch(() => {});
+
+    posterFrame.set_child(posterStack);
     card.append(posterFrame);
 
     const infoBox = new Gtk.Box({

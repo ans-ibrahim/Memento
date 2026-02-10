@@ -138,7 +138,7 @@ export const MementoSearchDialog = GObject.registerClass({
             css_classes: ['search-result-poster-fallback'],
         });
         const fallbackPosterIcon = new Gtk.Image({
-            icon_name: 'video-x-generic-symbolic',
+            icon_name: 'camera-video-symbolic',
             pixel_size: 30,
         });
         fallbackPosterBox.set_center_widget(fallbackPosterIcon);

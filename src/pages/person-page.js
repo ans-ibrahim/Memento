@@ -364,12 +364,10 @@ export const MementoPersonPage = GObject.registerClass({
             this._bio_box.set_visible(false);
         }
 
-        if (details.profile_path) {
-            const profileUrl = buildProfileUrl(details.profile_path);
-            loadTextureFromUrlWithFallback(profileUrl, details.profile_path).then(texture => {
-                this._profile_image.set_paintable(texture);
-            }).catch(console.error);
-        }
+        const profileUrl = buildProfileUrl(details.profile_path);
+        loadTextureFromUrlWithFallback(profileUrl, details.profile_path, 'avatar-default-symbolic').then(texture => {
+            this._profile_image.set_paintable(texture);
+        }).catch(console.error);
     }
 
     _calculateAge(birthDate, endDate) {

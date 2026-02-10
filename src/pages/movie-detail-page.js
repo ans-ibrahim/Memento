@@ -302,14 +302,12 @@ export const MementoMovieDetailPage = GObject.registerClass({
         }
 
         // Poster
-        if (this._movieData.poster) {
-            const posterUrl = buildPosterUrl(this._movieData.poster);
-            loadTextureFromUrlWithFallback(posterUrl, this._movieData.poster).then(texture => {
-                if (texture) {
-                    this._poster_image.set_paintable(texture);
-                }
-            }).catch(() => {});
-        }
+        const posterUrl = buildPosterUrl(this._movieData.poster);
+        loadTextureFromUrlWithFallback(posterUrl, this._movieData.poster, 'camera-video-symbolic').then(texture => {
+            if (texture) {
+                this._poster_image.set_paintable(texture);
+            }
+        }).catch(() => {});
     }
 
     async _displayCredits() {
@@ -394,7 +392,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             (async () => {
                 try {
                     const profileUrl = buildProfileUrl(person.profile_path);
-                    const texture = await loadTextureFromUrlWithFallback(profileUrl, person.profile_path);
+                    const texture = await loadTextureFromUrlWithFallback(profileUrl, person.profile_path, 'avatar-default-symbolic');
                     picture.set_paintable(texture);
                 } catch (error) {
                     console.error('Failed to load profile photo:', error);

@@ -34,14 +34,12 @@ export function createPersonStatCard(person, options = {}) {
     pictureFrame.set_child(picture);
     box.append(pictureFrame);
 
-    if (person.profile_path) {
-        const profileUrl = buildProfileUrl(person.profile_path);
-        loadTextureFromUrlWithFallback(profileUrl, person.profile_path).then(texture => {
-            if (texture) {
-                picture.set_paintable(texture);
-            }
-        }).catch(() => {});
-    }
+    const profileUrl = buildProfileUrl(person.profile_path);
+    loadTextureFromUrlWithFallback(profileUrl, person.profile_path, 'avatar-default-symbolic').then(texture => {
+        if (texture) {
+            picture.set_paintable(texture);
+        }
+    }).catch(() => {});
 
     const nameLabel = new Gtk.Label({
         label: person.name || 'Unknown',

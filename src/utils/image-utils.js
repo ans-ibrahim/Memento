@@ -77,10 +77,10 @@ function sendAndReadAsync(message) {
     });
 }
 
-function getFallbackTexture() {
+function getFallbackTexture(iconName = 'camera-video-symbolic') {
     const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
     const iconPaintable = iconTheme.lookup_icon(
-        'application-x-executable',
+        iconName,
         null,
         64,
         1,
@@ -90,17 +90,17 @@ function getFallbackTexture() {
     return iconPaintable;
 }
 
-export async function loadTextureFromUrlWithFallback(url, relativePath = null) {
+export async function loadTextureFromUrlWithFallback(url, relativePath = null, fallbackIconName = 'camera-video-symbolic') {
     try {
         if (!url) {
-            return getFallbackTexture();
+            return getFallbackTexture(fallbackIconName);
         }
         
         const texture = await loadTextureFromUrl(url, relativePath);
-        return texture || getFallbackTexture();
+        return texture || getFallbackTexture(fallbackIconName);
     } catch (error) {
         console.warn(`Failed to load image from ${url}, using fallback:`, error.message);
-        return getFallbackTexture();
+        return getFallbackTexture(fallbackIconName);
     }
 }
 
