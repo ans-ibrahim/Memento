@@ -3,9 +3,11 @@ import GLib from 'gi://GLib';
 
 const DATABASE_FILENAME = 'memento.db';
 
-const SCHEMA_SQL = `
-PRAGMA foreign_keys = ON;
-
+const MIGRATIONS = [
+    {
+        version: 1,
+        name: 'initial_schema',
+        sql: `
 CREATE TABLE IF NOT EXISTS movies (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
@@ -72,7 +74,9 @@ CREATE TABLE IF NOT EXISTS plays (
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
-`;
+`,
+    },
+];
 
 // ... (existing code) ...
 
@@ -180,6 +184,38 @@ function queryOne(sql) {
     return rows[0] ?? null;
 }
 
+function getCurrentSchemaVersion() {
+    const row = queryOne('PRAGMA user_version;');
+    const version = Number(row?.user_version);
+    if (!Number.isFinite(version) || version < 0)
+        return 0;
+    return Math.floor(version);
+}
+
+function applyMigration(migration) {
+    const sql = `
+BEGIN;
+${migration.sql}
+PRAGMA user_version = ${migration.version};
+COMMIT;
+`;
+    executeStatements(sql);
+}
+
+function applyPendingMigrations() {
+    const orderedMigrations = [...MIGRATIONS].sort(
+        (firstMigration, secondMigration) => firstMigration.version - secondMigration.version
+    );
+    let currentVersion = getCurrentSchemaVersion();
+
+    for (const migration of orderedMigrations) {
+        if (migration.version <= currentVersion)
+            continue;
+        applyMigration(migration);
+        currentVersion = migration.version;
+    }
+}
+
 function toSqlLiteral(value) {
     if (value === null || value === undefined)
         return 'NULL';
@@ -193,7 +229,7 @@ function toSqlLiteral(value) {
 
 export async function initializeDatabase() {
     try {
-        executeStatements(SCHEMA_SQL);
+        applyPendingMigrations();
     } catch (error) {
         throw new Error(`Failed to initialize database: ${error.message}`);
     }
