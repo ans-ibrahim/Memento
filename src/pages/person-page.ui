@@ -160,6 +160,24 @@
                                 <property name="margin-top">12</property>
 
                                 <child>
+                                  <object class="GtkDropDown" id="watched_role_dropdown">
+                                    <property name="halign">start</property>
+                                    <property name="selected">0</property>
+                                    <property name="model">
+                                      <object class="GtkStringList">
+                                        <items>
+                                          <item>Directing</item>
+                                          <item>Acting</item>
+                                          <item>Production</item>
+                                          <item>Cinematography</item>
+                                          <item>Music</item>
+                                        </items>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </child>
+
+                                <child>
                                   <object class="GtkLabel" id="watched_empty_label">
                                     <property name="label">No watched movies found.</property>
                                     <property name="css-classes">dim-label</property>
@@ -197,6 +215,24 @@
                                 <property name="margin-top">12</property>
 
                                 <child>
+                                  <object class="GtkDropDown" id="watchlist_role_dropdown">
+                                    <property name="halign">start</property>
+                                    <property name="selected">0</property>
+                                    <property name="model">
+                                      <object class="GtkStringList">
+                                        <items>
+                                          <item>Directing</item>
+                                          <item>Acting</item>
+                                          <item>Production</item>
+                                          <item>Cinematography</item>
+                                          <item>Music</item>
+                                        </items>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </child>
+
+                                <child>
                                   <object class="GtkLabel" id="watchlist_empty_label">
                                     <property name="label">No movies in watchlist found.</property>
                                     <property name="css-classes">dim-label</property>
@@ -232,6 +268,24 @@
                                 <property name="orientation">vertical</property>
                                 <property name="spacing">12</property>
                                 <property name="margin-top">12</property>
+
+                                <child>
+                                  <object class="GtkDropDown" id="explore_role_dropdown">
+                                    <property name="halign">start</property>
+                                    <property name="selected">0</property>
+                                    <property name="model">
+                                      <object class="GtkStringList">
+                                        <items>
+                                          <item>Directing</item>
+                                          <item>Acting</item>
+                                          <item>Production</item>
+                                          <item>Cinematography</item>
+                                          <item>Music</item>
+                                        </items>
+                                      </object>
+                                    </property>
+                                  </object>
+                                </child>
 
                                 <child>
                                   <object class="GtkLabel" id="explore_empty_label">

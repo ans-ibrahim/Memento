@@ -377,7 +377,11 @@ export async function getPersonByTmdbId(tmdbPersonId) {
 
 export async function getMoviesByPersonId(personId) {
     const sql = `
-SELECT DISTINCT
+SELECT
+    credits.id AS credit_id,
+    credits.role_type,
+    credits.character_name,
+    credits.display_order,
     movies.id,
     movies.title,
     movies.tmdb_id,
@@ -386,7 +390,7 @@ SELECT DISTINCT
 FROM movies
 JOIN credits ON credits.movie_id = movies.id
 WHERE credits.person_id = ${toSqlLiteral(personId)}
-ORDER BY movies.release_date DESC;
+ORDER BY movies.release_date DESC, credits.display_order ASC;
 `;
     return queryAll(sql);
 }
