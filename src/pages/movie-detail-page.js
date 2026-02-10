@@ -62,6 +62,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
         'metadata_group',
         'year_row',
         'runtime_row',
+        'language_row',
+        'genre_row',
+        'budget_row',
         'rating_row',
         'revenue_row',
         'overview_box',
@@ -74,6 +77,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
         'directors_label',
         'producers_box',
         'producers_label',
+        'cinematographers_box',
+        'cinematographers_label',
+        'composers_box',
+        'composers_label',
         'cast_box',
         'cast_label',
     ],
@@ -261,6 +268,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
         if (this._movieData.tagline) {
             this._tagline_label.set_label(this._movieData.tagline);
             this._tagline_label.set_visible(true);
+        } else {
+            this._tagline_label.set_visible(false);
         }
 
         // Year
@@ -279,6 +288,33 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 : `${minutes}m`;
             this._runtime_row.set_subtitle(runtimeText);
             this._runtime_row.set_visible(true);
+        } else {
+            this._runtime_row.set_visible(false);
+        }
+
+        // Original language
+        if (this._movieData.original_language) {
+            this._language_row.set_subtitle(this._getLanguageDisplayName(this._movieData.original_language));
+            this._language_row.set_visible(true);
+        } else {
+            this._language_row.set_visible(false);
+        }
+
+        // Genre
+        if (this._movieData.genres) {
+            this._genre_row.set_subtitle(this._movieData.genres);
+            this._genre_row.set_visible(true);
+        } else {
+            this._genre_row.set_visible(false);
+        }
+
+        // Budget
+        if (this._movieData.budget && this._movieData.budget > 0) {
+            const budgetText = this._formatCurrency(this._movieData.budget);
+            this._budget_row.set_subtitle(budgetText);
+            this._budget_row.set_visible(true);
+        } else {
+            this._budget_row.set_visible(false);
         }
 
         // Rating
@@ -286,6 +322,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
             const ratingText = `${this._movieData.tmdb_average.toFixed(1)}/10`;
             this._rating_row.set_subtitle(ratingText);
             this._rating_row.set_visible(true);
+        } else {
+            this._rating_row.set_visible(false);
         }
 
         // Revenue
@@ -293,6 +331,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
             const revenueText = this._formatCurrency(this._movieData.revenue);
             this._revenue_row.set_subtitle(revenueText);
             this._revenue_row.set_visible(true);
+        } else {
+            this._revenue_row.set_visible(false);
         }
 
         // Overview
@@ -312,8 +352,15 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
     async _displayCredits() {
         const credits = await getDbCredits(this._movieId);
+
+        this._directors_box.set_visible(false);
+        this._producers_box.set_visible(false);
+        this._cinematographers_box.set_visible(false);
+        this._composers_box.set_visible(false);
+        this._cast_box.set_visible(false);
         
         if (credits.length === 0) {
+            this._credits_box.set_visible(false);
             return;
         }
 
@@ -322,6 +369,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Group credits by role
         const directors = credits.filter(c => c.role_type === 'director');
         const producers = credits.filter(c => c.role_type === 'producer');
+        const cinematographers = credits.filter(c => c.role_type === 'cinematographer');
+        const composers = credits.filter(c => c.role_type === 'music_composer');
         const cast = credits.filter(c => c.role_type === 'actor');
 
         // Display directors with photos
@@ -332,6 +381,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Display producers with photos
         if (producers.length > 0) {
             this._displayPeopleGrid(producers, this._producers_label, this._producers_box);
+        }
+
+        // Display cinematographers with photos
+        if (cinematographers.length > 0) {
+            this._displayPeopleGrid(cinematographers, this._cinematographers_label, this._cinematographers_box);
+        }
+
+        // Display music composers with photos
+        if (composers.length > 0) {
+            this._displayPeopleGrid(composers, this._composers_label, this._composers_box);
         }
 
         // Display cast with photos
@@ -879,5 +938,24 @@ export const MementoMovieDetailPage = GObject.registerClass({
             return `$${(amount / 1000).toFixed(2)}K`;
         }
         return `$${amount}`;
+    }
+
+    _getLanguageDisplayName(languageCode) {
+        const normalizedCode = String(languageCode || '').trim().toLowerCase();
+        if (!normalizedCode) {
+            return '';
+        }
+
+        try {
+            const displayNames = new Intl.DisplayNames(['en'], {type: 'language'});
+            const languageName = displayNames.of(normalizedCode);
+            if (languageName) {
+                return languageName;
+            }
+        } catch {
+            // Fallback to code below.
+        }
+
+        return normalizedCode.toUpperCase();
     }
 });

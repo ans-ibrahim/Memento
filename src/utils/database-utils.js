@@ -83,6 +83,14 @@ CREATE TABLE IF NOT EXISTS plays (
 ALTER TABLE persons ADD COLUMN known_for TEXT;
 `,
     },
+    {
+        version: 3,
+        name: 'add_movie_budget_and_genres',
+        sql: `
+ALTER TABLE movies ADD COLUMN budget INTEGER;
+ALTER TABLE movies ADD COLUMN genres TEXT;
+`,
+    },
 ];
 
 // ... (existing code) ...
@@ -253,6 +261,12 @@ export async function upsertMovieFromTmdb(details) {
         details.original_title ||
         details.name ||
         'Untitled';
+    const genres = Array.isArray(details.genres)
+        ? details.genres
+            .map(genre => genre?.name)
+            .filter(genreName => Boolean(genreName))
+            .join(', ')
+        : '';
 
     const now = new Date().toISOString();
     // Store relative path, not full URL
@@ -265,8 +279,10 @@ INSERT INTO movies (
     tagline,
     overview,
     original_language,
+    genres,
     runtime,
     release_date,
+    budget,
     tmdb_average,
     tmdb_vote_count,
     revenue,
@@ -280,8 +296,10 @@ INSERT INTO movies (
     ${toSqlLiteral(details.tagline)},
     ${toSqlLiteral(details.overview)},
     ${toSqlLiteral(details.original_language)},
+    ${toSqlLiteral(genres)},
     ${toSqlLiteral(details.runtime)},
     ${toSqlLiteral(details.release_date)},
+    ${toSqlLiteral(details.budget)},
     ${toSqlLiteral(details.vote_average)},
     ${toSqlLiteral(details.vote_count)},
     ${toSqlLiteral(details.revenue)},
@@ -295,8 +313,10 @@ ON CONFLICT(tmdb_id) DO UPDATE SET
     tagline = excluded.tagline,
     overview = excluded.overview,
     original_language = excluded.original_language,
+    genres = excluded.genres,
     runtime = excluded.runtime,
     release_date = excluded.release_date,
+    budget = excluded.budget,
     tmdb_average = excluded.tmdb_average,
     tmdb_vote_count = excluded.tmdb_vote_count,
     revenue = excluded.revenue,
