@@ -1,8 +1,8 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
-data/app.memento.memento.desktop.in
-data/app.memento.memento.metainfo.xml.in
-data/app.memento.memento.gschema.xml
+data/io.github.ans_ibrahim.Memento.desktop.in
+data/io.github.ans_ibrahim.Memento.metainfo.xml.in
+data/io.github.ans_ibrahim.Memento.gschema.xml
 src/main.js
 src/window.js
 src/window.ui

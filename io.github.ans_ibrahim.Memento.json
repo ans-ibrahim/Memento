@@ -1,5 +1,5 @@
 {
-    "id" : "app.memento.memento",
+    "id" : "io.github.ans_ibrahim.Memento",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "48",
     "sdk" : "org.gnome.Sdk",
@@ -7,7 +7,7 @@
         "org.freedesktop.Sdk.Extension.node20",
         "org.freedesktop.Sdk.Extension.typescript"
     ],
-    "command" : "app.memento.memento",
+    "command" : "io.github.ans_ibrahim.Memento",
     "finish-args" : [
         "--share=network",
         "--share=ipc",

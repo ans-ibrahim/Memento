@@ -7,6 +7,10 @@ import GLib from 'gi://GLib';
 import { getMovieDetails, getMovieCredits } from '../services/tmdb-service.js';
 import { getAllMovieTmdbIds, upsertMovieFromTmdb, upsertPerson, upsertMovieCredits } from '../utils/database-utils.js';
 
+const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
+    ? 'io.github.ans_ibrahim.Memento.Devel'
+    : 'io.github.ans_ibrahim.Memento';
+
 export const MementoPreferencesPage = GObject.registerClass({
     GTypeName: 'MementoPreferencesPage',
     Template: 'resource:///app/memento/memento/pages/preferences-page.ui',
@@ -20,7 +24,7 @@ export const MementoPreferencesPage = GObject.registerClass({
 }, class MementoPreferencesPage extends Adw.NavigationPage {
     constructor(params = {}) {
         super(params);
-        this._settings = new Gio.Settings({ schema_id: 'app.memento.memento' });
+        this._settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
         this._refreshInProgress = false;
         this._setupBindings();
         this._loadApiKey();

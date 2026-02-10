@@ -44,6 +44,10 @@ import {
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { formatDate } from '../utils/ui-utils.js';
 
+const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
+    ? 'io.github.ans_ibrahim.Memento.Devel'
+    : 'io.github.ans_ibrahim.Memento';
+
 export const MementoMovieDetailPage = GObject.registerClass({
     GTypeName: 'MementoMovieDetailPage',
     Template: 'resource:///app/memento/memento/pages/movie-detail-page.ui',
@@ -668,7 +672,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 
                 // Check if auto-remove from watchlist is enabled
                 try {
-                    const settings = new Gio.Settings({ schema_id: 'app.memento.memento' });
+                    const settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
                     const autoRemove = settings.get_boolean('auto-remove-from-watchlist');
                     
                     console.log('Auto-remove setting:', autoRemove);

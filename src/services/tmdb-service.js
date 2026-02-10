@@ -6,12 +6,15 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const DEFAULT_LANGUAGE = 'en-US';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const PROFILE_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
+const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
+    ? 'io.github.ans_ibrahim.Memento.Devel'
+    : 'io.github.ans_ibrahim.Memento';
 
 const session = new Soup.Session();
 
 function getApiKey() {
     try {
-        const settings = new Gio.Settings({ schema_id: 'app.memento.memento' });
+        const settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
         const customKey = settings.get_string('tmdb-api-key');
         
         if (customKey && customKey.length > 0) {
@@ -114,4 +117,3 @@ export function buildLetterboxdUrl(imdbId, title) {
     const imdbNumber = imdbId.replace('tt', '');
     return `https://letterboxd.com/imdb/${imdbNumber}/`;
 }
-

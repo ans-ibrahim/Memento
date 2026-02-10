@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'app.memento.memento.desktop.in',
-       output: 'app.memento.memento.desktop',
+        input: 'io.github.ans_ibrahim.Memento.desktop.in',
+       output: 'io.github.ans_ibrahim.Memento.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +13,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'app.memento.memento.metainfo.xml.in',
-       output: 'app.memento.memento.metainfo.xml',
+        input: 'io.github.ans_ibrahim.Memento.metainfo.xml.in',
+       output: 'io.github.ans_ibrahim.Memento.metainfo.xml',
        po_dir: '../po',
       install: true,
   install_dir: get_option('datadir') / 'metainfo'
@@ -24,7 +24,10 @@ appstreamcli = find_program('appstreamcli', required: false, disabler: true)
 test('Validate appstream file', appstreamcli,
      args: ['validate', '--no-net', '--explain', appstream_file])
 
-install_data('app.memento.memento.gschema.xml',
+install_data('io.github.ans_ibrahim.Memento.gschema.xml',
+  install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
+)
+install_data('io.github.ans_ibrahim.Memento.Devel.gschema.xml',
   install_dir: get_option('datadir') / 'glib-2.0' / 'schemas'
 )
 
@@ -37,8 +40,8 @@ test('Validate schema file',
 service_conf = configuration_data()
 service_conf.set('bindir', get_option('prefix') / get_option('bindir'))
 configure_file(
-  input: 'app.memento.memento.service.in',
-  output: 'app.memento.memento.service',
+  input: 'io.github.ans_ibrahim.Memento.service.in',
+  output: 'io.github.ans_ibrahim.Memento.service',
   configuration: service_conf,
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )

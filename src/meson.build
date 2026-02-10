@@ -1,15 +1,15 @@
 pkgdatadir = get_option('datadir') / meson.project_name()
 gnome = import('gnome')
 
-src_res = gnome.compile_resources('app.memento.memento.src',
-  'app.memento.memento.src.gresource.xml',
+src_res = gnome.compile_resources('io.github.ans_ibrahim.Memento.src',
+  'io.github.ans_ibrahim.Memento.src.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
 )
 
-data_res = gnome.compile_resources('app.memento.memento.data',
-  'app.memento.memento.data.gresource.xml',
+data_res = gnome.compile_resources('io.github.ans_ibrahim.Memento.data',
+  'io.github.ans_ibrahim.Memento.data.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
@@ -25,8 +25,8 @@ bin_conf.set('datadir', get_option('prefix') / get_option('datadir'))
 bin_conf.set('resource_path', '/app/memento/memento')
 
 configure_file(
-  input: 'app.memento.memento.in',
-  output: 'app.memento.memento',
+  input: 'io.github.ans_ibrahim.Memento.in',
+  output: 'io.github.ans_ibrahim.Memento',
   configuration: bin_conf,
   install: true,
   install_dir: get_option('bindir')

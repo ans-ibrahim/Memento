@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=memento
-Exec=app.memento.memento
-Icon=app.memento.memento
+Exec=io.github.ans_ibrahim.Memento
+Icon=io.github.ans_ibrahim.Memento
 Terminal=false
 Type=Application
 Categories=Utility;

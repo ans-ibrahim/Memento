@@ -23,17 +23,21 @@ import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk?version=4.0';
 import Gdk from 'gi://Gdk?version=4.0';
 import Adw from 'gi://Adw?version=1';
+import GLib from 'gi://GLib';
 
 import { MementoWindow } from './window.js';
 
 pkg.initGettext();
 pkg.initFormat();
 
+const DEFAULT_APP_ID = 'io.github.ans_ibrahim.Memento';
+const APP_ID = GLib.getenv('FLATPAK_ID') || DEFAULT_APP_ID;
+
 export const MementoApplication = GObject.registerClass(
     class MementoApplication extends Adw.Application {
         constructor() {
             super({
-                application_id: 'app.memento.memento',
+                application_id: APP_ID,
                 flags: Gio.ApplicationFlags.DEFAULT_FLAGS,
                 resource_base_path: '/app/memento/memento'
             });
@@ -49,7 +53,7 @@ export const MementoApplication = GObject.registerClass(
             show_about_action.connect('activate', action => {
                 const aboutParams = {
                     application_name: 'memento',
-                    application_icon: 'app.memento.memento',
+                    application_icon: APP_ID,
                     developer_name: 'Ans Ibrahim',
                     version: '0.1.0',
                     developers: [

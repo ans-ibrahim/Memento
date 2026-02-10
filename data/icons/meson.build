@@ -1,4 +1,4 @@
-application_id = 'app.memento.memento'
+application_id = 'io.github.ans_ibrahim.Memento'
 
 scalable_dir = 'hicolor' / 'scalable' / 'apps'
 install_data(
