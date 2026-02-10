@@ -265,14 +265,21 @@ export const MementoPersonPage = GObject.registerClass({
         this._name_label.set_label(details.name);
 
         if (details.birthday) {
-            let birthText = new Date(details.birthday).toLocaleDateString();
+            const birthDate = new Date(details.birthday);
+            let birthText = birthDate.toLocaleDateString();
             if (details.deathday) {
-                const deathText = new Date(details.deathday).toLocaleDateString();
+                const deathDate = new Date(details.deathday);
+                const deathText = deathDate.toLocaleDateString();
+                const ageAtDeath = this._calculateAge(birthDate, deathDate);
                 birthText += ` - ${deathText}`;
+                if (ageAtDeath !== null) {
+                    birthText += ` (${ageAtDeath} years)`;
+                }
             } else {
-                // Calculate age
-                const age = new Date().getFullYear() - new Date(details.birthday).getFullYear();
-                birthText += ` (${age} years old)`;
+                const age = this._calculateAge(birthDate, new Date());
+                if (age !== null) {
+                    birthText += ` (${age} years old)`;
+                }
             }
             this._birthday_label.set_label(birthText);
             this._birthday_label.set_visible(true);
@@ -307,5 +314,22 @@ export const MementoPersonPage = GObject.registerClass({
                 this._profile_image.set_paintable(texture);
             }).catch(console.error);
         }
+    }
+
+    _calculateAge(birthDate, endDate) {
+        if (!(birthDate instanceof Date) || Number.isNaN(birthDate.getTime()))
+            return null;
+        if (!(endDate instanceof Date) || Number.isNaN(endDate.getTime()))
+            return null;
+
+        let age = endDate.getFullYear() - birthDate.getFullYear();
+        const hasHadBirthdayThisYear =
+            endDate.getMonth() > birthDate.getMonth() ||
+            (endDate.getMonth() === birthDate.getMonth() && endDate.getDate() >= birthDate.getDate());
+
+        if (!hasHadBirthdayThisYear)
+            age -= 1;
+
+        return age >= 0 ? age : null;
     }
 });

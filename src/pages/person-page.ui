@@ -30,89 +30,102 @@
                 <property name="margin-start">28</property>
                 <property name="margin-end">28</property>
 
-                <!-- Header Section -->
+                <!-- Top Section -->
                 <child>
-                  <object class="GtkBox" id="header_box">
+                  <object class="GtkBox">
                     <property name="orientation">horizontal</property>
-                    <property name="spacing">24</property>
-                    <property name="halign">center</property>
+                    <property name="spacing">28</property>
+                    <property name="hexpand">true</property>
 
-                    <!-- Profile Photo -->
                     <child>
-                      <object class="GtkFrame" id="profile_frame">
-                        <property name="css-classes">profile-photo</property>
+                      <object class="GtkBox" id="header_box">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">18</property>
+                        <property name="valign">start</property>
+                        <property name="hexpand">true</property>
+
+                        <!-- Profile Photo -->
                         <child>
-                          <object class="GtkPicture" id="profile_image">
-                            <property name="width-request">150</property>
-                            <property name="height-request">150</property>
-                            <property name="content-fit">cover</property>
-                            <property name="css-classes">circular</property>
-                            <property name="can-shrink">false</property>
+                          <object class="GtkFrame" id="profile_frame">
+                            <property name="css-classes">profile-photo</property>
+                            <child>
+                              <object class="GtkPicture" id="profile_image">
+                                <property name="width-request">170</property>
+                                <property name="height-request">230</property>
+                                <property name="content-fit">cover</property>
+                                <property name="can-shrink">false</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <!-- Info -->
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="valign">start</property>
+                            <property name="spacing">8</property>
+                            <property name="hexpand">true</property>
+
+                            <child>
+                              <object class="GtkLabel" id="name_label">
+                                <property name="css-classes">title-1</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkLabel" id="birthday_label">
+                                <property name="css-classes">body</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkLabel" id="place_of_birth_label">
+                                <property name="css-classes">caption, dim-label</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkLabel" id="known_for_label">
+                                <property name="css-classes">caption, dim-label</property>
+                                <property name="xalign">0</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
                     </child>
 
-                    <!-- Info -->
+                    <!-- Biography -->
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkBox" id="bio_box">
                         <property name="orientation">vertical</property>
-                        <property name="valign">center</property>
                         <property name="spacing">8</property>
+                        <property name="visible">false</property>
+                        <property name="hexpand">true</property>
+                        <property name="valign">start</property>
+                        <property name="width-request">440</property>
 
                         <child>
-                          <object class="GtkLabel" id="name_label">
-                            <property name="css-classes">title-1</property>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Biography</property>
+                            <property name="css-classes">heading</property>
                             <property name="xalign">0</property>
                           </object>
                         </child>
 
                         <child>
-                          <object class="GtkLabel" id="birthday_label">
-                            <property name="css-classes">body</property>
+                          <object class="GtkLabel" id="biography_label">
+                            <property name="wrap">true</property>
                             <property name="xalign">0</property>
+                            <property name="selectable">true</property>
+                            <property name="max-width-chars">72</property>
                           </object>
                         </child>
-
-                        <child>
-                          <object class="GtkLabel" id="place_of_birth_label">
-                            <property name="css-classes">caption, dim-label</property>
-                            <property name="xalign">0</property>
-                          </object>
-                        </child>
-
-                        <child>
-                          <object class="GtkLabel" id="known_for_label">
-                            <property name="css-classes">caption, dim-label</property>
-                            <property name="xalign">0</property>
-                            <property name="visible">false</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-
-                <!-- Biography -->
-                <child>
-                  <object class="GtkBox" id="bio_box">
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">8</property>
-                    <property name="visible">false</property>
-
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="label" translatable="yes">Biography</property>
-                        <property name="css-classes">heading</property>
-                        <property name="xalign">0</property>
-                      </object>
-                    </child>
-
-                    <child>
-                      <object class="GtkLabel" id="biography_label">
-                        <property name="wrap">true</property>
-                        <property name="xalign">0</property>
-                        <property name="selectable">true</property>
                       </object>
                     </child>
                   </object>

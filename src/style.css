@@ -94,22 +94,19 @@
    ======================================== */
 
 .profile-photo {
-  border-radius: 50%;
-  border: 2px solid alpha(@accent_color, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  border: 1px solid alpha(@accent_color, 0.25);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
 }
 
 .profile-photo:hover {
-  border-color: alpha(@accent_color, 0.5);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: alpha(@accent_color, 0.45);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
 }
 
 .profile-photo > picture {
-  border-radius: 50%;
-}
-
-.profile-photo picture.circular {
-  border-radius: 50%;
+  border-radius: 14px;
 }
 
 /* Person card button styling */
