@@ -76,6 +76,13 @@ CREATE TABLE IF NOT EXISTS plays (
 );
 `,
     },
+    {
+        version: 2,
+        name: 'add_person_known_for',
+        sql: `
+ALTER TABLE persons ADD COLUMN known_for TEXT;
+`,
+    },
 ];
 
 // ... (existing code) ...
@@ -319,6 +326,7 @@ INSERT INTO persons (
     tmdb_person_id,
     name,
     profile_path,
+    known_for,
     biography,
     birthday,
     place_of_birth,
@@ -329,6 +337,7 @@ INSERT INTO persons (
     ${toSqlLiteral(personId)},
     ${toSqlLiteral(details.name)},
     ${toSqlLiteral(details.profile_path)},
+    ${toSqlLiteral(details.known_for_department || details.known_for || '')},
     ${toSqlLiteral(details.biography)},
     ${toSqlLiteral(details.birthday)},
     ${toSqlLiteral(details.place_of_birth)},
@@ -339,6 +348,7 @@ INSERT INTO persons (
 ON CONFLICT(tmdb_person_id) DO UPDATE SET
     name = excluded.name,
     profile_path = excluded.profile_path,
+    known_for = excluded.known_for,
     biography = excluded.biography,
     birthday = excluded.birthday,
     place_of_birth = excluded.place_of_birth,

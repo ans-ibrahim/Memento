@@ -28,6 +28,7 @@ export const MementoPersonPage = GObject.registerClass({
         'name_label',
         'birthday_label',
         'place_of_birth_label',
+        'known_for_label',
         'bio_box',
         'biography_label',
         'stack',
@@ -65,8 +66,8 @@ export const MementoPersonPage = GObject.registerClass({
             // Check local database first
             let details = await getPersonByTmdbId(personId);
             
-            // If not in DB or missing biography, fetch from TMDB
-            if (!details || !details.biography) {
+            // If not in DB or missing important fields, fetch from TMDB
+            if (!details || !details.biography || details.known_for === null) {
                 const tmdbDetails = await getPersonDetails(personId);
                 
                 // Save to database for future use
@@ -274,19 +275,30 @@ export const MementoPersonPage = GObject.registerClass({
                 birthText += ` (${age} years old)`;
             }
             this._birthday_label.set_label(birthText);
+            this._birthday_label.set_visible(true);
         } else {
             this._birthday_label.set_visible(false);
         }
 
         if (details.place_of_birth) {
             this._place_of_birth_label.set_label(details.place_of_birth);
+            this._place_of_birth_label.set_visible(true);
         } else {
             this._place_of_birth_label.set_visible(false);
+        }
+
+        if (details.known_for) {
+            this._known_for_label.set_label(`Known for: ${details.known_for}`);
+            this._known_for_label.set_visible(true);
+        } else {
+            this._known_for_label.set_visible(false);
         }
 
         if (details.biography) {
             this._biography_label.set_label(details.biography);
             this._bio_box.set_visible(true);
+        } else {
+            this._bio_box.set_visible(false);
         }
 
         if (details.profile_path) {
