@@ -2,7 +2,6 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
 const DATABASE_FILENAME = 'memento.db';
-
 const MIGRATIONS = [
     {
         version: 1,
@@ -22,7 +21,8 @@ CREATE TABLE IF NOT EXISTS movies (
     tmdb_average REAL,
     tmdb_vote_count INTEGER,
     revenue INTEGER,
-    letterboxd_url TEXT,
+    budget INTEGER,
+    genres TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS persons (
     tmdb_person_id INTEGER UNIQUE NOT NULL,
     name TEXT NOT NULL,
     profile_path TEXT,
+    known_for TEXT,
     biography TEXT,
     birthday TEXT,
     place_of_birth TEXT,
@@ -74,21 +75,6 @@ CREATE TABLE IF NOT EXISTS plays (
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
-`,
-    },
-    {
-        version: 2,
-        name: 'add_person_known_for',
-        sql: `
-ALTER TABLE persons ADD COLUMN known_for TEXT;
-`,
-    },
-    {
-        version: 3,
-        name: 'add_movie_budget_and_genres',
-        sql: `
-ALTER TABLE movies ADD COLUMN budget INTEGER;
-ALTER TABLE movies ADD COLUMN genres TEXT;
 `,
     },
 ];
