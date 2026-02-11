@@ -346,12 +346,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Poster
         const posterUrl = buildPosterUrl(this._movieData.poster);
-        const posterWidth = this._poster_image.get_width_request() > 0
-            ? this._poster_image.get_width_request()
-            : 250;
-        const posterHeight = this._poster_image.get_height_request() > 0
-            ? this._poster_image.get_height_request()
-            : 375;
+        const requestedWidth = Number(this._poster_image.width_request) || 0;
+        const requestedHeight = Number(this._poster_image.height_request) || 0;
+        const posterWidth = requestedWidth > 0 ? requestedWidth : 250;
+        const posterHeight = requestedHeight > 0 ? requestedHeight : 375;
         loadTextureFromUrlWithFallback(
             posterUrl,
             this._movieData.poster,

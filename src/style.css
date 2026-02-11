@@ -97,7 +97,6 @@
   border-radius: 14px;
   border: 1px solid alpha(@accent_color, 0.25);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
-  overflow: hidden;
 }
 
 .profile-photo:hover {
@@ -185,7 +184,6 @@ flowboxchild:focus .movie-card {
 
 .search-result-poster-frame {
   border-radius: 10px;
-  overflow: hidden;
 }
 
 .search-result-poster {
