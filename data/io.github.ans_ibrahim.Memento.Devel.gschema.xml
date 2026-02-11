@@ -7,7 +7,7 @@
 			<description>API key for The Movie Database (TMDB) service</description>
 		</key>
 		<key name="auto-remove-from-watchlist" type="b">
-			<default>false</default>
+			<default>true</default>
 			<summary>Auto-remove from watchlist</summary>
 			<description>Automatically remove movie from watchlist when adding a play</description>
 		</key>
