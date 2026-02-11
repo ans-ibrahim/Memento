@@ -245,7 +245,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Process cast
         if (creditsData.cast) {
-            for (const actor of creditsData.cast.slice(0, 10)) {
+            for (const actor of creditsData.cast) {
                 // Upsert person first
                 const personId = await upsertPerson(actor.id, {
                     name: actor.name,

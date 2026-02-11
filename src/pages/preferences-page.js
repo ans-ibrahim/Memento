@@ -171,7 +171,7 @@ export const MementoPreferencesPage = GObject.registerClass({
         }
 
         if (creditsData.cast) {
-            for (const actor of creditsData.cast.slice(0, 10)) {
+            for (const actor of creditsData.cast) {
                 const personId = await upsertPerson(actor.id, {
                     name: actor.name,
                     profile_path: actor.profile_path || null
