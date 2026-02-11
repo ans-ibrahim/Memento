@@ -4,16 +4,6 @@
   <requires lib="Adw" version="1.0" />
   <template class="MementoMovieDetailPage" parent="AdwNavigationPage">
     <property name="title">Movie Details</property>
-    <child>
-      <object class="AdwBreakpoint">
-        <condition>max-width: 700sp</condition>
-        <setter object="main_content_box" property="orientation">vertical</setter>
-        <setter object="main_content_box" property="spacing">20</setter>
-        <setter object="left_sidebar" property="halign">center</setter>
-        <setter object="poster_image" property="width-request">200</setter>
-        <setter object="poster_image" property="height-request">300</setter>
-      </object>
-    </child>
     <property name="child">
       <object class="AdwToolbarView">
         <child type="top">
