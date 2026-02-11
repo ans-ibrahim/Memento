@@ -307,7 +307,6 @@ export const MementoWindow = GObject.registerClass({
         this._dashboard_watchlist_empty_label.set_visible(movies.length === 0);
         for (const movie of movies) {
             const card = createMovieCard(movie, {
-                compact: true,
                 titleMaxChars: 18,
                 onActivate: tmdbId => this._showMovieDetail(tmdbId),
             });

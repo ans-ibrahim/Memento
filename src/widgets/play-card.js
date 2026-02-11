@@ -4,15 +4,19 @@ import Adw from 'gi://Adw';
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 import { buildPosterUrl } from '../services/tmdb-service.js';
 import { formatDate } from '../utils/ui-utils.js';
+import {
+    STANDARD_CARD_WIDTH,
+    STANDARD_CARD_HEIGHT,
+    STANDARD_CARD_TITLE_MAX_CHARS,
+} from './movie-card.js';
 
 export function createPlayCard(play, options = {}) {
-    const compact = Boolean(options.compact);
-    const width = options.width ?? (compact ? 140 : 160);
-    const height = options.height ?? (compact ? 210 : 240);
-    const titleMaxChars = options.titleMaxChars ?? (compact ? 16 : 18);
+    const width = options.width ?? STANDARD_CARD_WIDTH;
+    const height = options.height ?? STANDARD_CARD_HEIGHT;
+    const titleMaxChars = options.titleMaxChars ?? STANDARD_CARD_TITLE_MAX_CHARS;
     const marginStart = options.marginStart ?? 8;
     const marginEnd = options.marginEnd ?? 8;
-    const marginBottom = options.marginBottom ?? 8;
+    const marginBottom = options.marginBottom ?? 12;
     const onActivate = options.onActivate;
     const onDelete = options.onDelete;
     const dialogParent = options.dialogParent ?? null;
@@ -32,7 +36,7 @@ export function createPlayCard(play, options = {}) {
     });
 
     const posterButton = new Gtk.Button({
-        css_classes: ['flat'],
+        css_classes: ['flat', 'movie-card-button'],
     });
 
     const posterImage = new Gtk.Picture({
@@ -109,7 +113,7 @@ export function createPlayCard(play, options = {}) {
     });
     infoBox.append(dateLabel);
 
-    if (!compact && typeof onDelete === 'function') {
+    if (!options.compact && typeof onDelete === 'function') {
         const actionsBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 6,

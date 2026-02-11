@@ -3,11 +3,14 @@ import Gtk from 'gi://Gtk';
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 import { buildPosterUrl } from '../services/tmdb-service.js';
 
+export const STANDARD_CARD_WIDTH = 160;
+export const STANDARD_CARD_HEIGHT = 240;
+export const STANDARD_CARD_TITLE_MAX_CHARS = 18;
+
 export function createMovieCard(movie, options = {}) {
-    const compact = Boolean(options.compact);
-    const width = options.width ?? (compact ? 140 : 160);
-    const height = options.height ?? (compact ? 210 : 240);
-    const titleMaxChars = options.titleMaxChars ?? (compact ? 16 : 18);
+    const width = options.width ?? STANDARD_CARD_WIDTH;
+    const height = options.height ?? STANDARD_CARD_HEIGHT;
+    const titleMaxChars = options.titleMaxChars ?? STANDARD_CARD_TITLE_MAX_CHARS;
     const marginStart = options.marginStart ?? 8;
     const marginEnd = options.marginEnd ?? 8;
     const marginBottom = options.marginBottom ?? 12;

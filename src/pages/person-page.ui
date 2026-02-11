@@ -190,10 +190,10 @@
                                   <object class="GtkFlowBox" id="watched_grid">
                                     <property name="valign">start</property>
                                     <property name="homogeneous">true</property>
-                                    <property name="column-spacing">24</property>
+                                    <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
                                     <property name="min-children-per-line">6</property>
-                                    <property name="max-children-per-line">8</property>
+                                    <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>
@@ -245,10 +245,10 @@
                                   <object class="GtkFlowBox" id="watchlist_grid">
                                     <property name="valign">start</property>
                                     <property name="homogeneous">true</property>
-                                    <property name="column-spacing">24</property>
+                                    <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
                                     <property name="min-children-per-line">6</property>
-                                    <property name="max-children-per-line">8</property>
+                                    <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>
@@ -300,10 +300,10 @@
                                   <object class="GtkFlowBox" id="explore_grid">
                                     <property name="valign">start</property>
                                     <property name="homogeneous">true</property>
-                                    <property name="column-spacing">24</property>
+                                    <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
                                     <property name="min-children-per-line">6</property>
-                                    <property name="max-children-per-line">8</property>
+                                    <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>
                                 </child>

@@ -185,13 +185,6 @@ export const MementoPersonPage = GObject.registerClass({
                 continue;
 
             const card = createMovieCard(movie, {
-                compact: true,
-                width: 140,
-                height: 210,
-                titleMaxChars: 16,
-                marginStart: 4,
-                marginEnd: 4,
-                marginBottom: 8,
                 showRating: false,
                 showYear: true,
                 jobText: movie.character_name || '',
@@ -284,13 +277,6 @@ export const MementoPersonPage = GObject.registerClass({
 
         for (const movie of filteredMovies) {
             const card = createMovieCard(movie, {
-                compact: true,
-                width: 140,
-                height: 210,
-                titleMaxChars: 16,
-                marginStart: 4,
-                marginEnd: 4,
-                marginBottom: 8,
                 showRating: false,
                 showYear: true,
                 jobText: movie.character || movie.job || '',

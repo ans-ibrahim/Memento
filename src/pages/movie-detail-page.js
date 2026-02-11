@@ -24,7 +24,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
-import { getMovieDetails, getMovieCredits, buildPosterUrl, buildProfileUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
+import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
 import { 
     findMovieByTmdbId, 
     upsertMovieFromTmdb, 
@@ -43,6 +43,7 @@ import {
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { formatDate } from '../utils/ui-utils.js';
+import { createPersonStatCard } from '../widgets/person-stat-card.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
@@ -417,98 +418,24 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Create a horizontal flow box for people
         const grid = new Gtk.FlowBox({
             selection_mode: Gtk.SelectionMode.NONE,
-            max_children_per_line: 5,
+            max_children_per_line: 7,
             min_children_per_line: 2,
-            column_spacing: 16,
-            row_spacing: 16,
+            column_spacing: 20,
+            row_spacing: 28,
             homogeneous: true,
             margin_top: 12,
+            margin_bottom: 12,
         });
         
-        // Add people with poster-style cards
+        // Add people using the shared person card style
         for (const person of people) {
-            const cardWidth = 140;
-            const cardHeight = 210;
-            const memberBox = new Gtk.Box({
-                orientation: Gtk.Orientation.VERTICAL,
-                spacing: 8,
-                halign: Gtk.Align.CENTER,
-                width_request: cardWidth,
+            const subtitleText = person.character_name || person.job || '';
+            const card = createPersonStatCard(person, {
+                subtitleText,
+                showCount: false,
+                onActivate: personId => this.emit('view-person', personId),
             });
-            
-            // Profile photo with poster frame
-            const pictureFrame = new Gtk.Frame({
-                css_classes: ['movie-poster-frame'],
-            });
-            
-            const picture = new Gtk.Picture({
-                width_request: cardWidth,
-                height_request: cardHeight,
-                css_classes: ['movie-poster'],
-                content_fit: Gtk.ContentFit.COVER,
-                can_shrink: false,
-            });
-            
-            pictureFrame.set_child(picture);
-            
-            // Load profile photo asynchronously
-            (async () => {
-                try {
-                    const profileUrl = buildProfileUrl(person.profile_path);
-                    const texture = await loadTextureFromUrlWithFallback(profileUrl, person.profile_path, 'avatar-default-symbolic');
-                    picture.set_paintable(texture);
-                } catch (error) {
-                    console.error('Failed to load profile photo:', error);
-                }
-            })();
-            
-            // Name label
-            const nameLabel = new Gtk.Label({
-                label: person.person_name,
-                wrap: true,
-                wrap_mode: 2, // WORD_CHAR
-                max_width_chars: 16,
-                justify: Gtk.Justification.LEFT,
-                xalign: 0,
-                css_classes: ['heading'],
-            });
-            
-            // Make clickable
-            // Use a button instead of just a box to make it clickable and provide visual feedback
-            const button = new Gtk.Button({
-                css_classes: ['flat', 'person-card'],
-            });
-            
-            button.connect('clicked', () => {
-                // Emit the TMDB person ID for navigation
-                if (person.tmdb_person_id) {
-                    this.emit('view-person', String(person.tmdb_person_id));
-                } else {
-                    console.warn('No TMDB person ID available for', person.person_name);
-                }
-            });
-
-            // Character name label
-            if (person.character_name) {
-                const characterLabel = new Gtk.Label({
-                    label: person.character_name,
-                    wrap: true,
-                    wrap_mode: 2,
-                    max_width_chars: 16,
-                    justify: Gtk.Justification.LEFT,
-                    xalign: 0,
-                    css_classes: ['caption', 'dim-label'],
-                });
-                memberBox.append(pictureFrame);
-                memberBox.append(characterLabel);
-                memberBox.append(nameLabel);
-            } else {
-                memberBox.append(pictureFrame);
-                memberBox.append(nameLabel);
-            }
-            
-            button.set_child(memberBox);
-            grid.append(button);
+            grid.append(card);
         }
         
         // Add grid to box
