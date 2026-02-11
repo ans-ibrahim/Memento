@@ -53,7 +53,7 @@
                                 <property name="width-request">170</property>
                                 <property name="height-request">230</property>
                                 <property name="content-fit">cover</property>
-                                <property name="can-shrink">false</property>
+                                <property name="can-shrink">true</property>
                               </object>
                             </child>
                           </object>
@@ -192,7 +192,7 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">6</property>
+                                    <property name="min-children-per-line">2</property>
                                     <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>
@@ -247,7 +247,7 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">6</property>
+                                    <property name="min-children-per-line">2</property>
                                     <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>
@@ -302,7 +302,7 @@
                                     <property name="homogeneous">true</property>
                                     <property name="column-spacing">20</property>
                                     <property name="row-spacing">28</property>
-                                    <property name="min-children-per-line">6</property>
+                                    <property name="min-children-per-line">2</property>
                                     <property name="max-children-per-line">7</property>
                                     <property name="selection-mode">none</property>
                                   </object>

@@ -66,6 +66,7 @@
                                 <property name="content-fit">cover</property>
                                 <property name="width-request">250</property>
                                 <property name="height-request">375</property>
+                                <property name="can-shrink">true</property>
                                 <style>
                                   <class name="movie-detail-poster" />
                                 </style>

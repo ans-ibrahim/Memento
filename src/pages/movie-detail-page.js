@@ -25,7 +25,7 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
 import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
-import { 
+import {
     findMovieByTmdbId, 
     upsertMovieFromTmdb, 
     upsertPerson,
@@ -42,7 +42,7 @@ import {
     getAllPlaces
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
-import { formatDate } from '../utils/ui-utils.js';
+import { enforceFixedPictureSize, formatDate } from '../utils/ui-utils.js';
 import { createPersonStatCard } from '../widgets/person-stat-card.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
@@ -123,16 +123,14 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 this._main_content_box.set_orientation(Gtk.Orientation.VERTICAL);
                 this._main_content_box.set_spacing(20);
                 // Make poster smaller on mobile
-                this._poster_image.set_width_request(200);
-                this._poster_image.set_height_request(300);
+                enforceFixedPictureSize(this._poster_image, 200, 300);
                 // Center sideb ar content
                 this._left_sidebar.set_halign(Gtk.Align.CENTER);
             } else {
                 this._main_content_box.set_orientation(Gtk.Orientation.HORIZONTAL);
                 this._main_content_box.set_spacing(32);
                 // Restore normal poster size
-                this._poster_image.set_width_request(250);
-                this._poster_image.set_height_request(375);
+                enforceFixedPictureSize(this._poster_image, 250, 375);
                 this._left_sidebar.set_halign(Gtk.Align.FILL);
             }
         });
@@ -348,7 +346,19 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Poster
         const posterUrl = buildPosterUrl(this._movieData.poster);
-        loadTextureFromUrlWithFallback(posterUrl, this._movieData.poster, 'camera-video-symbolic').then(texture => {
+        const posterWidth = this._poster_image.get_width_request() > 0
+            ? this._poster_image.get_width_request()
+            : 250;
+        const posterHeight = this._poster_image.get_height_request() > 0
+            ? this._poster_image.get_height_request()
+            : 375;
+        loadTextureFromUrlWithFallback(
+            posterUrl,
+            this._movieData.poster,
+            'camera-video-symbolic',
+            posterWidth,
+            posterHeight
+        ).then(texture => {
             if (texture) {
                 this._poster_image.set_paintable(texture);
             }

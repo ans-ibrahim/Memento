@@ -43,3 +43,35 @@ export function formatRuntimeMinutes(minutes) {
 
     return `${hours}h ${remainingMinutes}m`;
 }
+
+export function enforceFixedWidgetSize(widget, width, height) {
+    if (!widget) {
+        return;
+    }
+
+    if (typeof widget.set_size_request === 'function') {
+        widget.set_size_request(width, height);
+    }
+    if (typeof widget.set_width_request === 'function') {
+        widget.set_width_request(width);
+    }
+    if (typeof widget.set_height_request === 'function') {
+        widget.set_height_request(height);
+    }
+
+    if ('hexpand' in widget) {
+        widget.hexpand = false;
+    }
+    if ('vexpand' in widget) {
+        widget.vexpand = false;
+    }
+}
+
+export function enforceFixedPictureSize(picture, width, height) {
+    if (!picture) {
+        return;
+    }
+
+    enforceFixedWidgetSize(picture, width, height);
+    picture.can_shrink = true;
+}

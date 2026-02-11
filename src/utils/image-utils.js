@@ -51,13 +51,30 @@ function isCached(relativePath) {
     return cachedFile && cachedFile.query_exists(null);
 }
 
-async function loadTextureFromFile(file) {
+function createTextureFromBytes(bytes, width = null, height = null) {
+    const inputStream = Gio.MemoryInputStream.new_from_bytes(bytes);
+    let pixbuf;
+
+    if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+        pixbuf = GdkPixbuf.Pixbuf.new_from_stream_at_scale(
+            inputStream,
+            width,
+            height,
+            true,
+            null
+        );
+    } else {
+        pixbuf = GdkPixbuf.Pixbuf.new_from_stream(inputStream, null);
+    }
+
+    return Gdk.Texture.new_for_pixbuf(pixbuf);
+}
+
+async function loadTextureFromFile(file, width = null, height = null) {
     try {
         const [, contents] = file.load_contents(null);
         const bytes = GLib.Bytes.new(contents);
-        const inputStream = Gio.MemoryInputStream.new_from_bytes(bytes);
-        const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(inputStream, null);
-        return Gdk.Texture.new_for_pixbuf(pixbuf);
+        return createTextureFromBytes(bytes, width, height);
     } catch (error) {
         console.error('Failed to load texture from file:', error.message);
         return null;
@@ -90,13 +107,19 @@ function getFallbackTexture(iconName = 'camera-video-symbolic') {
     return iconPaintable;
 }
 
-export async function loadTextureFromUrlWithFallback(url, relativePath = null, fallbackIconName = 'camera-video-symbolic') {
+export async function loadTextureFromUrlWithFallback(
+    url,
+    relativePath = null,
+    fallbackIconName = 'camera-video-symbolic',
+    width = null,
+    height = null
+) {
     try {
         if (!url) {
             return getFallbackTexture(fallbackIconName);
         }
         
-        const texture = await loadTextureFromUrl(url, relativePath);
+        const texture = await loadTextureFromUrl(url, relativePath, width, height);
         return texture || getFallbackTexture(fallbackIconName);
     } catch (error) {
         console.warn(`Failed to load image from ${url}, using fallback:`, error.message);
@@ -104,14 +127,14 @@ export async function loadTextureFromUrlWithFallback(url, relativePath = null, f
     }
 }
 
-export async function loadTextureFromUrl(url, relativePath = null) {
+export async function loadTextureFromUrl(url, relativePath = null, width = null, height = null) {
     if (!url)
         return null;
 
     // Check cache first if we have a relative path
     if (relativePath && isCached(relativePath)) {
         const cachedFile = getCachedImagePath(relativePath);
-        const texture = await loadTextureFromFile(cachedFile);
+        const texture = await loadTextureFromFile(cachedFile, width, height);
         if (texture) {
             return texture;
         }
@@ -137,8 +160,5 @@ export async function loadTextureFromUrl(url, relativePath = null) {
         }
     }
 
-    // Load texture from downloaded bytes
-    const inputStream = Gio.MemoryInputStream.new_from_bytes(bytes);
-    const pixbuf = GdkPixbuf.Pixbuf.new_from_stream(inputStream, null);
-    return Gdk.Texture.new_for_pixbuf(pixbuf);
+    return createTextureFromBytes(bytes, width, height);
 }

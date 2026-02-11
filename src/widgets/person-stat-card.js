@@ -2,6 +2,7 @@ import Gtk from 'gi://Gtk';
 
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { buildProfileUrl } from '../services/tmdb-service.js';
+import { enforceFixedPictureSize, enforceFixedWidgetSize } from '../utils/ui-utils.js';
 import {
     STANDARD_CARD_WIDTH,
     STANDARD_CARD_HEIGHT,
@@ -21,6 +22,10 @@ export function createPersonStatCard(person, options = {}) {
 
     const button = new Gtk.Button({
         css_classes: ['flat', 'person-card', 'movie-card-button'],
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.START,
+        hexpand: false,
+        vexpand: false,
     });
 
     const box = new Gtk.Box({
@@ -33,21 +38,30 @@ export function createPersonStatCard(person, options = {}) {
 
     const pictureFrame = new Gtk.Frame({
         css_classes: ['movie-poster-frame'],
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.START,
+        hexpand: false,
+        vexpand: false,
     });
+    enforceFixedWidgetSize(pictureFrame, width, height);
 
     const picture = new Gtk.Picture({
-        width_request: width,
-        height_request: height,
         css_classes: ['movie-poster'],
         content_fit: Gtk.ContentFit.COVER,
-        can_shrink: false,
     });
+    enforceFixedPictureSize(picture, width, height);
 
     pictureFrame.set_child(picture);
     box.append(pictureFrame);
 
     const profileUrl = buildProfileUrl(person.profile_path);
-    loadTextureFromUrlWithFallback(profileUrl, person.profile_path, 'avatar-default-symbolic').then(texture => {
+    loadTextureFromUrlWithFallback(
+        profileUrl,
+        person.profile_path,
+        'avatar-default-symbolic',
+        width,
+        height
+    ).then(texture => {
         if (texture) {
             picture.set_paintable(texture);
         }
@@ -66,6 +80,7 @@ export function createPersonStatCard(person, options = {}) {
         label: person.name || person.person_name || 'Unknown',
         wrap: true,
         wrap_mode: 2,
+        width_chars: titleMaxChars,
         max_width_chars: titleMaxChars,
         justify: Gtk.Justification.LEFT,
         xalign: 0,

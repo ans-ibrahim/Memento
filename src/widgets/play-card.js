@@ -3,7 +3,7 @@ import Adw from 'gi://Adw';
 
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 import { buildPosterUrl } from '../services/tmdb-service.js';
-import { formatDate } from '../utils/ui-utils.js';
+import { enforceFixedPictureSize, enforceFixedWidgetSize, formatDate } from '../utils/ui-utils.js';
 import {
     STANDARD_CARD_WIDTH,
     STANDARD_CARD_HEIGHT,
@@ -33,11 +33,21 @@ export function createPlayCard(play, options = {}) {
 
     const posterFrame = new Gtk.Frame({
         css_classes: ['movie-poster-frame'],
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.START,
+        hexpand: false,
+        vexpand: false,
     });
+    enforceFixedWidgetSize(posterFrame, width, height);
 
     const posterButton = new Gtk.Button({
         css_classes: ['flat', 'movie-card-button'],
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.START,
+        hexpand: false,
+        vexpand: false,
     });
+    enforceFixedWidgetSize(posterButton, width, height);
 
     const posterImage = new Gtk.Picture({
         content_fit: Gtk.ContentFit.COVER,
@@ -47,12 +57,12 @@ export function createPlayCard(play, options = {}) {
         vexpand: false,
         css_classes: ['movie-poster'],
     });
+    enforceFixedPictureSize(posterImage, width, height);
 
     const fallbackPosterBox = new Gtk.CenterBox({
-        width_request: width,
-        height_request: height,
         css_classes: ['search-result-poster-fallback'],
     });
+    enforceFixedWidgetSize(fallbackPosterBox, width, height);
     const fallbackPosterIcon = new Gtk.Image({
         icon_name: 'camera-video-symbolic',
         pixel_size: 34,
@@ -61,16 +71,19 @@ export function createPlayCard(play, options = {}) {
 
     const posterStack = new Gtk.Stack({
         transition_type: Gtk.StackTransitionType.CROSSFADE,
-        width_request: width,
-        height_request: height,
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.START,
+        hexpand: false,
+        vexpand: false,
     });
+    enforceFixedWidgetSize(posterStack, width, height);
     posterStack.add_named(fallbackPosterBox, 'fallback');
     posterStack.add_named(posterImage, 'poster');
     posterStack.set_visible_child_name('fallback');
 
     const posterPath = play.poster ?? null;
     const posterUrl = buildPosterUrl(posterPath);
-    loadTextureFromUrl(posterUrl, posterPath).then(texture => {
+    loadTextureFromUrl(posterUrl, posterPath, width, height).then(texture => {
         if (texture) {
             posterImage.set_paintable(texture);
             posterStack.set_visible_child_name('poster');
@@ -102,6 +115,7 @@ export function createPlayCard(play, options = {}) {
         ellipsize: 3,
         lines: 2,
         wrap: true,
+        width_chars: titleMaxChars,
         max_width_chars: titleMaxChars,
     });
     infoBox.append(titleLabel);

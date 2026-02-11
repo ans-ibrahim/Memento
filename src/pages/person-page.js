@@ -351,7 +351,13 @@ export const MementoPersonPage = GObject.registerClass({
         }
 
         const profileUrl = buildProfileUrl(details.profile_path);
-        loadTextureFromUrlWithFallback(profileUrl, details.profile_path, 'avatar-default-symbolic').then(texture => {
+        loadTextureFromUrlWithFallback(
+            profileUrl,
+            details.profile_path,
+            'avatar-default-symbolic',
+            170,
+            230
+        ).then(texture => {
             this._profile_image.set_paintable(texture);
         }).catch(console.error);
     }
