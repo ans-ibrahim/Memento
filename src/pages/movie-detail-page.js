@@ -584,6 +584,18 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         contentArea.append(placeDropdown);
 
+        const commentLabel = new Gtk.Label({
+            label: 'Comment (optional):',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(commentLabel);
+
+        const commentEntry = new Gtk.Entry({
+            placeholder_text: 'Add a note about this play',
+        });
+        contentArea.append(commentEntry);
+
         dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
         dialog.add_button('Add', Gtk.ResponseType.OK);
 
@@ -600,8 +612,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 }
                 
                 const watchOrder = orderSpinButton.get_value_as_int();
+                const trimmedComment = commentEntry.get_text().trim();
+                const comment = trimmedComment ? trimmedComment : null;
                 
-                await addPlay(this._movieId, isoDate, placeId, watchOrder);
+                await addPlay(this._movieId, isoDate, placeId, watchOrder, comment);
                 await this._loadPlays();
                 this.emit('plays-changed');
                 
@@ -691,6 +705,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 css_classes: ['dim-label', 'caption'],
             });
             leftBox.append(placeLabel);
+        }
+
+        if (play.comment) {
+            const commentLabel = new Gtk.Label({
+                label: play.comment,
+                xalign: 0,
+                css_classes: ['caption'],
+                wrap: true,
+            });
+            leftBox.append(commentLabel);
         }
 
         box.append(leftBox);
@@ -836,6 +860,19 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         contentArea.append(placeDropdown);
 
+        const commentLabel = new Gtk.Label({
+            label: 'Comment (optional):',
+            xalign: 0,
+            margin_top: 12,
+        });
+        contentArea.append(commentLabel);
+
+        const commentEntry = new Gtk.Entry({
+            placeholder_text: 'Add a note about this play',
+            text: play.comment || '',
+        });
+        contentArea.append(commentEntry);
+
         dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
         dialog.add_button('Save', Gtk.ResponseType.OK);
 
@@ -852,9 +889,11 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 }
                 
                 const watchOrder = orderSpinButton.get_value_as_int();
+                const trimmedComment = commentEntry.get_text().trim();
+                const comment = trimmedComment ? trimmedComment : null;
                 
                 try {
-                    await updatePlay(play.id, isoDate, placeId, watchOrder);
+                    await updatePlay(play.id, isoDate, placeId, watchOrder, comment);
                     await this._loadPlays();
                     this.emit('plays-changed');
                 } catch (error) {

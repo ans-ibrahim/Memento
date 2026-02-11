@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS plays (
     watched_at TEXT NOT NULL,
     watch_order INTEGER NOT NULL DEFAULT 1,
     place_id INTEGER,
+    comment TEXT,
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
@@ -482,7 +483,7 @@ ORDER BY updated_at ASC;
 
 
 
-export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null) {
+export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null, comment = null) {
     // If watch_order not provided, calculate it based on same-day plays
     if (watchOrder === null) {
         const sameDayPlays = await queryAll(`
@@ -494,16 +495,25 @@ export async function addPlay(movieId, watchedDate, placeId = null, watchOrder =
     }
     
     const sql = `
-INSERT INTO plays (movie_id, watched_at, watch_order, place_id)
-VALUES (${toSqlLiteral(movieId)}, ${toSqlLiteral(watchedDate)}, ${toSqlLiteral(watchOrder)}, ${toSqlLiteral(placeId)});
+INSERT INTO plays (movie_id, watched_at, watch_order, place_id, comment)
+VALUES (
+    ${toSqlLiteral(movieId)},
+    ${toSqlLiteral(watchedDate)},
+    ${toSqlLiteral(watchOrder)},
+    ${toSqlLiteral(placeId)},
+    ${toSqlLiteral(comment)}
+);
 `;
     execute(sql);
 }
 
-export async function updatePlay(playId, watchedDate, placeId = null, watchOrder = 1) {
+export async function updatePlay(playId, watchedDate, placeId = null, watchOrder = 1, comment = null) {
     const sql = `
 UPDATE plays
-SET watched_at = ${toSqlLiteral(watchedDate)}, place_id = ${toSqlLiteral(placeId)}, watch_order = ${toSqlLiteral(watchOrder)}
+SET watched_at = ${toSqlLiteral(watchedDate)},
+    place_id = ${toSqlLiteral(placeId)},
+    watch_order = ${toSqlLiteral(watchOrder)},
+    comment = ${toSqlLiteral(comment)}
 WHERE id = ${toSqlLiteral(playId)};
 `;
     await execute(sql);
@@ -516,6 +526,7 @@ SELECT
     plays.watched_at,
     plays.watch_order,
     plays.place_id,
+    plays.comment,
     places.name as place_name,
     places.is_cinema
 FROM plays
@@ -537,7 +548,8 @@ SELECT
     plays.movie_id,
     plays.watched_at,
     plays.watch_order,
-   plays.place_id,
+    plays.place_id,
+    plays.comment,
     movies.title,
     movies.poster,
     movies.release_date,
@@ -561,6 +573,7 @@ SELECT
     plays.watched_at,
     plays.watch_order,
     plays.place_id,
+    plays.comment,
     movies.title,
     movies.poster,
     movies.release_date,
