@@ -78,6 +78,7 @@
                         <property name="vexpand">true</property>
                         <property name="child">
                           <object class="GtkListBox" id="results_list">
+                            <property name="activate-on-single-click">true</property>
                             <property name="selection-mode">none</property>
                             <style>
                               <class name="boxed-list" />

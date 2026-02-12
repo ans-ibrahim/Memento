@@ -46,6 +46,14 @@ export const MementoSearchDialog = GObject.registerClass({
         this._search_entry.connect('search-changed', () => {
             this._onSearchChanged();
         });
+
+        this._results_list.connect('row-activated', (listBox, row) => {
+            const tmdbId = row?.tmdbId;
+            if (!Number.isInteger(tmdbId)) {
+                return;
+            }
+            this._showMovieDetail(tmdbId);
+        });
     }
 
     _onSearchChanged() {
@@ -109,11 +117,7 @@ export const MementoSearchDialog = GObject.registerClass({
             selectable: false,
             css_classes: ['search-result-row'],
         });
-
-        // Make row clickable to view details
-        row.connect('activate', () => {
-            this._showMovieDetail(movie.id);
-        });
+        row.tmdbId = Number(movie.id);
 
         const rowContentBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
