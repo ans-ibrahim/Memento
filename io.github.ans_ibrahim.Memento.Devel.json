@@ -3,10 +3,6 @@
     "runtime": "org.gnome.Platform",
     "runtime-version": "48",
     "sdk": "org.gnome.Sdk",
-    "sdk-extensions": [
-        "org.freedesktop.Sdk.Extension.node20",
-        "org.freedesktop.Sdk.Extension.typescript"
-    ],
     "command": "io.github.ans_ibrahim.Memento",
     "rename-desktop-file": "io.github.ans_ibrahim.Memento.desktop",
     "rename-appdata-file": "io.github.ans_ibrahim.Memento.metainfo.xml",
@@ -16,13 +12,8 @@
         "--share=ipc",
         "--socket=fallback-x11",
         "--device=dri",
-        "--socket=wayland",
-        "--env=GTK_A11Y=none",
-        "--env=GSK_RENDERER=ngl"
+        "--socket=wayland"
     ],
-    "build-options": {
-        "append-path": "/usr/lib/sdk/typescript/bin:/usr/lib/sdk/node20/bin"
-    },
     "cleanup": [
         "/include",
         "/lib/pkgconfig",
