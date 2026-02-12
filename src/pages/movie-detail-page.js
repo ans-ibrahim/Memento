@@ -549,17 +549,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const calendar = new Gtk.Calendar();
         contentArea.append(calendar);
 
-        // Watch order
-        const orderLabel = new Gtk.Label({
-            label: 'Watch Order (if multiple movies same day):',
-            xalign: 0,
-            margin_top: 12,
-        });
-        contentArea.append(orderLabel);
-
-        const orderSpinButton = Gtk.SpinButton.new_with_range(1, 10, 1);
-        orderSpinButton.set_value(1);
-        contentArea.append(orderSpinButton);
+        const getSelectedDateIsoString = () => {
+            const date = calendar.get_date();
+            return `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+        };
 
         // Place selector
         const placeLabel = new Gtk.Label({
@@ -601,8 +594,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
-                const date = calendar.get_date();
-                const isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                const isoDate = getSelectedDateIsoString();
                 
                 // Get selected place
                 const selectedIndex = placeDropdown.get_selected();
@@ -611,11 +603,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     placeId = places[selectedIndex - 1].id;
                 }
                 
-                const watchOrder = orderSpinButton.get_value_as_int();
                 const trimmedComment = commentEntry.get_text().trim();
                 const comment = trimmedComment ? trimmedComment : null;
                 
-                await addPlay(this._movieId, isoDate, placeId, watchOrder, comment);
+                await addPlay(this._movieId, isoDate, placeId, comment);
                 await this._loadPlays();
                 this.emit('plays-changed');
                 

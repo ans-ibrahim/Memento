@@ -483,16 +483,13 @@ ORDER BY updated_at ASC;
 
 
 
-export async function addPlay(movieId, watchedDate, placeId = null, watchOrder = null, comment = null) {
-    // If watch_order not provided, calculate it based on same-day plays
-    if (watchOrder === null) {
-        const sameDayPlays = await queryAll(`
-            SELECT MAX(watch_order) as max_order
-            FROM plays
-            WHERE watched_at = ${toSqlLiteral(watchedDate)};
-        `);
-        watchOrder = (sameDayPlays[0]?.max_order || 0) + 1;
-    }
+export async function addPlay(movieId, watchedDate, placeId = null, comment = null) {
+    const sameDayPlays = queryAll(`
+SELECT COALESCE(MAX(watch_order), 0) AS max_order
+FROM plays
+WHERE watched_at = ${toSqlLiteral(watchedDate)};
+`);
+    const watchOrder = (Number(sameDayPlays[0]?.max_order) || 0) + 1;
     
     const sql = `
 INSERT INTO plays (movie_id, watched_at, watch_order, place_id, comment)
