@@ -602,7 +602,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
                 const date = calendar.get_date();
-                const isoDate = `${date.get_year()}-${String(date.get_month() + 1).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                const isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
                 
                 // Get selected place
                 const selectedIndex = placeDropdown.get_selected();
@@ -879,7 +879,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
                 const date = calendar.get_date();
-                const isoDate = `${date.get_year()}-${String(date.get_month() + 1).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                const isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
                 
                 // Get selected place
                 const selectedIndex = placeDropdown.get_selected();
