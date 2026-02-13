@@ -1,7 +1,7 @@
 {
     "id": "io.github.ans_ibrahim.Memento.Devel",
     "runtime": "org.gnome.Platform",
-    "runtime-version": "48",
+    "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "command": "io.github.ans_ibrahim.Memento",
     "rename-desktop-file": "io.github.ans_ibrahim.Memento.desktop",
