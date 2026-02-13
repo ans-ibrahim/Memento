@@ -30,6 +30,32 @@
   <translation type="gettext">memento</translation>
   <launchable type="desktop-id">io.github.ans_ibrahim.Memento.desktop</launchable>
   <content_rating type="oars-1.1" />
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/dashboard-overview.png</image>
+      <caption>Dashboard overview</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/watchlist-page.png</image>
+      <caption>Watchlist page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/top-people-page.png</image>
+      <caption>Top people page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/plays-history-page.png</image>
+      <caption>Plays history</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/movie-details-page.png</image>
+      <caption>Movie details</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/person-page.png</image>
+      <caption>Person Details</caption>
+    </screenshot>
+  </screenshots>
 
   <releases>
     <release version="1.0.0" date="2026-02-13">
