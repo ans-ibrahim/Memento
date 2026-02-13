@@ -29,9 +29,8 @@
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "https://github.com/ans-ibrahim/Memento.git",
-                    "tag" : "v1.0.0"
+                    "type": "dir",
+                    "path": "."
                 }
             ]
         }
