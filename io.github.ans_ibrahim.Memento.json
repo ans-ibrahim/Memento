@@ -31,7 +31,7 @@
                 {
                     "type" : "git",
                     "url" : "https://github.com/ans-ibrahim/Memento.git",
-                    "commit" : "5ee4ae75366ed21d1f3e6114dbe0720cea55dd42"
+                    "tag" : "v1.0.0"
                 }
             ]
         }
