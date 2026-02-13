@@ -29,7 +29,7 @@ export const MementoTopPeoplePage = GObject.registerClass({
         this._allPeople = [];
         this._filteredPeople = [];
         this._currentPage = 0;
-        this._itemsPerPage = 24;
+        this._itemsPerPage = 28;
         this._setupActions();
     }
 

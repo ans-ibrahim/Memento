@@ -82,7 +82,7 @@ export const MementoWindow = GObject.registerClass({
         this._plays = [];
         this._filteredPlays = [];
         this._playsCurrentPage = 0;
-        this._playsItemsPerPage = 24;
+        this._playsItemsPerPage = 28;
         this._setupWindowActions();
         this._setupActions();
         this._setupFilterActions();

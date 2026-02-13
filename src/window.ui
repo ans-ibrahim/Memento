@@ -55,7 +55,7 @@
                             <property name="vexpand">true</property>
                             <property name="child">
                               <object class="AdwClamp">
-                                <property name="maximum-size">1200</property>
+                                <property name="maximum-size">1400</property>
                                 <property name="tightening-threshold">900</property>
                                 <property name="child">
                                   <object class="GtkBox" id="dashboard_box">

@@ -46,7 +46,7 @@ export const MementoWatchlistPage = GObject.registerClass({
         this._movies = [];
         this._filteredMovies = [];
         this._currentPage = 0;
-        this._itemsPerPage = 24;
+        this._itemsPerPage = 28;
         this._setupActions();
     }
 
