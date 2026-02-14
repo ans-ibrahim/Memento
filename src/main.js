@@ -55,11 +55,10 @@ export const MementoApplication = GObject.registerClass(
                     application_name: 'memento',
                     application_icon: APP_ID,
                     developer_name: 'Ans Ibrahim',
-                    version: '0.1.0',
+                    version: '1.0.0',
                     developers: [
                         'Ans Ibrahim'
                     ],
-                    // Translators: Replace "translator-credits" with your name/username, and optionally an email or URL.
                     translator_credits: _("translator-credits"),
                     copyright: '© 2026 Ans Ibrahim'
                 };
