@@ -25,6 +25,7 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 
 import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
+import { scrapeImdbRating } from '../services/imdb-service.js';
 import {
     findMovieByTmdbId, 
     upsertMovieFromTmdb, 
@@ -39,7 +40,8 @@ import {
     updatePlay,
     getPlaysForMovie,
     deletePlay,
-    getAllPlaces
+    getAllPlaces,
+    updateMovieImdbRating
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { enforceFixedPictureSize, formatDate } from '../utils/ui-utils.js';
@@ -98,9 +100,12 @@ export const MementoMovieDetailPage = GObject.registerClass({
     _tmdbId = null;
     _movieId = null;
     _movieData = null;
+    _imdbRating = null;
+    _settings = null;
 
     _init(params = {}) {
         super._init(params);
+        this._settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
         this._movieId = null;
         this._refresh_button.connect('clicked', () => {
             this._refreshMovieData();
@@ -165,6 +170,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 console.error('Failed to load movie data from database');
                 return;
             }
+
+            this._loadCachedRatings();
             
             // Check if movie is in watchlist
             this._isInWatchlist = await isInWatchlist(this._movieId);
@@ -172,6 +179,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             // Display the data
             this._displayMovieInfo();
             this._displayCredits();
+            this._loadExternalRatingsInBackground();
             await this._updateWatchlistButton();
             await this._loadPlays();
             
@@ -203,7 +211,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 throw new Error('Failed to load movie data from database.');
             }
 
+            this._loadCachedRatings();
             this._displayMovieInfo();
+            this._loadExternalRatingsInBackground();
             await this._displayCredits();
             await this._updateWatchlistButton();
             await this._loadPlays();
@@ -211,6 +221,76 @@ export const MementoMovieDetailPage = GObject.registerClass({
             console.error('Failed to refresh movie:', error);
             this._title_label.set_label('Error refreshing movie');
             this._overview_label.set_label(error.message || 'An error occurred while refreshing movie details.');
+        }
+    }
+
+    _loadCachedRatings() {
+        this._imdbRating = null;
+
+        const cachedImdbRating = Number(this._movieData?.imdb_rating);
+        if (Number.isFinite(cachedImdbRating)) {
+            this._imdbRating = { value: cachedImdbRating };
+        }
+    }
+
+    _getSettings() {
+        if (this._settings) {
+            return this._settings;
+        }
+        try {
+            this._settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
+            return this._settings;
+        } catch (error) {
+            console.error('Failed to initialize settings:', error);
+            return null;
+        }
+    }
+
+    _isImdbRatingEnabled() {
+        const settings = this._getSettings();
+        if (!settings) {
+            return false;
+        }
+        return settings.get_boolean('enable-imdb-rating');
+    }
+
+    _isTmdbRatingEnabled() {
+        const settings = this._getSettings();
+        if (!settings) {
+            return true;
+        }
+        return settings.get_boolean('enable-tmdb-rating');
+    }
+
+    _loadExternalRatingsInBackground() {
+        const currentMovieId = this._movieId;
+        const currentImdbId = this._movieData?.imdb_id ?? null;
+        this._loadExternalRatings(currentMovieId, currentImdbId).then(() => {
+            this._updateRatingsRow();
+        }).catch(error => {
+            console.error('Failed to load external ratings:', error);
+        });
+    }
+
+    async _loadExternalRatings(movieId, imdbId) {
+        if (!movieId || !imdbId || !this._isImdbRatingEnabled()) {
+            return;
+        }
+
+        const imdbRating = await scrapeImdbRating(imdbId).catch(() => null);
+        if (this._movieId !== movieId) {
+            return;
+        }
+
+        this._imdbRating = imdbRating;
+
+        try {
+            await updateMovieImdbRating(movieId, imdbRating?.value ?? null);
+            if (this._movieData && this._movieId === movieId) {
+                this._movieData.imdb_rating = imdbRating?.value ?? null;
+            }
+        } catch (error) {
+            console.error(`Failed to store IMDb rating for movie ${movieId}:`, error);
         }
     }
 
@@ -320,14 +400,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
             this._budget_row.set_visible(false);
         }
 
-        // Rating
-        if (this._movieData.tmdb_average) {
-            const ratingText = `${this._movieData.tmdb_average.toFixed(1)}/10`;
-            this._rating_row.set_subtitle(ratingText);
-            this._rating_row.set_visible(true);
-        } else {
-            this._rating_row.set_visible(false);
-        }
+        // Ratings section
+        this._updateRatingsRow();
 
         // Revenue
         if (this._movieData.revenue && this._movieData.revenue > 0) {
@@ -361,6 +435,27 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 this._poster_image.set_paintable(texture);
             }
         }).catch(() => {});
+    }
+
+    _updateRatingsRow() {
+        const ratingParts = [];
+        const tmdbAverage = Number(this._movieData?.tmdb_average);
+        if (this._isTmdbRatingEnabled() && Number.isFinite(tmdbAverage) && tmdbAverage > 0) {
+            ratingParts.push(`TMDB ${tmdbAverage.toFixed(1)}/10`);
+        }
+
+        if (this._isImdbRatingEnabled() && this._imdbRating?.value) {
+            ratingParts.push(`IMDb ${this._imdbRating.value.toFixed(1)}/10`);
+        }
+
+        if (ratingParts.length === 0) {
+            this._rating_row.set_visible(false);
+            return;
+        }
+
+        this._rating_row.set_title('Ratings');
+        this._rating_row.set_subtitle(ratingParts.join(' | '));
+        this._rating_row.set_visible(true);
     }
 
     async _displayCredits() {
@@ -472,7 +567,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
 
         this._letterboxd_button.connect('clicked', () => {
-            const url = buildLetterboxdUrl(this._movieData.imdb_id, this._movieData.title);
+            const url = buildLetterboxdUrl(this._movieData.imdb_id);
             if (url) {
                 this._openUrl(url);
             }

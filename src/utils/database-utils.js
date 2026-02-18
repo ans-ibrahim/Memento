@@ -76,6 +76,14 @@ CREATE TABLE IF NOT EXISTS plays (
     FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
     FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
 );
+	`,
+    },
+    {
+        version: 2,
+        name: 'add_imdb_rating_cache',
+        sql: `
+ALTER TABLE movies ADD COLUMN imdb_rating REAL;
+ALTER TABLE movies ADD COLUMN imdb_rating_updated_at TEXT;
 `,
     },
 ];
@@ -479,6 +487,36 @@ ORDER BY updated_at ASC;
         }
     }
     return ids;
+}
+
+export async function getAllMoviesWithImdbIds() {
+    const sql = `
+SELECT id, title, imdb_id
+FROM movies
+WHERE imdb_id IS NOT NULL
+  AND TRIM(imdb_id) <> ''
+ORDER BY updated_at ASC;
+`;
+    return queryAll(sql);
+}
+
+export async function updateMovieImdbRating(movieId, imdbRating) {
+    const normalizedMovieId = Number(movieId);
+    if (!Number.isFinite(normalizedMovieId)) {
+        throw new Error('Movie id is missing.');
+    }
+
+    const normalizedRating = Number(imdbRating);
+    const ratingValue = Number.isFinite(normalizedRating) ? normalizedRating : null;
+    const updatedAt = new Date().toISOString();
+    const sql = `
+UPDATE movies
+SET imdb_rating = ${toSqlLiteral(ratingValue)},
+    imdb_rating_updated_at = ${toSqlLiteral(updatedAt)},
+    updated_at = ${toSqlLiteral(updatedAt)}
+WHERE id = ${toSqlLiteral(normalizedMovieId)};
+`;
+    execute(sql);
 }
 
 

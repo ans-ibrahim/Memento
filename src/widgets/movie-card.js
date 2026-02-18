@@ -15,7 +15,6 @@ export function createMovieCard(movie, options = {}) {
     const marginStart = options.marginStart ?? 8;
     const marginEnd = options.marginEnd ?? 8;
     const marginBottom = options.marginBottom ?? 12;
-    const showRating = options.showRating !== false;
     const showYear = options.showYear !== false;
     const jobText = options.jobText ?? '';
     const onActivate = options.onActivate;
@@ -130,27 +129,6 @@ export function createMovieCard(movie, options = {}) {
             xalign: 0,
         });
         infoBox.append(yearLabel);
-    }
-
-    if (showRating && movie.tmdb_average) {
-        const ratingBox = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 4,
-        });
-
-        const starIcon = new Gtk.Image({
-            icon_name: 'starred-symbolic',
-            css_classes: ['star-icon'],
-        });
-        ratingBox.append(starIcon);
-
-        const ratingLabel = new Gtk.Label({
-            label: movie.tmdb_average.toFixed(1),
-            css_classes: ['caption'],
-        });
-        ratingBox.append(ratingLabel);
-
-        infoBox.append(ratingBox);
     }
 
     card.append(infoBox);

@@ -5,7 +5,8 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
 import { getMovieDetails, getMovieCredits } from '../services/tmdb-service.js';
-import { getAllMovieTmdbIds, upsertMovieFromTmdb, upsertPerson, upsertMovieCredits } from '../utils/database-utils.js';
+import { scrapeImdbRating } from '../services/imdb-service.js';
+import {getAllMovieTmdbIds,getAllMoviesWithImdbIds,upsertMovieFromTmdb,upsertPerson,upsertMovieCredits,updateMovieImdbRating,} from '../utils/database-utils.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
@@ -17,18 +18,25 @@ export const MementoPreferencesPage = GObject.registerClass({
     InternalChildren: [
         'api_key_row',
         'auto_remove_switch',
+        'tmdb_rating_switch',
+        'imdb_rating_switch',
         'refresh_all_button',
         'refresh_progress_bar',
         'refresh_progress_row',
+        'refresh_imdb_ratings_button',
+        'refresh_imdb_progress_bar',
+        'refresh_imdb_progress_row',
     ],
 }, class MementoPreferencesPage extends Adw.NavigationPage {
     constructor(params = {}) {
         super(params);
         this._settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
         this._refreshInProgress = false;
+        this._refreshImdbInProgress = false;
         this._setupBindings();
         this._loadApiKey();
         this._setupRefreshAllMovies();
+        this._setupRefreshAllImdbRatings();
     }
 
     _setupBindings() {
@@ -36,6 +44,18 @@ export const MementoPreferencesPage = GObject.registerClass({
         this._settings.bind(
             'auto-remove-from-watchlist',
             this._auto_remove_switch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'enable-tmdb-rating',
+            this._tmdb_rating_switch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'enable-imdb-rating',
+            this._imdb_rating_switch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
@@ -71,6 +91,12 @@ export const MementoPreferencesPage = GObject.registerClass({
         });
     }
 
+    _setupRefreshAllImdbRatings() {
+        this._refresh_imdb_ratings_button.connect('clicked', () => {
+            this._refreshAllImdbRatings();
+        });
+    }
+
     _setRefreshUiState(isRunning) {
         this._refresh_progress_row.set_visible(isRunning);
         this._refresh_all_button.set_sensitive(!isRunning);
@@ -78,6 +104,16 @@ export const MementoPreferencesPage = GObject.registerClass({
         if (!isRunning) {
             this._refresh_progress_bar.set_fraction(0);
             this._refresh_progress_bar.set_text('');
+        }
+    }
+
+    _setRefreshImdbUiState(isRunning) {
+        this._refresh_imdb_progress_row.set_visible(isRunning);
+        this._refresh_imdb_ratings_button.set_sensitive(!isRunning);
+
+        if (!isRunning) {
+            this._refresh_imdb_progress_bar.set_fraction(0);
+            this._refresh_imdb_progress_bar.set_text('');
         }
     }
 
@@ -135,6 +171,61 @@ export const MementoPreferencesPage = GObject.registerClass({
             this._showToast(`Refreshed ${completed - failed}/${tmdbIds.length} movies (${failed} failed)`, 4);
         } else {
             this._showToast(`Refreshed ${completed} movies`, 3);
+        }
+    }
+
+    async _refreshAllImdbRatings() {
+        if (this._refreshImdbInProgress) {
+            return;
+        }
+
+        this._refreshImdbInProgress = true;
+        this._setRefreshImdbUiState(true);
+        this._refresh_imdb_progress_bar.set_text('Starting...');
+
+        let movies = [];
+        try {
+            movies = await getAllMoviesWithImdbIds();
+        } catch (error) {
+            this._setRefreshImdbUiState(false);
+            this._refreshImdbInProgress = false;
+            this._showToast('Failed to load movies list', 3);
+            return;
+        }
+
+        if (movies.length === 0) {
+            this._setRefreshImdbUiState(false);
+            this._refreshImdbInProgress = false;
+            this._showToast('No movies with IMDb IDs to refresh', 3);
+            return;
+        }
+
+        let completed = 0;
+        let failed = 0;
+
+        for (const movie of movies) {
+            try {
+                const imdbRating = await scrapeImdbRating(movie.imdb_id);
+                await updateMovieImdbRating(movie.id, imdbRating?.value ?? null);
+            } catch (error) {
+                failed += 1;
+                console.error(`Failed to refresh IMDb rating for movie ${movie.id}:`, error);
+            }
+
+            completed += 1;
+            const fraction = completed / movies.length;
+            this._refresh_imdb_progress_bar.set_fraction(fraction);
+            this._refresh_imdb_progress_bar.set_text(`${completed}/${movies.length}`);
+            await this._yieldToUi();
+        }
+
+        this._setRefreshImdbUiState(false);
+        this._refreshImdbInProgress = false;
+
+        if (failed > 0) {
+            this._showToast(`Refreshed ${completed - failed}/${movies.length} IMDb ratings (${failed} failed)`, 4);
+        } else {
+            this._showToast(`Refreshed ${completed} IMDb ratings`, 3);
         }
     }
 

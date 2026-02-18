@@ -110,10 +110,9 @@ export function buildTmdbUrl(tmdbId) {
     return `https://www.themoviedb.org/movie/${tmdbId}`;
 }
 
-export function buildLetterboxdUrl(imdbId, title) {
-    if (!imdbId)
+export function buildLetterboxdUrl(imdbId) {
+    const normalizedImdbId = String(imdbId || '').trim();
+    if (!/^tt\d+$/.test(normalizedImdbId))
         return null;
-    // Letterboxd uses the IMDb ID in the URL
-    const imdbNumber = imdbId.replace('tt', '');
-    return `https://letterboxd.com/imdb/${imdbNumber}/`;
+    return `https://letterboxd.com/imdb/${normalizedImdbId}/`;
 }

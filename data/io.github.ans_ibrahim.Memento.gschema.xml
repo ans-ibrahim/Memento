@@ -11,5 +11,15 @@
 			<summary>Auto-remove from watchlist</summary>
 			<description>Automatically remove movie from watchlist when adding a play</description>
 		</key>
+		<key name="enable-tmdb-rating" type="b">
+			<default>true</default>
+			<summary>Enable TMDB rating</summary>
+			<description>Show TMDB ratings in the movie details ratings section</description>
+		</key>
+		<key name="enable-imdb-rating" type="b">
+			<default>false</default>
+			<summary>Enable IMDb rating</summary>
+			<description>Show and fetch IMDb ratings in the movie details ratings section</description>
+		</key>
 	</schema>
 </schemalist>

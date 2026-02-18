@@ -6,6 +6,7 @@
     <file>utils/database-utils.js</file>
     <file>utils/image-utils.js</file>
     <file>utils/ui-utils.js</file>
+    <file>services/imdb-service.js</file>
     <file>services/tmdb-service.js</file>
     <file>dialogs/search-dialog.js</file>
     <file>dialogs/places-dialog.js</file>

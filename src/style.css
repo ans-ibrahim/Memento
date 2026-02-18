@@ -48,20 +48,6 @@
 }
 
 /* ========================================
-   Star Rating Styling
-   ======================================== */
-
-.star-icon {
-  color: @warning_color;
-}
-
-.rating-badge {
-  background: alpha(@warning_color, 0.15);
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-
-/* ========================================
    Play Entry Styling
    ======================================== */
 
