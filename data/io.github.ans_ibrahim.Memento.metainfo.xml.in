@@ -26,6 +26,10 @@
   <url type="homepage">https://github.com/ans-ibrahim/Memento</url>
   <url type="vcs-browser">https://github.com/ans-ibrahim/Memento</url>
   <url type="bugtracker">https://github.com/ans-ibrahim/Memento/issues</url>
+  <branding>
+    <color type="primary" scheme_preference="light">#8ecbff</color>
+    <color type="primary" scheme_preference="dark">#1f4b7a</color>
+  </branding>
 
   <translation type="gettext">memento</translation>
   <launchable type="desktop-id">io.github.ans_ibrahim.Memento.desktop</launchable>
@@ -40,12 +44,12 @@
       <caption>Watchlist page</caption>
     </screenshot>
     <screenshot>
-      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/top-people-page.png</image>
-      <caption>Top people page</caption>
-    </screenshot>
-    <screenshot>
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/plays-history-page.png</image>
       <caption>Plays history</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/top-people-page.png</image>
+      <caption>Top people page</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/movie-details-page.png</image>
@@ -55,13 +59,24 @@
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/person-page.png</image>
       <caption>Person Details</caption>
     </screenshot>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/person-page-movies.png</image>
+      <caption>Person Movies</caption>
+    </screenshot>
   </screenshots>
 
   <releases>
     <release version="1.0.0" date="2026-02-13">
       <description>
         <p>Inception</p>
+        <ul>
+          <li>Add watchlist management with search, sort, and pagination</li>
+          <li>Add play history tracking with date, place, and optional comments</li>
+          <li>Add movie details, cast/crew sections, and external links</li>
+          <li>Add dashboard and top-people insights based on your activity</li>
+        </ul>
       </description>
+      <url type="details">https://github.com/ans-ibrahim/Memento/releases/tag/v1.0.0</url>
     </release>
   </releases>
 

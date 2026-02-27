@@ -32,6 +32,7 @@ You can search movies from TMDB, keep a watchlist, log plays, and view personal 
 ![Plays history page](screenshots/plays-history-page.png)
 ![Movie details page](screenshots/movie-details-page.png)
 ![Person page](screenshots/person-page.png)
+![Person page movies](screenshots/person-page-movies.png)
 
 ## Build And Run
 
@@ -44,13 +45,14 @@ Prerequisites:
 ### Install From Releases
 
 1. Download the latest `.flatpak` asset from [GitHub Releases](https://github.com/ans-ibrahim/Memento/releases).
-2. Install it:
+2. Or install from [Flathub](https://flathub.org/apps/io.github.ans_ibrahim.Memento).
+3. Install it:
 
 ```bash
 flatpak install --user ./io.github.ans_ibrahim.Memento.flatpak
 ```
 
-3. Run it:
+4. Run it:
 
 ```bash
 flatpak run io.github.ans_ibrahim.Memento

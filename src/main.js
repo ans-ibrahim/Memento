@@ -32,6 +32,8 @@ pkg.initFormat();
 
 const DEFAULT_APP_ID = 'io.github.ans_ibrahim.Memento';
 const APP_ID = GLib.getenv('FLATPAK_ID') || DEFAULT_APP_ID;
+const PROJECT_WEBSITE_URL = 'https://github.com/ans-ibrahim/Memento';
+const PROJECT_ISSUES_URL = 'https://github.com/ans-ibrahim/Memento/issues';
 
 export const MementoApplication = GObject.registerClass(
     class MementoApplication extends Adw.Application {
@@ -52,10 +54,13 @@ export const MementoApplication = GObject.registerClass(
             const show_about_action = new Gio.SimpleAction({name: 'about'});
             show_about_action.connect('activate', action => {
                 const aboutParams = {
-                    application_name: 'memento',
+                    application_name: 'Memento',
                     application_icon: APP_ID,
                     developer_name: 'Ans Ibrahim',
-                    version: '1.0.0',
+                    version: pkg.version,
+                    website: PROJECT_WEBSITE_URL,
+                    issue_url: PROJECT_ISSUES_URL,
+                    license_type: Gtk.License.GPL_3_0,
                     developers: [
                         'Ans Ibrahim'
                     ],
