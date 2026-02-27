@@ -23,6 +23,7 @@ import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
+import Pango from 'gi://Pango';
 
 import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
 import { scrapeImdbRating } from '../services/imdb-service.js';
@@ -44,12 +45,14 @@ import {
     updateMovieImdbRating
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
-import { enforceFixedPictureSize, formatDate } from '../utils/ui-utils.js';
+import { enforceFixedPictureSize, enforceFixedWidgetSize, formatDate } from '../utils/ui-utils.js';
 import { createPersonStatCard } from '../widgets/person-stat-card.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
     : 'io.github.ans_ibrahim.Memento';
+
+const PLAY_ENTRY_HORIZONTAL_MARGIN = 12;
 
 export const MementoMovieDetailPage = GObject.registerClass({
     GTypeName: 'MementoMovieDetailPage',
@@ -57,6 +60,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
     InternalChildren: [
         'title_label',
         'tagline_label',
+        'poster_frame',
         'poster_image',
         'refresh_button',
         'watchlist_button',
@@ -110,36 +114,98 @@ export const MementoMovieDetailPage = GObject.registerClass({
         this._refresh_button.connect('clicked', () => {
             this._refreshMovieData();
         });
+        this._poster_frame.connect('notify::allocation', () => {
+            this._syncPlayEntryWidthsToPoster();
+        });
+        this._setPosterSize(250, 375);
         this._setupActions();
         this._setupResponsiveLayout();
     }
 
     _setupResponsiveLayout() {
-        // Set up a breakpoint to switch layout on narrow screens
-        const win = this.get_root();
-        if (!win) return;
-
-        // Use a size allocate signal to detect width changes
         this._main_content_box.connect('notify::allocation', () => {
-            const width = this._main_content_box.get_allocation().width;
+            const root = this.get_root();
+            const width = root ? root.get_width() : this._main_content_box.get_allocation().width;
             
             // Switch to vertical layout on screens narrower than 700px
             if (width < 700) {
                 this._main_content_box.set_orientation(Gtk.Orientation.VERTICAL);
                 this._main_content_box.set_spacing(20);
                 // Make poster smaller on mobile
-                enforceFixedPictureSize(this._poster_image, 200, 300);
-                // Center sideb ar content
+                this._setPosterSize(200, 300);
                 this._left_sidebar.set_halign(Gtk.Align.CENTER);
             } else {
                 this._main_content_box.set_orientation(Gtk.Orientation.HORIZONTAL);
                 this._main_content_box.set_spacing(32);
                 // Restore normal poster size
-                enforceFixedPictureSize(this._poster_image, 250, 375);
-                this._left_sidebar.set_halign(Gtk.Align.FILL);
+                this._setPosterSize(250, 375);
+                this._left_sidebar.set_halign(Gtk.Align.START);
             }
         });
-    }    
+    }
+
+    _setPosterSize(width, height) {
+        enforceFixedWidgetSize(this._poster_frame, width, height);
+        enforceFixedPictureSize(this._poster_image, width, height);
+        enforceFixedWidgetSize(this._left_sidebar, width, -1);
+
+        this._poster_frame.set_hexpand(false);
+        this._poster_frame.set_vexpand(false);
+        this._poster_frame.set_halign(Gtk.Align.START);
+        this._poster_frame.set_valign(Gtk.Align.START);
+
+        this._poster_image.set_hexpand(false);
+        this._poster_image.set_vexpand(false);
+        this._poster_image.set_halign(Gtk.Align.FILL);
+        this._poster_image.set_valign(Gtk.Align.FILL);
+
+        this._left_sidebar.set_hexpand(false);
+        this._left_sidebar.set_vexpand(false);
+        this._left_sidebar.set_halign(Gtk.Align.START);
+        this._left_sidebar.set_valign(Gtk.Align.START);
+        this._syncPlayEntryWidthsToPoster();
+    }
+
+    _getPosterDisplayWidth() {
+        const frameAllocation = this._poster_frame.get_allocation();
+        const allocatedWidth = Number(frameAllocation?.width) || 0;
+        if (allocatedWidth > 0) {
+            return allocatedWidth;
+        }
+
+        const requestedWidth = Number(this._poster_frame.width_request) || 0;
+        if (requestedWidth > 0) {
+            return requestedWidth;
+        }
+
+        return 250;
+    }
+
+    _syncPlayEntryWidthsToPoster() {
+        if (!this._plays_list) {
+            return;
+        }
+
+        const posterWidth = this._getPosterDisplayWidth();
+        const rowWidth = Math.max(1, posterWidth - (PLAY_ENTRY_HORIZONTAL_MARGIN * 2));
+        const textColumnWidth = rowWidth;
+        this._plays_list.width_request = posterWidth;
+        let child = this._plays_list.get_first_child();
+        while (child) {
+            child.width_request = rowWidth;
+            const leftColumn = child.get_first_child();
+            if (leftColumn) {
+                leftColumn.width_request = textColumnWidth;
+                let textChild = leftColumn.get_first_child();
+                while (textChild) {
+                    textChild.width_request = textColumnWidth;
+                    textChild = textChild.get_next_sibling();
+                }
+            }
+            child = child.get_next_sibling();
+        }
+    }
+
     async loadMovie(tmdbId) {
         this._tmdbId = tmdbId;
         
@@ -756,15 +822,23 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 const playEntry = this._createPlayEntry(play);
                 this._plays_list.append(playEntry);
             }
+            this._syncPlayEntryWidthsToPoster();
         }
     }
 
     _createPlayEntry(play) {
+        const posterWidth = this._getPosterDisplayWidth();
+        const rowWidth = Math.max(1, posterWidth - (PLAY_ENTRY_HORIZONTAL_MARGIN * 2));
+        const textColumnWidth = rowWidth;
+
         const box = new Gtk.Box({
-            orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 12,
-            margin_start: 12,
-            margin_end: 12,
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 8,
+            width_request: rowWidth,
+            hexpand: false,
+            halign: Gtk.Align.START,
+            margin_start: PLAY_ENTRY_HORIZONTAL_MARGIN,
+            margin_end: PLAY_ENTRY_HORIZONTAL_MARGIN,
             margin_top: 6,
             margin_bottom: 6,
         });
@@ -773,13 +847,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const leftBox = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             hexpand: true,
+            halign: Gtk.Align.START,
             spacing: 4,
+            width_request: textColumnWidth,
         });
 
         // Format date
         const dateLabel = new Gtk.Label({
             label: formatDate(play.watched_at, {month: 'long'}),
             xalign: 0,
+            width_request: textColumnWidth,
         });
         leftBox.append(dateLabel);
 
@@ -789,6 +866,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 label: play.is_cinema ? `🎬 ${play.place_name}` : `🏠 ${play.place_name}`,
                 xalign: 0,
                 css_classes: ['dim-label', 'caption'],
+                wrap: true,
+                wrap_mode: Pango.WrapMode.WORD_CHAR,
+                max_width_chars: 28,
+                width_request: textColumnWidth,
             });
             leftBox.append(placeLabel);
         }
@@ -799,6 +880,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 xalign: 0,
                 css_classes: ['caption'],
                 wrap: true,
+                wrap_mode: Pango.WrapMode.WORD_CHAR,
+                max_width_chars: 28,
+                width_request: textColumnWidth,
             });
             leftBox.append(commentLabel);
         }
@@ -809,6 +893,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const actionsBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
             spacing: 6,
+            halign: Gtk.Align.START,
         });
 
         // Edit button
@@ -857,7 +942,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
 
         actionsBox.append(deleteButton);
-        box.append(actionsBox);
+        leftBox.append(actionsBox);
 
         return box;
     }
