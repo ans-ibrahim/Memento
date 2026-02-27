@@ -2,7 +2,12 @@
 
 Memento is a GNOME desktop app for tracking the movies you watch.
 You can search movies from TMDB, keep a watchlist, log plays, and view personal stats.
-
+<p align="center">
+  <a href="https://flathub.org/apps/io.github.ans_ibrahim.Memento">
+    <img alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
+  </a>
+  <br>
+</p>
 ## Features
 
 - Movie search powered by TMDB
@@ -45,14 +50,13 @@ Prerequisites:
 ### Install From Releases
 
 1. Download the latest `.flatpak` asset from [GitHub Releases](https://github.com/ans-ibrahim/Memento/releases).
-2. Or install from [Flathub](https://flathub.org/apps/io.github.ans_ibrahim.Memento).
-3. Install it:
+2. Install it:
 
 ```bash
 flatpak install --user ./io.github.ans_ibrahim.Memento.flatpak
 ```
 
-4. Run it:
+3. Run it:
 
 ```bash
 flatpak run io.github.ans_ibrahim.Memento
