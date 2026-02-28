@@ -2,7 +2,6 @@
 # Please keep this file sorted alphabetically.
 data/io.github.ans_ibrahim.Memento.desktop.in
 data/io.github.ans_ibrahim.Memento.gschema.xml
-data/io.github.ans_ibrahim.Memento.metainfo.xml.in
 src/dialogs/places-dialog.js
 src/dialogs/places-dialog.ui
 src/dialogs/search-dialog.js
