@@ -99,7 +99,7 @@ export function createMovieCard(movie, options = {}) {
     });
 
     const titleLabel = new Gtk.Label({
-        label: movie.title || 'Unknown',
+        label: movie.title || _('Unknown'),
         css_classes: ['heading'],
         xalign: 0,
         ellipsize: 3,

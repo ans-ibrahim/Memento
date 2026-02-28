@@ -225,7 +225,8 @@ export const MementoWindow = GObject.registerClass({
         if (query) {
             plays = plays.filter(play => {
                 const title = (play.title || '').toLowerCase();
-                return title.includes(query);
+                const originalTitle = (play.original_title || '').toLowerCase();
+                return title.includes(query) || originalTitle.includes(query);
             });
         }
 
@@ -281,7 +282,8 @@ export const MementoWindow = GObject.registerClass({
         this._plays_pagination_box.set_visible(totalPages > 1);
         this._plays_prev_button.set_sensitive(this._playsCurrentPage > 0);
         this._plays_next_button.set_sensitive(this._playsCurrentPage < totalPages - 1);
-        this._plays_page_label.set_text(`Page ${this._playsCurrentPage + 1} of ${totalPages}`);
+        const pageLabel = _('Page %d of %d').format(this._playsCurrentPage + 1, totalPages);
+        this._plays_page_label.set_text(pageLabel);
     }
 
     async _renderDashboardPlaysPreview() {
@@ -320,8 +322,8 @@ export const MementoWindow = GObject.registerClass({
             getTopPeopleByRole('actor', 6),
         ]);
 
-        this._dashboard_directors_toggle_button.set_label('See all');
-        this._dashboard_cast_toggle_button.set_label('See all');
+        this._dashboard_directors_toggle_button.set_label(_('See all'));
+        this._dashboard_cast_toggle_button.set_label(_('See all'));
 
         clearGrid(this._dashboard_directors_grid);
         clearGrid(this._dashboard_cast_grid);
@@ -348,10 +350,10 @@ export const MementoWindow = GObject.registerClass({
         clearGrid(this._dashboard_stats_grid);
 
         const items = [
-            {label: 'Total Plays', value: String(stats.total_plays)},
-            {label: 'Unique Movies', value: String(stats.unique_movies)},
-            {label: 'Watchlist', value: String(stats.watchlist_count)},
-            {label: 'Watch Time', value: formatRuntimeMinutes(stats.total_runtime_minutes)},
+            {label: _('Total Plays'), value: String(stats.total_plays)},
+            {label: _('Unique Movies'), value: String(stats.unique_movies)},
+            {label: _('Watchlist'), value: String(stats.watchlist_count)},
+            {label: _('Watch Time'), value: formatRuntimeMinutes(stats.total_runtime_minutes)},
         ];
 
         for (const item of items) {

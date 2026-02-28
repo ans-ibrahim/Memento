@@ -109,7 +109,7 @@ export function createPlayCard(play, options = {}) {
     });
 
     const titleLabel = new Gtk.Label({
-        label: play.title || 'Unknown',
+        label: play.title || _('Unknown'),
         css_classes: ['heading'],
         xalign: 0,
         ellipsize: 3,
@@ -136,18 +136,21 @@ export function createPlayCard(play, options = {}) {
 
         const deleteButton = new Gtk.Button({
             icon_name: 'user-trash-symbolic',
-            tooltip_text: 'Delete Play',
+            tooltip_text: _('Delete Play'),
             css_classes: ['flat', 'destructive-action'],
         });
 
         deleteButton.connect('clicked', () => {
             const dialog = new Adw.AlertDialog({
-                heading: 'Delete Play?',
-                body: `Are you sure you want to delete this play of "${play.title}" from ${formatDate(play.watched_at)}?`,
+                heading: _('Delete Play?'),
+                body: _('Are you sure you want to delete this play of "%s" from %s?').format(
+                    play.title || _('Unknown'),
+                    formatDate(play.watched_at)
+                ),
             });
 
-            dialog.add_response('cancel', 'Cancel');
-            dialog.add_response('delete', 'Delete');
+            dialog.add_response('cancel', _('Cancel'));
+            dialog.add_response('delete', _('Delete'));
             dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
 
             dialog.connect('response', async (dlg, response) => {

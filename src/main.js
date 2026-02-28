@@ -54,7 +54,7 @@ export const MementoApplication = GObject.registerClass(
             const show_about_action = new Gio.SimpleAction({name: 'about'});
             show_about_action.connect('activate', action => {
                 const aboutParams = {
-                    application_name: 'Memento',
+                    application_name: _('Memento'),
                     application_icon: APP_ID,
                     developer_name: 'Ans Ibrahim',
                     version: pkg.version,

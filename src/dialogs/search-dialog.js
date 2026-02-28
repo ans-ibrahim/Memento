@@ -186,7 +186,7 @@ export const MementoSearchDialog = GObject.registerClass({
         rowContentBox.append(textContainer);
 
         const titleLabel = new Gtk.Label({
-            label: movie.title || 'Unknown Title',
+            label: movie.title || _('Unknown Title'),
             xalign: 0,
             wrap: true,
             wrap_mode: Pango.WrapMode.WORD_CHAR,
@@ -243,7 +243,7 @@ export const MementoSearchDialog = GObject.registerClass({
             parts.push(`★ ${movie.vote_average.toFixed(1)}`);
         }
         
-        return parts.join(' • ') || 'Unknown Year';
+        return parts.join(' • ') || _('Unknown Year');
     }
 
     _formatTagline(tagline) {

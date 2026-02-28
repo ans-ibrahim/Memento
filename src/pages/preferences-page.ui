@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="memento">
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
   <template class="MementoPreferencesPage" parent="AdwNavigationPage">
-    <property name="title">Preferences</property>
+    <property name="title" translatable="yes">Preferences</property>
     <property name="child">
       <object class="AdwToolbarView">
         <child type="top">
@@ -15,19 +15,19 @@
             <!-- TMDB Configuration -->
             <child>
               <object class="AdwPreferencesGroup">
-                <property name="title">The Movie Database (TMDB)</property>
-                <property name="description">Configure your TMDB API key for movie search and information</property>
+                <property name="title" translatable="yes">The Movie Database (TMDB)</property>
+                <property name="description" translatable="yes">Configure your TMDB API key for movie search and information</property>
                 <child>
                   <object class="AdwEntryRow" id="api_key_row">
-                    <property name="title">API Key</property>
+                    <property name="title" translatable="yes">API Key</property>
                     <property name="show-apply-button">true</property>
                     <signal name="apply" handler="_onApiKeyApply" swapped="no"/>
                   </object>
                 </child>
                 <child>
                   <object class="AdwActionRow">
-                    <property name="title">Get API Key</property>
-                    <property name="subtitle">Visit themoviedb.org to create a free account and generate an API key</property>
+                    <property name="title" translatable="yes">Get API Key</property>
+                    <property name="subtitle" translatable="yes">Visit themoviedb.org to create a free account and generate an API key</property>
                     <property name="activatable">true</property>
                     <signal name="activated" handler="_onGetApiKeyActivated" swapped="no"/>
                     <child type="suffix">
@@ -43,11 +43,11 @@
             <!-- Behavior Settings -->
             <child>
               <object class="AdwPreferencesGroup">
-                <property name="title">Behavior</property>
+                <property name="title" translatable="yes">Behavior</property>
                 <child>
                   <object class="AdwActionRow">
-                    <property name="title">Auto-remove from Watchlist</property>
-                    <property name="subtitle">Automatically remove movies from watchlist when you add a play</property>
+                    <property name="title" translatable="yes">Auto-remove from Watchlist</property>
+                    <property name="subtitle" translatable="yes">Automatically remove movies from watchlist when you add a play</property>
                     <child type="suffix">
                       <object class="GtkSwitch" id="auto_remove_switch">
                         <property name="valign">center</property>
@@ -57,8 +57,8 @@
                 </child>
                 <child>
                   <object class="AdwActionRow">
-                    <property name="title">Enable TMDB rating</property>
-                    <property name="subtitle">Show TMDB rating in the ratings section</property>
+                    <property name="title" translatable="yes">Enable TMDB rating</property>
+                    <property name="subtitle" translatable="yes">Show TMDB rating in the ratings section</property>
                     <child type="suffix">
                       <object class="GtkSwitch" id="tmdb_rating_switch">
                         <property name="valign">center</property>
@@ -68,8 +68,8 @@
                 </child>
                 <child>
                   <object class="AdwActionRow">
-                    <property name="title">Enable IMDb rating</property>
-                    <property name="subtitle">Fetch and show IMDb rating in the ratings section</property>
+                    <property name="title" translatable="yes">Enable IMDb rating</property>
+                    <property name="subtitle" translatable="yes">Fetch and show IMDb rating in the ratings section</property>
                     <child type="suffix">
                       <object class="GtkSwitch" id="imdb_rating_switch">
                         <property name="valign">center</property>
@@ -83,14 +83,14 @@
             <!-- Data Settings -->
             <child>
               <object class="AdwPreferencesGroup">
-                <property name="title">Data</property>
+                <property name="title" translatable="yes">Data</property>
                 <child>
                   <object class="AdwActionRow" id="refresh_movies_row">
-                    <property name="title">Refresh all movies</property>
-                    <property name="subtitle">Re-download details and credits for every saved movie</property>
+                    <property name="title" translatable="yes">Refresh all movies</property>
+                    <property name="subtitle" translatable="yes">Re-download details and credits for every saved movie</property>
                     <child type="suffix">
                       <object class="GtkButton" id="refresh_all_button">
-                        <property name="label">Refresh</property>
+                        <property name="label" translatable="yes">Refresh</property>
                         <property name="valign">center</property>
                       </object>
                     </child>
@@ -98,11 +98,11 @@
                 </child>
                 <child>
                   <object class="AdwActionRow" id="refresh_imdb_ratings_row">
-                    <property name="title">Refresh all IMDb ratings</property>
-                    <property name="subtitle">Update cached IMDb ratings for all saved movies</property>
+                    <property name="title" translatable="yes">Refresh all IMDb ratings</property>
+                    <property name="subtitle" translatable="yes">Update cached IMDb ratings for all saved movies</property>
                     <child type="suffix">
                       <object class="GtkButton" id="refresh_imdb_ratings_button">
-                        <property name="label">Refresh</property>
+                        <property name="label" translatable="yes">Refresh</property>
                         <property name="valign">center</property>
                       </object>
                     </child>
@@ -110,7 +110,7 @@
                 </child>
                 <child>
                   <object class="AdwActionRow" id="refresh_progress_row">
-                    <property name="title">Refresh progress</property>
+                    <property name="title" translatable="yes">Refresh progress</property>
                     <property name="visible">false</property>
                     <child type="suffix">
                       <object class="GtkBox">
@@ -129,7 +129,7 @@
                 </child>
                 <child>
                   <object class="AdwActionRow" id="refresh_imdb_progress_row">
-                    <property name="title">IMDb refresh progress</property>
+                    <property name="title" translatable="yes">IMDb refresh progress</property>
                     <property name="visible">false</property>
                     <child type="suffix">
                       <object class="GtkBox">

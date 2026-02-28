@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="memento">
   <template class="MementoPersonPage" parent="AdwNavigationPage">
     <property name="title" translatable="yes">Person Details</property>
     <property name="tag">person-page</property>
@@ -10,7 +10,7 @@
             <child type="end">
               <object class="GtkButton" id="refresh_button">
                 <property name="icon-name">view-refresh-symbolic</property>
-                <property name="tooltip-text">Refresh</property>
+                <property name="tooltip-text" translatable="yes">Refresh</property>
                 <style>
                   <class name="flat" />
                 </style>
@@ -151,7 +151,7 @@
                         <child>
                           <object class="AdwViewStackPage">
                             <property name="name">watched</property>
-                            <property name="title">Watched</property>
+                            <property name="title" translatable="yes">Watched</property>
                             <property name="icon-name">view-list-symbolic</property>
                             <property name="child">
                               <object class="GtkBox">
@@ -166,11 +166,11 @@
                                     <property name="model">
                                       <object class="GtkStringList">
                                         <items>
-                                          <item>Directing</item>
-                                          <item>Acting</item>
-                                          <item>Production</item>
-                                          <item>Cinematography</item>
-                                          <item>Music</item>
+                                          <item translatable="yes">Directing</item>
+                                          <item translatable="yes">Acting</item>
+                                          <item translatable="yes">Production</item>
+                                          <item translatable="yes">Cinematography</item>
+                                          <item translatable="yes">Music</item>
                                         </items>
                                       </object>
                                     </property>
@@ -179,7 +179,7 @@
 
                                 <child>
                                   <object class="GtkLabel" id="watched_empty_label">
-                                    <property name="label">No watched movies found.</property>
+                                    <property name="label" translatable="yes">No watched movies found.</property>
                                     <property name="css-classes">dim-label</property>
                                     <property name="visible">false</property>
                                     <property name="margin-top">24</property>
@@ -206,7 +206,7 @@
                         <child>
                           <object class="AdwViewStackPage">
                             <property name="name">watchlist</property>
-                            <property name="title">Watchlist</property>
+                            <property name="title" translatable="yes">Watchlist</property>
                             <property name="icon-name">starred-symbolic</property>
                             <property name="child">
                               <object class="GtkBox">
@@ -221,11 +221,11 @@
                                     <property name="model">
                                       <object class="GtkStringList">
                                         <items>
-                                          <item>Directing</item>
-                                          <item>Acting</item>
-                                          <item>Production</item>
-                                          <item>Cinematography</item>
-                                          <item>Music</item>
+                                          <item translatable="yes">Directing</item>
+                                          <item translatable="yes">Acting</item>
+                                          <item translatable="yes">Production</item>
+                                          <item translatable="yes">Cinematography</item>
+                                          <item translatable="yes">Music</item>
                                         </items>
                                       </object>
                                     </property>
@@ -234,7 +234,7 @@
 
                                 <child>
                                   <object class="GtkLabel" id="watchlist_empty_label">
-                                    <property name="label">No movies in watchlist found.</property>
+                                    <property name="label" translatable="yes">No movies in watchlist found.</property>
                                     <property name="css-classes">dim-label</property>
                                     <property name="visible">false</property>
                                     <property name="margin-top">24</property>
@@ -261,7 +261,7 @@
                         <child>
                           <object class="AdwViewStackPage">
                             <property name="name">explore</property>
-                            <property name="title">Explore More</property>
+                            <property name="title" translatable="yes">Explore More</property>
                             <property name="icon-name">non-starred-symbolic</property>
                             <property name="child">
                               <object class="GtkBox">
@@ -276,11 +276,11 @@
                                     <property name="model">
                                       <object class="GtkStringList">
                                         <items>
-                                          <item>Directing</item>
-                                          <item>Acting</item>
-                                          <item>Production</item>
-                                          <item>Cinematography</item>
-                                          <item>Music</item>
+                                          <item translatable="yes">Directing</item>
+                                          <item translatable="yes">Acting</item>
+                                          <item translatable="yes">Production</item>
+                                          <item translatable="yes">Cinematography</item>
+                                          <item translatable="yes">Music</item>
                                         </items>
                                       </object>
                                     </property>
@@ -289,7 +289,7 @@
 
                                 <child>
                                   <object class="GtkLabel" id="explore_empty_label">
-                                    <property name="label">Click to explore more movies...</property>
+                                    <property name="label" translatable="yes">Click to explore more movies...</property>
                                     <property name="css-classes">dim-label</property>
                                     <property name="visible">true</property>
                                     <property name="margin-top">24</property>

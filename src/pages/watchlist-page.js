@@ -85,7 +85,8 @@ export const MementoWatchlistPage = GObject.registerClass({
         if (query) {
             movies = movies.filter(movie => {
                 const title = (movie.title || '').toLowerCase();
-                return title.includes(query);
+                const originalTitle = (movie.original_title || '').toLowerCase();
+                return title.includes(query) || originalTitle.includes(query);
             });
         }
 
@@ -136,6 +137,7 @@ export const MementoWatchlistPage = GObject.registerClass({
         this._watchlist_pagination_box.set_visible(totalPages > 1);
         this._watchlist_prev_button.set_sensitive(this._currentPage > 0);
         this._watchlist_next_button.set_sensitive(this._currentPage < totalPages - 1);
-        this._watchlist_page_label.set_text(`Page ${this._currentPage + 1} of ${totalPages}`);
+        const pageLabel = _('Page %d of %d').format(this._currentPage + 1, totalPages);
+        this._watchlist_page_label.set_text(pageLabel);
     }
 });

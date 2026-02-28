@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="memento">
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
   <template class="MementoWatchlistPage" parent="GtkBox">
@@ -17,7 +17,7 @@
         <child>
           <object class="GtkSearchEntry" id="watchlist_search_entry">
             <property name="hexpand">true</property>
-            <property name="placeholder-text">Search watchlist</property>
+            <property name="placeholder-text" translatable="yes">Search watchlist</property>
           </object>
         </child>
         <child>
@@ -25,10 +25,10 @@
             <property name="model">
               <object class="GtkStringList">
                 <items>
-                  <item>Recently Added</item>
-                  <item>Title (A–Z)</item>
-                  <item>Release Date</item>
-                  <item>Rating</item>
+                  <item translatable="yes">Recently Added</item>
+                  <item translatable="yes">Title (A–Z)</item>
+                  <item translatable="yes">Release Date</item>
+                  <item translatable="yes">Rating</item>
                 </items>
               </object>
             </property>
@@ -87,12 +87,12 @@
                         <property name="visible">false</property>
                         <child>
                           <object class="GtkButton" id="watchlist_prev_button">
-                            <property name="label">Previous</property>
+                            <property name="label" translatable="yes">Previous</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkLabel" id="watchlist_page_label">
-                            <property name="label">Page 1 of 1</property>
+                            <property name="label" translatable="yes">Page 1 of 1</property>
                             <style>
                               <class name="dim-label" />
                             </style>
@@ -100,7 +100,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="watchlist_next_button">
-                            <property name="label">Next</property>
+                            <property name="label" translatable="yes">Next</property>
                           </object>
                         </child>
                       </object>

@@ -4,6 +4,7 @@
     "runtime-version": "49",
     "sdk": "org.gnome.Sdk",
     "command": "io.github.ans_ibrahim.Memento",
+    "separate-locales": true,
     "rename-desktop-file": "io.github.ans_ibrahim.Memento.desktop",
     "rename-appdata-file": "io.github.ans_ibrahim.Memento.metainfo.xml",
     "rename-icon": "io.github.ans_ibrahim.Memento",

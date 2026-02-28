@@ -12,6 +12,44 @@ const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
 
 const session = new Soup.Session();
 
+function normalizeTmdbLanguage(localeName) {
+    const locale = String(localeName || '')
+        .trim()
+        .replace('.', '-')
+        .replace('_', '-');
+    if (!locale) {
+        return null;
+    }
+
+    const [languagePart, regionPart] = locale.split('-');
+    if (!/^[A-Za-z]{2}$/.test(languagePart || '')) {
+        return null;
+    }
+
+    const languageCode = languagePart.toLowerCase();
+    if (regionPart && /^[A-Za-z]{2}$/.test(regionPart)) {
+        return `${languageCode}-${regionPart.toUpperCase()}`;
+    }
+
+    return languageCode;
+}
+
+function getTmdbLanguage() {
+    try {
+        const localeNames = GLib.get_language_names();
+        for (const localeName of localeNames) {
+            const normalizedLanguage = normalizeTmdbLanguage(localeName);
+            if (normalizedLanguage) {
+                return normalizedLanguage;
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to detect system locale for TMDB language:', error);
+    }
+
+    return DEFAULT_LANGUAGE;
+}
+
 function getApiKey() {
     try {
         const settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
@@ -56,33 +94,38 @@ async function fetchJson(url) {
 
 export async function searchMovies(query) {
     const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
     const encodedQuery = encodeURIComponent(query.trim());
-    const url = `${TMDB_BASE_URL}/search/movie?query=${encodedQuery}&include_adult=false&language=${DEFAULT_LANGUAGE}&page=1&api_key=${apiKey}`;
+    const url = `${TMDB_BASE_URL}/search/movie?query=${encodedQuery}&include_adult=false&language=${tmdbLanguage}&page=1&api_key=${apiKey}`;
     const payload = await fetchJson(url);
     return payload.results ?? [];
 }
 
 export async function getMovieDetails(tmdbId) {
     const apiKey = getApiKey();
-    const url = `${TMDB_BASE_URL}/movie/${encodeURIComponent(tmdbId)}?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/movie/${encodeURIComponent(tmdbId)}?language=${tmdbLanguage}&api_key=${apiKey}`;
     return fetchJson(url);
 }
 
 export async function getMovieCredits(tmdbId) {
     const apiKey = getApiKey();
-    const url = `${TMDB_BASE_URL}/movie/${encodeURIComponent(tmdbId)}/credits?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/movie/${encodeURIComponent(tmdbId)}/credits?language=${tmdbLanguage}&api_key=${apiKey}`;
     return fetchJson(url);
 }
 
 export async function getPersonDetails(personId) {
     const apiKey = getApiKey();
-    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}?language=${tmdbLanguage}&api_key=${apiKey}`;
     return fetchJson(url);
 }
 
 export async function getPersonMovieCredits(personId) {
     const apiKey = getApiKey();
-    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}/movie_credits?language=${DEFAULT_LANGUAGE}&api_key=${apiKey}`;
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}/movie_credits?language=${tmdbLanguage}&api_key=${apiKey}`;
     return fetchJson(url);
 }
 

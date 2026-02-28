@@ -67,7 +67,7 @@ export const MementoPlacesDialog = GObject.registerClass({
     _createPlaceRow(place) {
         const row = new Adw.ActionRow({
             title: place.name,
-            subtitle: place.is_cinema ? '🎬 Cinema' : '🏠 Home',
+            subtitle: place.is_cinema ? _('🎬 Cinema') : _('🏠 Home'),
         });
 
         // Edit button
@@ -75,7 +75,7 @@ export const MementoPlacesDialog = GObject.registerClass({
             icon_name: 'document-edit-symbolic',
             valign: Gtk.Align.CENTER,
             css_classes: ['flat'],
-            tooltip_text: 'Edit',
+            tooltip_text: _('Edit'),
         });
 
         editButton.connect('clicked', () => {
@@ -89,7 +89,7 @@ export const MementoPlacesDialog = GObject.registerClass({
             icon_name: 'user-trash-symbolic',
             valign: Gtk.Align.CENTER,
             css_classes: ['flat', 'destructive-action'],
-            tooltip_text: 'Delete',
+            tooltip_text: _('Delete'),
         });
 
         deleteButton.connect('clicked', async () => {
@@ -104,16 +104,16 @@ export const MementoPlacesDialog = GObject.registerClass({
 
     _showAddDialog() {
         const dialog = new Adw.AlertDialog({
-            heading: 'Add Place',
-            body: 'Enter the place name',
+            heading: _('Add Place'),
+            body: _('Enter the place name'),
         });
 
         const entry = new Adw.EntryRow({
-            title: 'Place Name',
+            title: _('Place Name'),
         });
 
         const checkButton = new Adw.SwitchRow({
-            title: 'Is Cinema',
+            title: _('Is Cinema'),
         });
 
         const prefGroup = new Adw.PreferencesGroup();
@@ -121,8 +121,8 @@ export const MementoPlacesDialog = GObject.registerClass({
         prefGroup.add(checkButton);
 
         dialog.set_extra_child(prefGroup);
-        dialog.add_response('cancel', 'Cancel');
-        dialog.add_response('add', 'Add');
+        dialog.add_response('cancel', _('Cancel'));
+        dialog.add_response('add', _('Add'));
         dialog.set_response_appearance('add', Adw.ResponseAppearance.SUGGESTED);
 
         dialog.connect('response', async (dlg, response) => {
@@ -144,17 +144,17 @@ export const MementoPlacesDialog = GObject.registerClass({
 
     _showEditDialog(place) {
         const dialog = new Adw.AlertDialog({
-            heading: 'Edit Place',
-            body: 'Update the place details',
+            heading: _('Edit Place'),
+            body: _('Update the place details'),
         });
 
         const entry = new Adw.EntryRow({
-            title: 'Place Name',
+            title: _('Place Name'),
             text: place.name,
         });
 
         const checkButton = new Adw.SwitchRow({
-            title: 'Is Cinema',
+            title: _('Is Cinema'),
             active: place.is_cinema === 1,
         });
 
@@ -163,8 +163,8 @@ export const MementoPlacesDialog = GObject.registerClass({
         prefGroup.add(checkButton);
 
         dialog.set_extra_child(prefGroup);
-        dialog.add_response('cancel', 'Cancel');
-        dialog.add_response('save', 'Save');
+        dialog.add_response('cancel', _('Cancel'));
+        dialog.add_response('save', _('Save'));
         dialog.set_response_appearance('save', Adw.ResponseAppearance.SUGGESTED);
 
         dialog.connect('response', async (dlg, response) => {

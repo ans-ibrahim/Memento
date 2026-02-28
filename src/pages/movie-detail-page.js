@@ -72,6 +72,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         'right_content',
         'metadata_group',
         'year_row',
+        'original_title_row',
         'runtime_row',
         'language_row',
         'genre_row',
@@ -255,8 +256,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
         } catch (error) {
             console.error('Failed to load movie:', error);
             // Show error to user
-            this._title_label.set_label('Error loading movie');
-            this._overview_label.set_label(error.message || 'An error occurred while loading movie details.');
+            this._title_label.set_label(_('Error loading movie'));
+            this._overview_label.set_label(error.message || _('An error occurred while loading movie details.'));
         }
     }
 
@@ -274,7 +275,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
             this._movieData = await getMovieById(this._movieId);
             if (!this._movieData) {
-                throw new Error('Failed to load movie data from database.');
+                throw new Error(_('Failed to load movie data from database.'));
             }
 
             this._loadCachedRatings();
@@ -285,8 +286,8 @@ export const MementoMovieDetailPage = GObject.registerClass({
             await this._loadPlays();
         } catch (error) {
             console.error('Failed to refresh movie:', error);
-            this._title_label.set_label('Error refreshing movie');
-            this._overview_label.set_label(error.message || 'An error occurred while refreshing movie details.');
+            this._title_label.set_label(_('Error refreshing movie'));
+            this._overview_label.set_label(error.message || _('An error occurred while refreshing movie details.'));
         }
     }
 
@@ -412,7 +413,16 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
     _displayMovieInfo() {
         // Title and tagline
-        this._title_label.set_label(this._movieData.title || 'Unknown');
+        const displayTitle = this._movieData.title || _('Unknown');
+        this._title_label.set_label(displayTitle);
+
+        const originalTitle = String(this._movieData.original_title || '').trim();
+        if (originalTitle && originalTitle !== displayTitle) {
+            this._original_title_row.set_subtitle(originalTitle);
+            this._original_title_row.set_visible(true);
+        } else {
+            this._original_title_row.set_visible(false);
+        }
         
         if (this._movieData.tagline) {
             this._tagline_label.set_label(this._movieData.tagline);
@@ -519,7 +529,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             return;
         }
 
-        this._rating_row.set_title('Ratings');
+        this._rating_row.set_title(_('Ratings'));
         this._rating_row.set_subtitle(ratingParts.join(' | '));
         this._rating_row.set_visible(true);
     }
@@ -663,11 +673,11 @@ export const MementoMovieDetailPage = GObject.registerClass({
         this._isInWatchlist = inWatchlist;
         
         if (inWatchlist) {
-            this._watchlist_button.set_label('Remove from Watchlist');
+            this._watchlist_button.set_label(_('Remove from Watchlist'));
             this._watchlist_button.remove_css_class('suggested-action');
             this._watchlist_button.add_css_class('destructive-action');
         } else {
-            this._watchlist_button.set_label('Add to Watchlist');
+            this._watchlist_button.set_label(_('Add to Watchlist'));
             this._watchlist_button.remove_css_class('destructive-action');
             this._watchlist_button.add_css_class('suggested-action');
         }
@@ -688,7 +698,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
     async _showAddPlayDialog() {
         const dialog = new Gtk.Dialog({
-            title: 'Add a Play',
+            title: _('Add a Play'),
             modal: true,
             transient_for: this.get_root(),
         });
@@ -702,7 +712,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Date picker
         const dateLabel = new Gtk.Label({
-            label: 'Watch Date:',
+            label: _('Watch Date:'),
             xalign: 0,
         });
         contentArea.append(dateLabel);
@@ -717,7 +727,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Place selector
         const placeLabel = new Gtk.Label({
-            label: 'Place (optional):',
+            label: _('Place (optional):'),
             xalign: 0,
             margin_top: 12,
         });
@@ -729,7 +739,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Load places
         const places = await getAllPlaces();
-        const placeNames = ['None', ...places.map(p => p.name)];
+        const placeNames = [_('None'), ...places.map(p => p.name)];
         const stringList = new Gtk.StringList();
         for (const name of placeNames) {
             stringList.append(name);
@@ -739,19 +749,19 @@ export const MementoMovieDetailPage = GObject.registerClass({
         contentArea.append(placeDropdown);
 
         const commentLabel = new Gtk.Label({
-            label: 'Comment (optional):',
+            label: _('Comment (optional):'),
             xalign: 0,
             margin_top: 12,
         });
         contentArea.append(commentLabel);
 
         const commentEntry = new Gtk.Entry({
-            placeholder_text: 'Add a note about this play',
+            placeholder_text: _('Add a note about this play'),
         });
         contentArea.append(commentEntry);
 
-        dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
-        dialog.add_button('Add', Gtk.ResponseType.OK);
+        dialog.add_button(_('Cancel'), Gtk.ResponseType.CANCEL);
+        dialog.add_button(_('Add'), Gtk.ResponseType.OK);
 
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
@@ -810,11 +820,11 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const plays = await getPlaysForMovie(this._movieId);
         
         if (plays.length === 0) {
-            this._plays_count_label.set_label('No plays recorded');
+            this._plays_count_label.set_label(_('No plays recorded'));
         } else {
             const countText = plays.length === 1 
-                ? '1 play recorded' 
-                : `${plays.length} plays recorded`;
+                ? _('1 play recorded')
+                : _('%d plays recorded').format(plays.length);
             this._plays_count_label.set_label(countText);
 
             // Add play entries
@@ -900,7 +910,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const editButton = new Gtk.Button({
             icon_name: 'document-edit-symbolic',
             valign: Gtk.Align.CENTER,
-            tooltip_text: 'Edit Play',
+            tooltip_text: _('Edit Play'),
             css_classes: ['flat'],
         });
 
@@ -916,18 +926,20 @@ export const MementoMovieDetailPage = GObject.registerClass({
         const deleteButton = new Gtk.Button({
             icon_name: 'user-trash-symbolic',
             valign: Gtk.Align.CENTER,
-            tooltip_text: 'Delete Play',
+            tooltip_text: _('Delete Play'),
             css_classes: ['flat', 'destructive-action'],
         });
 
         deleteButton.connect('clicked', async () => {
             const dialog = new Adw.AlertDialog({
-                heading: 'Delete Play?',
-                body: `Are you sure you want to delete this play from ${formatDate(play.watched_at, {month: 'long'})}?`,
+                heading: _('Delete Play?'),
+                body: _('Are you sure you want to delete this play from %s?').format(
+                    formatDate(play.watched_at, {month: 'long'})
+                ),
             });
 
-            dialog.add_response('cancel', 'Cancel');
-            dialog.add_response('delete', 'Delete');
+            dialog.add_response('cancel', _('Cancel'));
+            dialog.add_response('delete', _('Delete'));
             dialog.set_response_appearance('delete', Adw.ResponseAppearance.DESTRUCTIVE);
 
             dialog.connect('response', async (dlg, response) => {
@@ -951,7 +963,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         console.log('Opening edit dialog for play:', play.id);
         
         const dialog = new Gtk.Dialog({
-            title: 'Edit Play',
+            title: _('Edit Play'),
             modal: true,
             transient_for: this.get_root(),
         });
@@ -965,7 +977,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Date picker
         const dateLabel = new Gtk.Label({
-            label: 'Watch Date:',
+            label: _('Watch Date:'),
             xalign: 0,
         });
         contentArea.append(dateLabel);
@@ -990,7 +1002,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Watch order
         const orderLabel = new Gtk.Label({
-            label: 'Watch Order:',
+            label: _('Watch Order:'),
             xalign: 0,
             margin_top: 12,
         });
@@ -1002,7 +1014,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Place selector
         const placeLabel = new Gtk.Label({
-            label: 'Place (optional):',
+            label: _('Place (optional):'),
             xalign: 0,
             margin_top: 12,
         });
@@ -1014,7 +1026,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         // Load places
         const places = await getAllPlaces();
-        const placeNames = ['None', ...places.map(p => p.name)];
+        const placeNames = [_('None'), ...places.map(p => p.name)];
         const stringList = new Gtk.StringList();
         for (const name of placeNames) {
             stringList.append(name);
@@ -1032,20 +1044,20 @@ export const MementoMovieDetailPage = GObject.registerClass({
         contentArea.append(placeDropdown);
 
         const commentLabel = new Gtk.Label({
-            label: 'Comment (optional):',
+            label: _('Comment (optional):'),
             xalign: 0,
             margin_top: 12,
         });
         contentArea.append(commentLabel);
 
         const commentEntry = new Gtk.Entry({
-            placeholder_text: 'Add a note about this play',
+            placeholder_text: _('Add a note about this play'),
             text: play.comment || '',
         });
         contentArea.append(commentEntry);
 
-        dialog.add_button('Cancel', Gtk.ResponseType.CANCEL);
-        dialog.add_button('Save', Gtk.ResponseType.OK);
+        dialog.add_button(_('Cancel'), Gtk.ResponseType.CANCEL);
+        dialog.add_button(_('Save'), Gtk.ResponseType.OK);
 
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
@@ -1096,7 +1108,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         }
 
         try {
-            const displayNames = new Intl.DisplayNames(['en'], {type: 'language'});
+            const displayNames = new Intl.DisplayNames(undefined, {type: 'language'});
             const languageName = displayNames.of(normalizedCode);
             if (languageName) {
                 return languageName;

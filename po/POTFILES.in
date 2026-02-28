@@ -1,8 +1,28 @@
 # List of source files containing translatable strings.
 # Please keep this file sorted alphabetically.
 data/io.github.ans_ibrahim.Memento.desktop.in
-data/io.github.ans_ibrahim.Memento.metainfo.xml.in
 data/io.github.ans_ibrahim.Memento.gschema.xml
+data/io.github.ans_ibrahim.Memento.metainfo.xml.in
+src/dialogs/places-dialog.js
+src/dialogs/places-dialog.ui
+src/dialogs/search-dialog.js
+src/dialogs/search-dialog.ui
 src/main.js
+src/pages/movie-detail-page.js
+src/pages/movie-detail-page.ui
+src/pages/person-page.js
+src/pages/person-page.ui
+src/pages/plays-page.ui
+src/pages/preferences-page.js
+src/pages/preferences-page.ui
+src/pages/top-people-page.js
+src/pages/top-people-page.ui
+src/pages/watchlist-page.js
+src/pages/watchlist-page.ui
+src/shortcuts-dialog.ui
+src/widgets/movie-card.js
+src/widgets/person-stat-card.js
+src/widgets/play-card.js
+src/widgets/play-entry.ui
 src/window.js
 src/window.ui

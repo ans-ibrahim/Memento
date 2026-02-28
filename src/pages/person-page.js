@@ -141,7 +141,7 @@ export const MementoPersonPage = GObject.registerClass({
 
             this._exploreLoaded = false;
             clearGrid(this._explore_grid);
-            this._explore_empty_label.set_label('Click to explore more movies...');
+            this._explore_empty_label.set_label(_('Click to explore more movies...'));
             this._explore_empty_label.set_visible(true);
 
             if (this._stack.get_visible_child_name() === 'explore') {
@@ -259,7 +259,7 @@ export const MementoPersonPage = GObject.registerClass({
             
         } catch (error) {
             console.error('Failed to load explore movies:', error);
-            this._explore_empty_label.set_label('Failed to load movies.');
+            this._explore_empty_label.set_label(_('Failed to load movies.'));
         }
     }
 
@@ -267,7 +267,7 @@ export const MementoPersonPage = GObject.registerClass({
         clearGrid(this._explore_grid);
 
         if (!this._exploreLoaded) {
-            this._explore_empty_label.set_label('Click to explore more movies...');
+            this._explore_empty_label.set_label(_('Click to explore more movies...'));
             this._explore_empty_label.set_visible(true);
             return;
         }
@@ -287,7 +287,7 @@ export const MementoPersonPage = GObject.registerClass({
 
         this._explore_empty_label.set_visible(filteredMovies.length === 0);
         if (filteredMovies.length === 0) {
-            this._explore_empty_label.set_label('No other movies found.');
+            this._explore_empty_label.set_label(_('No other movies found.'));
         }
     }
 
@@ -315,12 +315,12 @@ export const MementoPersonPage = GObject.registerClass({
                 const ageAtDeath = this._calculateAge(birthDate, deathDate);
                 birthText += ` - ${deathText}`;
                 if (ageAtDeath !== null) {
-                    birthText += ` (${ageAtDeath} years)`;
+                    birthText += ` (${_('%d years').format(ageAtDeath)})`;
                 }
             } else {
                 const age = this._calculateAge(birthDate, new Date());
                 if (age !== null) {
-                    birthText += ` (${age} years old)`;
+                    birthText += ` (${_('%d years old').format(age)})`;
                 }
             }
             this._birthday_label.set_label(birthText);
@@ -337,7 +337,7 @@ export const MementoPersonPage = GObject.registerClass({
         }
 
         if (details.known_for) {
-            this._known_for_label.set_label(`Known for: ${details.known_for}`);
+            this._known_for_label.set_label(_('Known for: %s').format(details.known_for));
             this._known_for_label.set_visible(true);
         } else {
             this._known_for_label.set_visible(false);

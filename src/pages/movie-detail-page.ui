@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="memento">
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
   <template class="MementoMovieDetailPage" parent="AdwNavigationPage">
-    <property name="title">Movie Details</property>
+    <property name="title" translatable="yes">Movie Details</property>
     <property name="child">
       <object class="AdwToolbarView">
         <child type="top">
@@ -11,7 +11,7 @@
             <child type="end">
               <object class="GtkButton" id="refresh_button">
                 <property name="icon-name">view-refresh-symbolic</property>
-                <property name="tooltip-text">Refresh</property>
+                <property name="tooltip-text" translatable="yes">Refresh</property>
                 <style>
                   <class name="flat" />
                 </style>
@@ -68,7 +68,7 @@
                         <!-- Watchlist Section -->
                         <child>
                           <object class="AdwPreferencesGroup">
-                            <property name="title">Watchlist</property>
+                            <property name="title" translatable="yes">Watchlist</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="orientation">horizontal</property>
@@ -77,7 +77,7 @@
                                 <property name="margin-bottom">12</property>
                                 <child>
                                   <object class="GtkButton" id="watchlist_button">
-                                    <property name="label">Add to Watchlist</property>
+                                    <property name="label" translatable="yes">Add to Watchlist</property>
                                     <style>
                                       <class name="pill" />
                                       <class name="suggested-action" />
@@ -92,7 +92,7 @@
                         <!-- Viewing History Section -->
                         <child>
                           <object class="AdwPreferencesGroup">
-                            <property name="title">Viewing History</property>
+                            <property name="title" translatable="yes">Viewing History</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="orientation">vertical</property>
@@ -101,7 +101,7 @@
                                 <property name="margin-bottom">12</property>
                                 <child>
                                   <object class="GtkButton" id="add_play_button">
-                                    <property name="label">Add a Play</property>
+                                    <property name="label" translatable="yes">Add a Play</property>
                                     <property name="halign">center</property>
                                     <style>
                                       <class name="pill" />
@@ -114,7 +114,7 @@
                                     <property name="spacing">6</property>
                                     <child>
                                       <object class="GtkLabel" id="plays_count_label">
-                                        <property name="label">No plays recorded</property>
+                                        <property name="label" translatable="yes">No plays recorded</property>
                                         <property name="xalign">0</property>
                                         <property name="margin-start">12</property>
                                         <style>
@@ -153,7 +153,7 @@
                             <property name="spacing">8</property>
                             <child>
                               <object class="GtkLabel" id="title_label">
-                                <property name="label">Movie Title</property>
+                                <property name="label" translatable="yes">Movie Title</property>
                                 <property name="wrap">true</property>
                                 <property name="xalign">0</property>
                                 <style>
@@ -163,7 +163,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel" id="tagline_label">
-                                <property name="label">Tagline</property>
+                                <property name="label" translatable="yes">Tagline</property>
                                 <property name="wrap">true</property>
                                 <property name="xalign">0</property>
                                 <property name="visible">false</property>
@@ -178,46 +178,52 @@
                         <!-- Metadata Group -->
                         <child>
                           <object class="AdwPreferencesGroup" id="metadata_group">
-                            <property name="title">Details</property>
+                            <property name="title" translatable="yes">Details</property>
                             <child>
                               <object class="AdwActionRow" id="year_row">
-                                <property name="title">Release Year</property>
+                                <property name="title" translatable="yes">Release Year</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="original_title_row">
+                                <property name="title" translatable="yes">Original Title</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="runtime_row">
-                                <property name="title">Runtime</property>
+                                <property name="title" translatable="yes">Runtime</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="language_row">
-                                <property name="title">Original Language</property>
+                                <property name="title" translatable="yes">Original Language</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="genre_row">
-                                <property name="title">Genre</property>
+                                <property name="title" translatable="yes">Genre</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="budget_row">
-                                <property name="title">Budget</property>
+                                <property name="title" translatable="yes">Budget</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="rating_row">
-                                <property name="title">Rating</property>
+                                <property name="title" translatable="yes">Rating</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
                             <child>
                               <object class="AdwActionRow" id="revenue_row">
-                                <property name="title">Box Office</property>
+                                <property name="title" translatable="yes">Box Office</property>
                                 <property name="visible">false</property>
                               </object>
                             </child>
@@ -232,7 +238,7 @@
                             <property name="visible">false</property>
                             <child>
                               <object class="GtkLabel">
-                                <property name="label">Overview</property>
+                                <property name="label" translatable="yes">Overview</property>
                                 <property name="xalign">0</property>
                                 <style>
                                   <class name="title-4" />
@@ -241,7 +247,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel" id="overview_label">
-                                <property name="label">Movie overview</property>
+                                <property name="label" translatable="yes">Movie overview</property>
                                 <property name="wrap">true</property>
                                 <property name="xalign">0</property>
                                 <property name="justify">fill</property>
@@ -253,7 +259,7 @@
                         <!-- External Links -->
                         <child>
                           <object class="AdwPreferencesGroup">
-                            <property name="title">External Links</property>
+                            <property name="title" translatable="yes">External Links</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="orientation">horizontal</property>
@@ -264,8 +270,8 @@
                                 <property name="margin-start">12</property>
                                 <child>
                                   <object class="GtkButton" id="imdb_button">
-                                    <property name="label">IMDb</property>
-                                    <property name="tooltip-text">Open on IMDb</property>
+                                    <property name="label" translatable="yes">IMDb</property>
+                                    <property name="tooltip-text" translatable="yes">Open on IMDb</property>
                                     <style>
                                       <class name="pill" />
                                     </style>
@@ -273,8 +279,8 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="tmdb_button">
-                                    <property name="label">TMDB</property>
-                                    <property name="tooltip-text">Open on TMDB</property>
+                                    <property name="label" translatable="yes">TMDB</property>
+                                    <property name="tooltip-text" translatable="yes">Open on TMDB</property>
                                     <style>
                                       <class name="pill" />
                                     </style>
@@ -282,8 +288,8 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="letterboxd_button">
-                                    <property name="label">Letterboxd</property>
-                                    <property name="tooltip-text">Open on Letterboxd</property>
+                                    <property name="label" translatable="yes">Letterboxd</property>
+                                    <property name="tooltip-text" translatable="yes">Open on Letterboxd</property>
                                     <style>
                                       <class name="pill" />
                                     </style>
@@ -309,7 +315,7 @@
                                 <property name="visible">false</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label">Directed By</property>
+                                    <property name="label" translatable="yes">Directed By</property>
                                     <property name="xalign">0</property>
                                     <style>
                                       <class name="title-4" />
@@ -333,7 +339,7 @@
                                 <property name="visible">false</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label">Produced By</property>
+                                    <property name="label" translatable="yes">Produced By</property>
                                     <property name="xalign">0</property>
                                     <style>
                                       <class name="title-4" />
@@ -357,7 +363,7 @@
                                 <property name="visible">false</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label">Cinematography</property>
+                                    <property name="label" translatable="yes">Cinematography</property>
                                     <property name="xalign">0</property>
                                     <style>
                                       <class name="title-4" />
@@ -381,7 +387,7 @@
                                 <property name="visible">false</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label">Music By</property>
+                                    <property name="label" translatable="yes">Music By</property>
                                     <property name="xalign">0</property>
                                     <style>
                                       <class name="title-4" />
@@ -405,7 +411,7 @@
                                 <property name="visible">false</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="label">Cast</property>
+                                    <property name="label" translatable="yes">Cast</property>
                                     <property name="xalign">0</property>
                                     <style>
                                       <class name="title-4" />

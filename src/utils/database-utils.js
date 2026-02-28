@@ -86,6 +86,16 @@ ALTER TABLE movies ADD COLUMN imdb_rating REAL;
 ALTER TABLE movies ADD COLUMN imdb_rating_updated_at TEXT;
 `,
     },
+    {
+        version: 3,
+        name: 'add_original_title',
+        sql: `
+ALTER TABLE movies ADD COLUMN original_title TEXT;
+UPDATE movies
+SET original_title = title
+WHERE original_title IS NULL;
+`,
+    },
 ];
 
 // ... (existing code) ...
@@ -256,6 +266,12 @@ export async function upsertMovieFromTmdb(details) {
         details.original_title ||
         details.name ||
         'Untitled';
+    const originalTitle =
+        details.original_title ||
+        details.original_name ||
+        details.title ||
+        details.name ||
+        null;
     const genres = Array.isArray(details.genres)
         ? details.genres
             .map(genre => genre?.name)
@@ -268,6 +284,7 @@ export async function upsertMovieFromTmdb(details) {
     const sql = `
 INSERT INTO movies (
     title,
+    original_title,
     imdb_id,
     tmdb_id,
     poster,
@@ -285,6 +302,7 @@ INSERT INTO movies (
     updated_at
 ) VALUES (
     ${toSqlLiteral(title)},
+    ${toSqlLiteral(originalTitle)},
     ${toSqlLiteral(details.imdb_id)},
     ${toSqlLiteral(tmdbId)},
     ${toSqlLiteral(details.poster_path)},
@@ -303,6 +321,7 @@ INSERT INTO movies (
 )
 ON CONFLICT(tmdb_id) DO UPDATE SET
     title = excluded.title,
+    original_title = excluded.original_title,
     imdb_id = excluded.imdb_id,
     poster = excluded.poster,
     tagline = excluded.tagline,
@@ -399,6 +418,7 @@ SELECT
     credits.display_order,
     movies.id,
     movies.title,
+    movies.original_title,
     movies.tmdb_id,
     movies.poster,
     movies.release_date
@@ -427,6 +447,7 @@ export async function getWatchlistMovies() {
 SELECT
     movies.id,
     movies.title,
+    movies.original_title,
     movies.release_date,
     movies.poster,
     movies.tagline,
@@ -586,6 +607,7 @@ SELECT
     plays.place_id,
     plays.comment,
     movies.title,
+    movies.original_title,
     movies.poster,
     movies.release_date,
     movies.tmdb_id,
@@ -610,6 +632,7 @@ SELECT
     plays.place_id,
     plays.comment,
     movies.title,
+    movies.original_title,
     movies.poster,
     movies.release_date,
     movies.tmdb_id,

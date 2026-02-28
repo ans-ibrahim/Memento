@@ -74,7 +74,7 @@ export const MementoPreferencesPage = GObject.registerClass({
         const apiKey = this._api_key_row.get_text();
         this._settings.set_string('tmdb-api-key', apiKey);
 
-        this._showToast('API key saved', 2);
+        this._showToast(_('API key saved'), 2);
     }
 
     _onGetApiKeyActivated() {
@@ -124,7 +124,7 @@ export const MementoPreferencesPage = GObject.registerClass({
 
         this._refreshInProgress = true;
         this._setRefreshUiState(true);
-        this._refresh_progress_bar.set_text('Starting...');
+        this._refresh_progress_bar.set_text(_('Starting...'));
 
         let tmdbIds = [];
         try {
@@ -132,14 +132,14 @@ export const MementoPreferencesPage = GObject.registerClass({
         } catch (error) {
             this._setRefreshUiState(false);
             this._refreshInProgress = false;
-            this._showToast('Failed to load movies list', 3);
+            this._showToast(_('Failed to load movies list'), 3);
             return;
         }
 
         if (tmdbIds.length === 0) {
             this._setRefreshUiState(false);
             this._refreshInProgress = false;
-            this._showToast('No movies to refresh', 2);
+            this._showToast(_('No movies to refresh'), 2);
             return;
         }
 
@@ -168,9 +168,13 @@ export const MementoPreferencesPage = GObject.registerClass({
         this._refreshInProgress = false;
 
         if (failed > 0) {
-            this._showToast(`Refreshed ${completed - failed}/${tmdbIds.length} movies (${failed} failed)`, 4);
+            this._showToast(_('Refreshed %d/%d movies (%d failed)').format(
+                completed - failed,
+                tmdbIds.length,
+                failed
+            ), 4);
         } else {
-            this._showToast(`Refreshed ${completed} movies`, 3);
+            this._showToast(_('Refreshed %d movies').format(completed), 3);
         }
     }
 
@@ -181,7 +185,7 @@ export const MementoPreferencesPage = GObject.registerClass({
 
         this._refreshImdbInProgress = true;
         this._setRefreshImdbUiState(true);
-        this._refresh_imdb_progress_bar.set_text('Starting...');
+        this._refresh_imdb_progress_bar.set_text(_('Starting...'));
 
         let movies = [];
         try {
@@ -189,14 +193,14 @@ export const MementoPreferencesPage = GObject.registerClass({
         } catch (error) {
             this._setRefreshImdbUiState(false);
             this._refreshImdbInProgress = false;
-            this._showToast('Failed to load movies list', 3);
+            this._showToast(_('Failed to load movies list'), 3);
             return;
         }
 
         if (movies.length === 0) {
             this._setRefreshImdbUiState(false);
             this._refreshImdbInProgress = false;
-            this._showToast('No movies with IMDb IDs to refresh', 3);
+            this._showToast(_('No movies with IMDb IDs to refresh'), 3);
             return;
         }
 
@@ -223,9 +227,13 @@ export const MementoPreferencesPage = GObject.registerClass({
         this._refreshImdbInProgress = false;
 
         if (failed > 0) {
-            this._showToast(`Refreshed ${completed - failed}/${movies.length} IMDb ratings (${failed} failed)`, 4);
+            this._showToast(_('Refreshed %d/%d IMDb ratings (%d failed)').format(
+                completed - failed,
+                movies.length,
+                failed
+            ), 4);
         } else {
-            this._showToast(`Refreshed ${completed} IMDb ratings`, 3);
+            this._showToast(_('Refreshed %d IMDb ratings').format(completed), 3);
         }
     }
 

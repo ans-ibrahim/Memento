@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="memento">
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
   <template class="MementoPlaysPage" parent="AdwNavigationPage">
-    <property name="title">Viewing History</property>
+    <property name="title" translatable="yes">Viewing History</property>
     <property name="child">
       <object class="AdwToolbarView">
         <child type="top">

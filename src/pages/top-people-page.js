@@ -151,6 +151,7 @@ export const MementoTopPeoplePage = GObject.registerClass({
         this._people_pagination_box.set_visible(totalPages > 1);
         this._people_prev_button.set_sensitive(this._currentPage > 0);
         this._people_next_button.set_sensitive(this._currentPage < totalPages - 1);
-        this._people_page_label.set_text(`Page ${this._currentPage + 1} of ${totalPages}`);
+        const pageLabel = _('Page %d of %d').format(this._currentPage + 1, totalPages);
+        this._people_page_label.set_text(pageLabel);
     }
 });

@@ -77,7 +77,7 @@ export function createPersonStatCard(person, options = {}) {
     box.append(infoBox);
 
     const nameLabel = new Gtk.Label({
-        label: person.name || person.person_name || 'Unknown',
+        label: person.name || person.person_name || _('Unknown'),
         wrap: true,
         wrap_mode: 2,
         width_chars: titleMaxChars,
@@ -101,13 +101,13 @@ export function createPersonStatCard(person, options = {}) {
 
     if (showCount) {
         const countLabel = new Gtk.Label({
-            label: `${person.play_count || 0} plays`,
+            label: _('%d plays').format(person.play_count || 0),
             css_classes: ['caption', 'dim-label'],
             xalign: 0,
         });
         const uniqueMovies = Number(person.unique_movies) || 0;
         if (uniqueMovies > 0) {
-            countLabel.set_label(`${person.play_count || 0} plays • ${uniqueMovies} unique`);
+            countLabel.set_label(_('%d plays • %d unique').format(person.play_count || 0, uniqueMovies));
         }
         infoBox.append(countLabel);
     }

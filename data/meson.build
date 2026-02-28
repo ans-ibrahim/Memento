@@ -45,5 +45,11 @@ configure_file(
   configuration: service_conf,
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )
+configure_file(
+  input: 'io.github.ans_ibrahim.Memento.Devel.service.in',
+  output: 'io.github.ans_ibrahim.Memento.Devel.service',
+  configuration: service_conf,
+  install_dir: get_option('datadir') / 'dbus-1' / 'services'
+)
 
 subdir('icons')
