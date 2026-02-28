@@ -66,6 +66,19 @@
   </screenshots>
 
   <releases>
+    <release version="1.1.0" date="2026-02-28">
+      <description>
+        <p>Reservoir Dogs</p>
+        <ul>
+          <li>Added IMDb rating support in movie details and preferences refresh flow</li>
+          <li>Added Localization Support</li>
+          <li>Remove rating text from watchlist cards</li>
+          <li>Fix movie detail layout shift when plays and comments are added</li>
+          <li>Some minor changes</li>
+        </ul>
+      </description>
+      <url type="details">https://github.com/ans-ibrahim/Memento/releases/tag/v1.0.1</url>
+    </release>
     <release version="1.0.0" date="2026-02-13">
       <description>
         <p>Inception</p>

@@ -15,6 +15,7 @@ You can search movies from TMDB, keep a watchlist, log plays, and view personal 
 - Play history with search, sorting and sorting options
 - Dashboard with totals, recent activity, and top people (directors/cast)
 - Movie detail pages with credits and play logging
+- TMDB and IMDb ratings in movie details (configurable in Preferences)
 - Person pages with appearance stats
 - Places management (cinema/home/custom places)
 - Preferences for TMDB API key, auto-remove from watchlist, and full metadata refresh
