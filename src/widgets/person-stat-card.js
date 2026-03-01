@@ -95,6 +95,8 @@ export function createPersonStatCard(person, options = {}) {
             xalign: 0,
             ellipsize: 3,
             lines: 1,
+            width_chars: titleMaxChars,
+            max_width_chars: titleMaxChars,
         });
         infoBox.append(subtitleLabel);
     }
