@@ -8,6 +8,7 @@ You can search movies from TMDB, keep a watchlist, log plays, and view personal 
   </a>
   <br>
 </p>
+
 ## Features
 
 - Movie search powered by TMDB
