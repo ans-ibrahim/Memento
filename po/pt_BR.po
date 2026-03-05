@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: memento\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-01 00:01+0500\n"
-"PO-Revision-Date: 2026-03-05 11:09-0300\n"
+"PO-Revision-Date: 2026-03-05 11:33-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -143,7 +143,7 @@ msgstr "Adicionar filme"
 
 #: src/dialogs/search-dialog.ui:33
 msgid "Search movies..."
-msgstr "Buscar filmes"
+msgstr "Buscar filmes..."
 
 #: src/dialogs/search-dialog.ui:47
 msgid "Search for Movies"
@@ -211,7 +211,7 @@ msgstr "Adicionar uma reprodução"
 
 #: src/pages/movie-detail-page.js:715 src/pages/movie-detail-page.js:980
 msgid "Watch Date:"
-msgstr "Data de reprodução"
+msgstr "Data de reprodução:"
 
 #: src/pages/movie-detail-page.js:730 src/pages/movie-detail-page.js:1017
 msgid "Place (optional):"
@@ -391,7 +391,7 @@ msgstr "Clique para explorar mais filmes..."
 
 #: src/pages/person-page.js:262
 msgid "Failed to load movies."
-msgstr "Falha ao carregar filmes"
+msgstr "Falha ao carregar filmes."
 
 #: src/pages/person-page.js:290
 msgid "No other movies found."
@@ -450,7 +450,7 @@ msgstr "Nenhum filme reproduzido."
 
 #: src/pages/person-page.ui:237
 msgid "No movies in watchlist found."
-msgstr "Nenhum filme na lista"
+msgstr "Nenhum filme na lista."
 
 #: src/pages/person-page.ui:264
 msgid "Explore More"
@@ -733,7 +733,7 @@ msgstr "Estatísticas"
 
 #: src/window.ui:109
 msgid "Recent Plays"
-msgstr ""
+msgstr "Reproduções recentes"
 
 #: src/window.ui:129
 msgid "No plays recorded yet."
@@ -749,7 +749,7 @@ msgstr "Top Diretores"
 
 #: src/window.ui:237
 msgid "No director stats yet."
-msgstr ""
+msgstr "Nenhuma estatística do diretor ainda."
 
 #: src/window.ui:263
 msgid "Top Cast"
@@ -757,7 +757,7 @@ msgstr "Top Elenco"
 
 #: src/window.ui:283
 msgid "No cast stats yet."
-msgstr ""
+msgstr "Nenhuma estatística do elenco ainda."
 
 #: src/window.ui:329
 msgid "People"
