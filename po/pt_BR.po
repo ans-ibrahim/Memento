@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: memento\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-03-01 00:01+0500\n"
-"PO-Revision-Date: 2026-03-05 11:33-0300\n"
+"PO-Revision-Date: 2026-03-05 12:22-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pt_BR\n"
@@ -67,7 +67,7 @@ msgstr "🎬 Cinema"
 
 #: src/dialogs/places-dialog.js:70
 msgid "🏠 Home"
-msgstr "🏠 Home"
+msgstr "🏠 Casa"
 
 #: src/dialogs/places-dialog.js:78
 msgid "Edit"
@@ -163,7 +163,7 @@ msgstr "Tente um termo de busca diferente"
 
 #: src/main.js:67
 msgid "translator-credits"
-msgstr "felipecintraferraz"
+msgstr "Felipe Ferraz <github.com/felipecintraferraz>"
 
 #. Show error to user
 #: src/pages/movie-detail-page.js:259
@@ -686,12 +686,12 @@ msgstr "Fechar"
 #: src/widgets/person-stat-card.js:104
 #, javascript-format
 msgid "%d plays"
-msgstr "%d reproduções"
+msgstr "%d filme"
 
 #: src/widgets/person-stat-card.js:110
 #, javascript-format
 msgid "%d plays • %d unique"
-msgstr "%d reproduções • %d única"
+msgstr "%d filmes • %d único"
 
 #: src/widgets/play-card.js:146
 #, javascript-format
@@ -713,11 +713,11 @@ msgstr "Total de reproduções"
 
 #: src/window.js:354
 msgid "Unique Movies"
-msgstr "Filmes únicos"
+msgstr "Títulos assistidos"
 
 #: src/window.js:356
 msgid "Watch Time"
-msgstr "Tempo de visualização"
+msgstr "Tempo total de reprodução"
 
 #: src/window.ui:13 src/window.ui:50
 msgid "Dashboard"
