@@ -1,0 +1,800 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the memento package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: memento\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-01 00:01+0500\n"
+"PO-Revision-Date: 2026-03-05 11:09-0300\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+#: data/io.github.ans_ibrahim.Memento.desktop.in:2 src/main.js:57
+#: src/window.ui:6
+msgid "Memento"
+msgstr "Memento"
+
+#: data/io.github.ans_ibrahim.Memento.desktop.in:8
+msgid "movies;watchlist;tracker;cinema;tmdb;"
+msgstr "filmes;lista;diário;cinema;tmdb;"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:6
+msgid "TMDB API Key"
+msgstr "Chave de API do TMDB"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:7
+msgid "API key for The Movie Database (TMDB) service"
+msgstr "Chave de API do serviço The Movie Database (TMDB)"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:11
+msgid "Auto-remove from watchlist"
+msgstr "Remover automaticamente da lista"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:12
+msgid "Automatically remove movie from watchlist when adding a play"
+msgstr "Remover automaticamente o filme da lista ao adicionar uma reprodução"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:16
+#: src/pages/preferences-page.ui:60
+msgid "Enable TMDB rating"
+msgstr "Habilitar avaliação do TMDB"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:17
+msgid "Show TMDB ratings in the movie details ratings section"
+msgstr "Mostrar avaliações do TMDB na seção de avaliações dos detalhes do filme"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:21
+#: src/pages/preferences-page.ui:71
+msgid "Enable IMDb rating"
+msgstr "Habilitar avaliação do IMDb"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:22
+msgid "Show and fetch IMDb ratings in the movie details ratings section"
+msgstr "Mostrar e buscar avaliações do IMDb na seção de avaliações dos detalhes do filme"
+
+#: src/dialogs/places-dialog.js:70
+msgid "🎬 Cinema"
+msgstr "🎬 Cinema"
+
+#: src/dialogs/places-dialog.js:70
+msgid "🏠 Home"
+msgstr "🏠 Home"
+
+#: src/dialogs/places-dialog.js:78
+msgid "Edit"
+msgstr "Editar"
+
+#: src/dialogs/places-dialog.js:92 src/pages/movie-detail-page.js:942
+#: src/widgets/play-card.js:153
+msgid "Delete"
+msgstr "Excluir"
+
+#: src/dialogs/places-dialog.js:107 src/dialogs/places-dialog.ui:16
+msgid "Add Place"
+msgstr "Adicionar local"
+
+#: src/dialogs/places-dialog.js:108
+msgid "Enter the place name"
+msgstr "Insira o nome do local"
+
+#: src/dialogs/places-dialog.js:112 src/dialogs/places-dialog.js:152
+msgid "Place Name"
+msgstr "Nome do local"
+
+#: src/dialogs/places-dialog.js:116 src/dialogs/places-dialog.js:157
+msgid "Is Cinema"
+msgstr "É cinema"
+
+#: src/dialogs/places-dialog.js:124 src/dialogs/places-dialog.js:166
+#: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:763
+#: src/pages/movie-detail-page.js:941 src/pages/movie-detail-page.js:1059
+#: src/widgets/play-card.js:152
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/dialogs/places-dialog.js:125 src/pages/movie-detail-page.js:764
+msgid "Add"
+msgstr "Adicionar"
+
+#: src/dialogs/places-dialog.js:147
+msgid "Edit Place"
+msgstr "Editar local"
+
+#: src/dialogs/places-dialog.js:148
+msgid "Update the place details"
+msgstr "Atualizar os detalhes do local"
+
+#: src/dialogs/places-dialog.js:167 src/pages/movie-detail-page.js:1060
+msgid "Save"
+msgstr "Salvar"
+
+#: src/dialogs/places-dialog.ui:6
+msgid "Places"
+msgstr "Locais"
+
+#: src/dialogs/places-dialog.ui:41
+msgid "My Places"
+msgstr "Meus locais"
+
+#: src/dialogs/places-dialog.ui:42
+msgid "Manage your viewing locations"
+msgstr "Gerenciar seus locais de visualização"
+
+#: src/dialogs/search-dialog.js:189
+msgid "Unknown Title"
+msgstr "Título desconhecido"
+
+#: src/dialogs/search-dialog.js:246
+msgid "Unknown Year"
+msgstr "Ano desconhecido"
+
+#: src/dialogs/search-dialog.ui:6 src/window.ui:21
+msgid "Add Movie"
+msgstr "Adicionar filme"
+
+#: src/dialogs/search-dialog.ui:33
+msgid "Search movies..."
+msgstr "Buscar filmes"
+
+#: src/dialogs/search-dialog.ui:47
+msgid "Search for Movies"
+msgstr "Busca por filmes"
+
+#: src/dialogs/search-dialog.ui:48
+msgid "Type a movie name to search"
+msgstr "Insira o filme a buscar"
+
+#: src/dialogs/search-dialog.ui:98
+msgid "No Results"
+msgstr "Sem resultados"
+
+#: src/dialogs/search-dialog.ui:99
+msgid "Try a different search term"
+msgstr "Tente um termo de busca diferente"
+
+#: src/main.js:67
+msgid "translator-credits"
+msgstr "felipecintraferraz"
+
+#. Show error to user
+#: src/pages/movie-detail-page.js:259
+msgid "Error loading movie"
+msgstr "Erro ao carregar filme"
+
+#: src/pages/movie-detail-page.js:260
+msgid "An error occurred while loading movie details."
+msgstr "Ocorreu um erro ao carregar os detalhes do filme."
+
+#: src/pages/movie-detail-page.js:278
+msgid "Failed to load movie data from database."
+msgstr "Falha ao carregar dados do filme no banco de dados."
+
+#: src/pages/movie-detail-page.js:289
+msgid "Error refreshing movie"
+msgstr "Erro ao recarregar filme"
+
+#: src/pages/movie-detail-page.js:290
+msgid "An error occurred while refreshing movie details."
+msgstr "Um erro ocorreu ao atualizar os detalhes do filme."
+
+#. Title and tagline
+#: src/pages/movie-detail-page.js:416 src/widgets/movie-card.js:102
+#: src/widgets/person-stat-card.js:80 src/widgets/play-card.js:112
+#: src/widgets/play-card.js:147
+msgid "Unknown"
+msgstr "Desconhecido"
+
+#: src/pages/movie-detail-page.js:532
+msgid "Ratings"
+msgstr "Avaliações"
+
+#: src/pages/movie-detail-page.js:676
+msgid "Remove from Watchlist"
+msgstr "Remover da lista"
+
+#: src/pages/movie-detail-page.js:680 src/pages/movie-detail-page.ui:80
+msgid "Add to Watchlist"
+msgstr "Adicionar à lista"
+
+#: src/pages/movie-detail-page.js:701 src/pages/movie-detail-page.ui:104
+msgid "Add a Play"
+msgstr "Adicionar uma reprodução"
+
+#: src/pages/movie-detail-page.js:715 src/pages/movie-detail-page.js:980
+msgid "Watch Date:"
+msgstr "Data de reprodução"
+
+#: src/pages/movie-detail-page.js:730 src/pages/movie-detail-page.js:1017
+msgid "Place (optional):"
+msgstr "Local (opcional):"
+
+#: src/pages/movie-detail-page.js:742 src/pages/movie-detail-page.js:1029
+msgid "None"
+msgstr "Nenhum"
+
+#: src/pages/movie-detail-page.js:752 src/pages/movie-detail-page.js:1047
+msgid "Comment (optional):"
+msgstr "Comentário (opcional)"
+
+#: src/pages/movie-detail-page.js:759 src/pages/movie-detail-page.js:1054
+msgid "Add a note about this play"
+msgstr "Adicione uma avaliação para esta execução"
+
+#: src/pages/movie-detail-page.js:823 src/pages/movie-detail-page.ui:117
+msgid "No plays recorded"
+msgstr "Nenhuma reprodução registrada"
+
+#: src/pages/movie-detail-page.js:826
+msgid "1 play recorded"
+msgstr "1 reprodução registrada"
+
+#: src/pages/movie-detail-page.js:827
+#, javascript-format
+msgid "%d plays recorded"
+msgstr "%d reproduções registradas"
+
+#: src/pages/movie-detail-page.js:913 src/pages/movie-detail-page.js:966
+msgid "Edit Play"
+msgstr "Editar reprodução"
+
+#: src/pages/movie-detail-page.js:929 src/widgets/play-card.js:139
+#: src/widgets/play-entry.ui:22
+msgid "Delete Play"
+msgstr "Apagar reprodução"
+
+#: src/pages/movie-detail-page.js:935 src/widgets/play-card.js:145
+msgid "Delete Play?"
+msgstr "Apagar reprodução?"
+
+#: src/pages/movie-detail-page.js:936
+#, javascript-format
+msgid "Are you sure you want to delete this play from %s?"
+msgstr "Tem certeza que deseja apagar esta reprodução de %s?"
+
+#: src/pages/movie-detail-page.js:1005
+msgid "Watch Order:"
+msgstr "Ordem de visualização:"
+
+#: src/pages/movie-detail-page.ui:6
+msgid "Movie Details"
+msgstr "Detalhes do filme"
+
+#: src/pages/movie-detail-page.ui:14 src/pages/person-page.ui:13
+#: src/pages/preferences-page.ui:93 src/pages/preferences-page.ui:105
+msgid "Refresh"
+msgstr "Recarregar"
+
+#: src/pages/movie-detail-page.ui:71 src/pages/person-page.ui:209
+#: src/window.js:355 src/window.ui:163 src/window.ui:317
+msgid "Watchlist"
+msgstr "Lista"
+
+#: src/pages/movie-detail-page.ui:95 src/pages/plays-page.ui:6
+msgid "Viewing History"
+msgstr "Visualizando histórico"
+
+#: src/pages/movie-detail-page.ui:156
+msgid "Movie Title"
+msgstr "Título do filme"
+
+#: src/pages/movie-detail-page.ui:166
+msgid "Tagline"
+msgstr ""
+
+#: src/pages/movie-detail-page.ui:181
+msgid "Details"
+msgstr "Detalhes"
+
+#: src/pages/movie-detail-page.ui:184
+msgid "Release Year"
+msgstr "Ano de lançamento"
+
+#: src/pages/movie-detail-page.ui:190
+msgid "Original Title"
+msgstr "Título original"
+
+#: src/pages/movie-detail-page.ui:196
+msgid "Runtime"
+msgstr "Tempo de reprodução"
+
+#: src/pages/movie-detail-page.ui:202
+msgid "Original Language"
+msgstr "Idioma original"
+
+#: src/pages/movie-detail-page.ui:208
+msgid "Genre"
+msgstr "Gênero"
+
+#: src/pages/movie-detail-page.ui:214
+msgid "Budget"
+msgstr "Orçamento"
+
+#: src/pages/movie-detail-page.ui:220 src/pages/watchlist-page.ui:31
+msgid "Rating"
+msgstr "Avaliação"
+
+#: src/pages/movie-detail-page.ui:226
+msgid "Box Office"
+msgstr ""
+
+#: src/pages/movie-detail-page.ui:241
+msgid "Overview"
+msgstr "Resumo"
+
+#: src/pages/movie-detail-page.ui:250
+msgid "Movie overview"
+msgstr "Sinopse"
+
+#: src/pages/movie-detail-page.ui:262
+msgid "External Links"
+msgstr "Links externos"
+
+#: src/pages/movie-detail-page.ui:273
+msgid "IMDb"
+msgstr "IMDb"
+
+#: src/pages/movie-detail-page.ui:274
+msgid "Open on IMDb"
+msgstr "Abrir no IMDb"
+
+#: src/pages/movie-detail-page.ui:282
+msgid "TMDB"
+msgstr "TMDB"
+
+#: src/pages/movie-detail-page.ui:283
+msgid "Open on TMDB"
+msgstr "Abrir no TMDB"
+
+#: src/pages/movie-detail-page.ui:291
+msgid "Letterboxd"
+msgstr ""
+
+#: src/pages/movie-detail-page.ui:292
+msgid "Open on Letterboxd"
+msgstr "Abrir no Letterboxd"
+
+#: src/pages/movie-detail-page.ui:318
+msgid "Directed By"
+msgstr "Dirigido por"
+
+#: src/pages/movie-detail-page.ui:342
+msgid "Produced By"
+msgstr "Produzido por"
+
+#: src/pages/movie-detail-page.ui:366 src/pages/person-page.ui:172
+#: src/pages/person-page.ui:227 src/pages/person-page.ui:282
+#: src/pages/top-people-page.ui:31
+msgid "Cinematography"
+msgstr "Cinematografia"
+
+#: src/pages/movie-detail-page.ui:390
+msgid "Music By"
+msgstr "Trilha sonora"
+
+#: src/pages/movie-detail-page.ui:414 src/pages/top-people-page.ui:29
+msgid "Cast"
+msgstr "Elenco"
+
+#: src/pages/person-page.js:144 src/pages/person-page.js:270
+#: src/pages/person-page.ui:292
+msgid "Click to explore more movies..."
+msgstr "Clique para explorar mais filmes..."
+
+#: src/pages/person-page.js:262
+msgid "Failed to load movies."
+msgstr "Falha ao carregar filmes"
+
+#: src/pages/person-page.js:290
+msgid "No other movies found."
+msgstr "Nenhum outro filme encontrado."
+
+#: src/pages/person-page.js:318
+#, javascript-format
+msgid "%d years"
+msgstr "%d anos"
+
+#: src/pages/person-page.js:323
+#, javascript-format
+msgid "%d years old"
+msgstr "%d anos atrás"
+
+#: src/pages/person-page.js:340
+#, javascript-format
+msgid "Known for: %s"
+msgstr "Conhecido por: %s"
+
+#: src/pages/person-page.ui:4
+msgid "Person Details"
+msgstr "Detalhes da pessoa"
+
+#: src/pages/person-page.ui:115
+msgid "Biography"
+msgstr "Biografia"
+
+#: src/pages/person-page.ui:154
+msgid "Watched"
+msgstr "Reproduzido"
+
+#: src/pages/person-page.ui:169 src/pages/person-page.ui:224
+#: src/pages/person-page.ui:279
+msgid "Directing"
+msgstr "Dirigindo"
+
+#: src/pages/person-page.ui:170 src/pages/person-page.ui:225
+#: src/pages/person-page.ui:280
+msgid "Acting"
+msgstr "Atuando"
+
+#: src/pages/person-page.ui:171 src/pages/person-page.ui:226
+#: src/pages/person-page.ui:281
+msgid "Production"
+msgstr "Produção"
+
+#: src/pages/person-page.ui:173 src/pages/person-page.ui:228
+#: src/pages/person-page.ui:283
+msgid "Music"
+msgstr "Musica"
+
+#: src/pages/person-page.ui:182
+msgid "No watched movies found."
+msgstr "Nenhum filme reproduzido."
+
+#: src/pages/person-page.ui:237
+msgid "No movies in watchlist found."
+msgstr "Nenhum filme na lista"
+
+#: src/pages/person-page.ui:264
+msgid "Explore More"
+msgstr "Explore mais"
+
+#: src/pages/plays-page.ui:23 src/window.ui:387
+msgid "No Plays Recorded"
+msgstr "Nenhuma reprodução registrada"
+
+#: src/pages/plays-page.ui:24
+msgid ""
+"Start tracking your movie\n"
+"                      viewing history"
+msgstr ""
+"Comece a acompanhar o histórico de\n"
+"                       visualização dos seus filmes"
+
+#: src/pages/preferences-page.js:77
+msgid "API key saved"
+msgstr "API key salva"
+
+#: src/pages/preferences-page.js:127 src/pages/preferences-page.js:188
+msgid "Starting..."
+msgstr "Iniciando..."
+
+#: src/pages/preferences-page.js:135 src/pages/preferences-page.js:196
+msgid "Failed to load movies list"
+msgstr "Falha ao carregar lista de filmes"
+
+#: src/pages/preferences-page.js:142
+msgid "No movies to refresh"
+msgstr "Nenhum filme para atualizar"
+
+#: src/pages/preferences-page.js:171
+#, javascript-format
+msgid "Refreshed %d/%d movies (%d failed)"
+msgstr "Atualizado %d/%d filmes (%d falharam)"
+
+#: src/pages/preferences-page.js:177
+#, javascript-format
+msgid "Refreshed %d movies"
+msgstr "Atualizado %d filmes"
+
+#: src/pages/preferences-page.js:203
+msgid "No movies with IMDb IDs to refresh"
+msgstr "Nenhum filme com ID IMDb para atualizar"
+
+#: src/pages/preferences-page.js:230
+#, javascript-format
+msgid "Refreshed %d/%d IMDb ratings (%d failed)"
+msgstr "Atualizadas%d/%d/ avaliações IMDB (%d falharam)"
+
+#: src/pages/preferences-page.js:236
+#, javascript-format
+msgid "Refreshed %d IMDb ratings"
+msgstr "Atualizada %d avaliações IMDb"
+
+#: src/pages/preferences-page.ui:6
+msgid "Preferences"
+msgstr "Preferências"
+
+#: src/pages/preferences-page.ui:18
+msgid "The Movie Database (TMDB)"
+msgstr "The Movie Database (TMDB)"
+
+#: src/pages/preferences-page.ui:19
+msgid "Configure your TMDB API key for movie search and information"
+msgstr "Configure sua API Key TMDB para buscar filmes e informações"
+
+#: src/pages/preferences-page.ui:22
+msgid "API Key"
+msgstr "Chave de API"
+
+#: src/pages/preferences-page.ui:29
+msgid "Get API Key"
+msgstr "Get API Key"
+
+#: src/pages/preferences-page.ui:30
+msgid "Visit themoviedb.org to create a free account and generate an API key"
+msgstr "Visite themoviedb.org para criar uma conta gratuita e gerar sua API key"
+
+#: src/pages/preferences-page.ui:46
+msgid "Behavior"
+msgstr "Comportamento"
+
+#: src/pages/preferences-page.ui:49
+msgid "Auto-remove from Watchlist"
+msgstr "Remover automaticamente da lista"
+
+#: src/pages/preferences-page.ui:50
+msgid "Automatically remove movies from watchlist when you add a play"
+msgstr "Remover filme automaticamente da lista quando adicionar uma reprodução"
+
+#: src/pages/preferences-page.ui:61
+msgid "Show TMDB rating in the ratings section"
+msgstr "Mostrar avaliação TMDB na seção de avaliações"
+
+#: src/pages/preferences-page.ui:72
+msgid "Fetch and show IMDb rating in the ratings section"
+msgstr "Baixar e mostrar avaliações IMDb na seção de avaliações"
+
+#: src/pages/preferences-page.ui:86
+msgid "Data"
+msgstr "Dado"
+
+#: src/pages/preferences-page.ui:89
+msgid "Refresh all movies"
+msgstr "Atualizar todos os filmes"
+
+#: src/pages/preferences-page.ui:90
+msgid "Re-download details and credits for every saved movie"
+msgstr "Baixar novamente os detalhes e créditos de todos os filmes salvos"
+
+#: src/pages/preferences-page.ui:101
+msgid "Refresh all IMDb ratings"
+msgstr "Atualizar todas as avaliações do IMDb"
+
+#: src/pages/preferences-page.ui:102
+msgid "Update cached IMDb ratings for all saved movies"
+msgstr "Atualizar avaliações IMDb em cache para todos os filmes salvos"
+
+#: src/pages/preferences-page.ui:113
+msgid "Refresh progress"
+msgstr "Progresso de atualização"
+
+#: src/pages/preferences-page.ui:132
+msgid "IMDb refresh progress"
+msgstr "Progresso de atualização IMDb"
+
+#: src/pages/top-people-page.js:154 src/pages/watchlist-page.js:140
+#: src/window.js:285
+#, javascript-format
+msgid "Page %d of %d"
+msgstr "Página %d de %d"
+
+#: src/pages/top-people-page.ui:20
+msgid "Search people"
+msgstr "Buscar pessoas"
+
+#: src/pages/top-people-page.ui:28
+msgid "Directors"
+msgstr "Diretores"
+
+#: src/pages/top-people-page.ui:30
+msgid "Producers"
+msgstr "Produtores"
+
+#: src/pages/top-people-page.ui:32
+msgid "Music Composers"
+msgstr "Compositores"
+
+#: src/pages/top-people-page.ui:43
+msgid "Total Appearances (High-Low)"
+msgstr "Aparições (Decrescente)"
+
+#: src/pages/top-people-page.ui:44
+msgid "Total Appearances (Low-High)"
+msgstr "Aparições (Crescente)"
+
+#: src/pages/top-people-page.ui:45
+msgid "Unique Movies (High-Low)"
+msgstr "Filmes únicos (Decrescente)"
+
+#: src/pages/top-people-page.ui:46
+msgid "Unique Movies (Low-High)"
+msgstr "Filmes únicos (Crescente)"
+
+#: src/pages/top-people-page.ui:47
+msgid "Name (A-Z)"
+msgstr "Nome (A-Z)"
+
+#: src/pages/top-people-page.ui:65
+msgid "No People Found"
+msgstr "Nenhuma pessoa encontrada"
+
+#: src/pages/top-people-page.ui:66
+msgid "Try a different search or filter"
+msgstr "Tente uma busca ou filtro diferente"
+
+#: src/pages/top-people-page.ui:106 src/pages/watchlist-page.ui:90
+#: src/window.ui:428
+msgid "Previous"
+msgstr "Anterior"
+
+#: src/pages/top-people-page.ui:111 src/pages/watchlist-page.ui:95
+#: src/window.ui:433
+msgid "Page 1 of 1"
+msgstr "Página 1 de 1"
+
+#: src/pages/top-people-page.ui:119 src/pages/watchlist-page.ui:103
+#: src/window.ui:441
+msgid "Next"
+msgstr "Próximo"
+
+#: src/pages/watchlist-page.ui:20
+msgid "Search watchlist"
+msgstr "Buscar lista"
+
+#: src/pages/watchlist-page.ui:28
+msgid "Recently Added"
+msgstr "Adicionado recentemente"
+
+#: src/pages/watchlist-page.ui:29 src/window.ui:369
+msgid "Title (A–Z)"
+msgstr "Título (A-Z)"
+
+#: src/pages/watchlist-page.ui:30
+msgid "Release Date"
+msgstr "Estréia"
+
+#: src/pages/watchlist-page.ui:49
+msgid "Your Watchlist is Empty"
+msgstr "Sua lista está vazia"
+
+#: src/pages/watchlist-page.ui:50
+msgid "Click the + button to add movies"
+msgstr "Clique no botão + para adicionar filmes"
+
+#: src/shortcuts-dialog.ui:6
+msgid "Shortcuts"
+msgstr "Atalhos"
+
+#: src/shortcuts-dialog.ui:9
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Mostrar Atalhos"
+
+#: src/shortcuts-dialog.ui:15
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Fechar"
+
+#: src/widgets/person-stat-card.js:104
+#, javascript-format
+msgid "%d plays"
+msgstr "%d reproduções"
+
+#: src/widgets/person-stat-card.js:110
+#, javascript-format
+msgid "%d plays • %d unique"
+msgstr "%d reproduções • %d única"
+
+#: src/widgets/play-card.js:146
+#, javascript-format
+msgid "Are you sure you want to delete this play of \"%s\" from %s?"
+msgstr "Tem certeza que deseja apagar esta reprodução de de \"%s\" de %s?"
+
+#: src/widgets/play-entry.ui:15
+msgid "Date"
+msgstr "Data"
+
+#: src/window.js:325 src/window.js:326 src/window.ui:118 src/window.ui:172
+#: src/window.ui:226 src/window.ui:272
+msgid "See all"
+msgstr "Ver todos"
+
+#: src/window.js:353
+msgid "Total Plays"
+msgstr "Total de reproduções"
+
+#: src/window.js:354
+msgid "Unique Movies"
+msgstr "Filmes únicos"
+
+#: src/window.js:356
+msgid "Watch Time"
+msgstr "Tempo de visualização"
+
+#: src/window.ui:13 src/window.ui:50
+msgid "Dashboard"
+msgstr ""
+
+#: src/window.ui:37
+msgid "Main Menu"
+msgstr "Menu"
+
+#: src/window.ui:76
+msgid "Stats"
+msgstr "Estatísticas"
+
+#: src/window.ui:109
+msgid "Recent Plays"
+msgstr ""
+
+#: src/window.ui:129
+msgid "No plays recorded yet."
+msgstr "Nenhuma reprodução ainda."
+
+#: src/window.ui:183
+msgid "Your watchlist is empty."
+msgstr "Sua lista está vazia."
+
+#: src/window.ui:217
+msgid "Top Directors"
+msgstr "Top Diretores"
+
+#: src/window.ui:237
+msgid "No director stats yet."
+msgstr ""
+
+#: src/window.ui:263
+msgid "Top Cast"
+msgstr "Top Elenco"
+
+#: src/window.ui:283
+msgid "No cast stats yet."
+msgstr ""
+
+#: src/window.ui:329
+msgid "People"
+msgstr "Pessoas"
+
+#: src/window.ui:341
+msgid "Plays"
+msgstr "Reproduções"
+
+#: src/window.ui:359
+msgid "Search plays"
+msgstr "Buscar reproduções"
+
+#: src/window.ui:367
+msgid "Newest"
+msgstr "Mais novo"
+
+#: src/window.ui:368
+msgid "Oldest"
+msgstr "Mais antigo"
+
+#: src/window.ui:388
+msgid "Start tracking your movie viewing history"
+msgstr "Iniciar histórico de visualização de filmes"
+
+#: src/window.ui:470
+msgid "_Places"
+msgstr "_Locais"
+
+#: src/window.ui:474
+msgid "_Preferences"
+msgstr "_Preferências"
+
+#: src/window.ui:478
+msgid "_Keyboard Shortcuts"
+msgstr "_Atalhos de teclado"
+
+#: src/window.ui:482
+msgid "_About Memento"
+msgstr "_Sobre o Memento"
