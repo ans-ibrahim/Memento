@@ -11,6 +11,7 @@
     <file>dialogs/search-dialog.js</file>
     <file>dialogs/places-dialog.js</file>
     <file>pages/movie-detail-page.js</file>
+    <file>pages/tv-detail-page.js</file>
     <file>pages/plays-page.js</file>
     <file>pages/person-page.js</file>
     <file>pages/preferences-page.js</file>
@@ -27,6 +28,7 @@
     <file preprocess="xml-stripblanks">dialogs/search-dialog.ui</file>
     <file preprocess="xml-stripblanks">dialogs/places-dialog.ui</file>
     <file preprocess="xml-stripblanks">pages/movie-detail-page.ui</file>
+    <file preprocess="xml-stripblanks">pages/tv-detail-page.ui</file>
     <file preprocess="xml-stripblanks">pages/plays-page.ui</file>
     <file preprocess="xml-stripblanks">pages/person-page.ui</file>
     <file preprocess="xml-stripblanks">pages/preferences-page.ui</file>

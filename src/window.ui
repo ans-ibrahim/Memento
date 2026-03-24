@@ -18,7 +18,7 @@
                     <child type="start">
                       <object class="GtkButton" id="add_button">
                         <property name="icon-name">list-add-symbolic</property>
-                        <property name="tooltip-text" translatable="yes">Add Movie</property>
+                        <property name="tooltip-text" translatable="yes">Add Title</property>
                         <style>
                           <class name="suggested-action" />
                         </style>

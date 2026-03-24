@@ -114,6 +114,13 @@
   outline-offset: 4px;
 }
 
+.stat-chip {
+  background: alpha(@accent_color, 0.12);
+  border: 1px solid alpha(@accent_color, 0.28);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
 /* ========================================
    Movie Detail Page Styles
    ======================================== */
@@ -125,6 +132,16 @@
 
 .movie-detail-poster {
   border-radius: 16px;
+}
+
+/* TV seasons and episodes list density tuning */
+.tv-season-expander {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.tv-episode-row {
+  min-height: 132px;
 }
 
 /* Section headers in detail page */

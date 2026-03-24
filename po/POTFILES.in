@@ -16,6 +16,8 @@ src/pages/preferences-page.js
 src/pages/preferences-page.ui
 src/pages/top-people-page.js
 src/pages/top-people-page.ui
+src/pages/tv-detail-page.js
+src/pages/tv-detail-page.ui
 src/pages/watchlist-page.js
 src/pages/watchlist-page.ui
 src/shortcuts-dialog.ui

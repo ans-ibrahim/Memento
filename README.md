@@ -1,7 +1,7 @@
 # Memento
 
-Memento is a GNOME desktop app for tracking the movies you watch.
-You can search movies from TMDB, keep a watchlist, log plays, and view personal stats.
+Memento is a GNOME desktop app for tracking movies and TV shows you watch.
+You can search titles from TMDB, keep a watchlist, log plays, and view personal stats.
 <p align="center">
   <a href="https://flathub.org/apps/io.github.ans_ibrahim.Memento">
     <img alt="Get it on Flathub" src="https://flathub.org/api/badge?locale=en"/>
@@ -11,11 +11,11 @@ You can search movies from TMDB, keep a watchlist, log plays, and view personal 
 
 ## Features
 
-- Movie search powered by TMDB
+- Movie and TV show search powered by TMDB
 - Watchlist with search and sorting options
 - Play history with search, sorting and sorting options
 - Dashboard with totals, recent activity, and top people (directors/cast)
-- Movie detail pages with credits and play logging
+- Title detail pages with credits and play logging
 - TMDB and IMDb ratings in movie details (configurable in Preferences)
 - Person pages with appearance stats
 - Places management (cinema/home/custom places)
@@ -26,8 +26,8 @@ You can search movies from TMDB, keep a watchlist, log plays, and view personal 
 1. Launch Memento.
 2. Open `Menu -> Preferences`.
 3. Add your TMDB API key (free from [themoviedb.org](https://www.themoviedb.org/)).
-4. Click the `+` button to search and add movies.
-5. Add movies to your watchlist and record plays when you watch them.
+4. Click the `+` button to search and add movies or TV shows.
+5. Add titles to your watchlist and record plays when you watch them.
 6. Use the `Dashboard`, `Watchlist`, `People`, and `Plays` tabs to browse your data.
 7. Optional: use `Menu -> Places` to manage where you watched movies.
 

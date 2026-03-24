@@ -53,7 +53,7 @@ function extractAggregateRating(jsonNode) {
 
     const aggregateRating = jsonNode.aggregateRating;
     if (aggregateRating && typeof aggregateRating === 'object') {
-        const ratingValue = Number(aggregateRating.ratingValue);
+        const ratingValue = Number(aggregateRating.ratingValue ?? aggregateRating.score);
         const ratingCount = Number(String(aggregateRating.ratingCount || '').replace(/,/g, ''));
         const bestRating = Number(aggregateRating.bestRating || 10);
         if (Number.isFinite(ratingValue)) {
@@ -70,6 +70,50 @@ function extractAggregateRating(jsonNode) {
         if (graphMatch) {
             return graphMatch;
         }
+    }
+
+    return null;
+}
+
+function extractNextDataRating(html) {
+    const nextDataPattern = /<script[^>]*id=["']__NEXT_DATA__["'][^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i;
+    const match = html.match(nextDataPattern);
+    if (!match) {
+        return null;
+    }
+
+    try {
+        const parsedJson = JSON.parse(String(match[1] || '').trim());
+        return extractAggregateRating(parsedJson);
+    } catch {
+        return null;
+    }
+}
+
+function extractRatingFromRawJson(html) {
+    const normalizedHtml = String(html || '');
+    const patterns = [
+        /"aggregateRating"\s*:\s*\{[^}]*"ratingValue"\s*:\s*([0-9]+(?:\.[0-9]+)?)[^}]*"ratingCount"\s*:\s*([0-9,]+)/i,
+        /"aggregateRating"\s*:\s*\{[^}]*"score"\s*:\s*([0-9]+(?:\.[0-9]+)?)[^}]*"ratingCount"\s*:\s*([0-9,]+)/i,
+        /\\"aggregateRating\\"\s*:\s*\{[^}]*\\"ratingValue\\"\s*:\s*([0-9]+(?:\.[0-9]+)?)[^}]*\\"ratingCount\\"\s*:\s*([0-9,]+)/i,
+        /\\"aggregateRating\\"\s*:\s*\{[^}]*\\"score\\"\s*:\s*([0-9]+(?:\.[0-9]+)?)[^}]*\\"ratingCount\\"\s*:\s*([0-9,]+)/i,
+    ];
+
+    for (const pattern of patterns) {
+        const match = normalizedHtml.match(pattern);
+        if (!match) {
+            continue;
+        }
+        const value = Number(match[1]);
+        const count = Number(String(match[2] || '').replace(/,/g, ''));
+        if (!Number.isFinite(value)) {
+            continue;
+        }
+        return {
+            value,
+            count: Number.isFinite(count) ? count : null,
+            best: 10,
+        };
     }
 
     return null;
@@ -100,6 +144,16 @@ export async function scrapeImdbRating(imdbId) {
         } catch {
             // Ignore malformed script tags and continue parsing.
         }
+    }
+
+    const nextDataRating = extractNextDataRating(html);
+    if (nextDataRating) {
+        return nextDataRating;
+    }
+
+    const rawJsonRating = extractRatingFromRawJson(html);
+    if (rawJsonRating) {
+        return rawJsonRating;
     }
 
     return null;

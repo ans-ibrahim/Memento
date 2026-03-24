@@ -38,7 +38,7 @@ export const MementoWatchlistPage = GObject.registerClass({
         'watchlist_next_button',
     ],
     Signals: {
-        'view-details': { param_types: [GObject.TYPE_INT] },
+        'view-details': { param_types: [GObject.TYPE_INT, GObject.TYPE_STRING] },
     },
 }, class MementoWatchlistPage extends Gtk.Box {
     constructor(params = {}) {
@@ -128,7 +128,7 @@ export const MementoWatchlistPage = GObject.registerClass({
 
         for (const movie of pageItems) {
             const card = createMovieCard(movie, {
-                onActivate: tmdbId => this.emit('view-details', tmdbId),
+                onActivate: (tmdbId, mediaType) => this.emit('view-details', tmdbId, mediaType),
             });
             this._watchlist_grid.append(card);
         }

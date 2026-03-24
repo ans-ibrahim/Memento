@@ -12,9 +12,16 @@
 
 import GObject from 'gi://GObject';
 import Adw from 'gi://Adw';
+import Gtk from 'gi://Gtk';
 
-import { getPersonDetails, getPersonMovieCredits, buildProfileUrl } from '../services/tmdb-service.js';
-import { getAllWatchedTmdbIds, getAllWatchlistTmdbIds, getPersonByTmdbId, upsertPerson, getMoviesByPersonId } from '../utils/database-utils.js';
+import { getPersonDetails, getPersonTitleCredits, buildProfileUrl } from '../services/tmdb-service.js';
+import {
+    getAllWatchedTitleKeys,
+    getAllWatchlistTitleKeys,
+    getPersonByTmdbId,
+    upsertPerson,
+    getMoviesByPersonId
+} from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { clearGrid } from '../utils/ui-utils.js';
 import { createMovieCard } from '../widgets/movie-card.js';
@@ -43,9 +50,11 @@ export const MementoPersonPage = GObject.registerClass({
         'explore_empty_label',
     ],
     Signals: {
-        'view-movie': { param_types: [GObject.TYPE_STRING] },
+        'view-movie': { param_types: [GObject.TYPE_STRING, GObject.TYPE_STRING] },
     },
 }, class MementoPersonPage extends Adw.NavigationPage {
+    _refreshInProgress = false;
+
     _init(params = {}) {
         super._init(params);
         this._personId = null;
@@ -96,8 +105,8 @@ export const MementoPersonPage = GObject.registerClass({
 
             // Fetch watch status
             const [watchedIds, watchlistIds] = await Promise.all([
-                getAllWatchedTmdbIds(),
-                getAllWatchlistTmdbIds()
+                getAllWatchedTitleKeys(),
+                getAllWatchlistTitleKeys()
             ]);
             this._watchedIds = watchedIds;
             this._watchlistIds = watchlistIds;
@@ -116,10 +125,11 @@ export const MementoPersonPage = GObject.registerClass({
     }
 
     async _refreshPersonData() {
-        if (!this._personId) {
+        if (!this._personId || this._refreshInProgress) {
             return;
         }
 
+        this._setRefreshUiState(true);
         try {
             const tmdbDetails = await getPersonDetails(this._personId);
             await upsertPerson(this._personId, tmdbDetails);
@@ -130,8 +140,8 @@ export const MementoPersonPage = GObject.registerClass({
             }
 
             const [watchedIds, watchlistIds] = await Promise.all([
-                getAllWatchedTmdbIds(),
-                getAllWatchlistTmdbIds()
+                getAllWatchedTitleKeys(),
+                getAllWatchlistTitleKeys()
             ]);
             this._watchedIds = watchedIds;
             this._watchlistIds = watchlistIds;
@@ -141,7 +151,7 @@ export const MementoPersonPage = GObject.registerClass({
 
             this._exploreLoaded = false;
             clearGrid(this._explore_grid);
-            this._explore_empty_label.set_label(_('Click to explore more movies...'));
+            this._explore_empty_label.set_label(_('Click to explore more titles...'));
             this._explore_empty_label.set_visible(true);
 
             if (this._stack.get_visible_child_name() === 'explore') {
@@ -149,7 +159,35 @@ export const MementoPersonPage = GObject.registerClass({
             }
         } catch (error) {
             console.error('Failed to refresh person details:', error);
+        } finally {
+            this._setRefreshUiState(false);
         }
+    }
+
+    _setRefreshUiState(isRefreshing) {
+        this._refreshInProgress = isRefreshing;
+        this._refresh_button.set_sensitive(!isRefreshing);
+        this._refresh_button.set_tooltip_text(isRefreshing ? _('Refreshing...') : _('Refresh'));
+
+        if (isRefreshing) {
+            if (!this._refreshSpinner) {
+                this._refreshSpinner = new Gtk.Spinner({
+                    width_request: 16,
+                    height_request: 16,
+                    halign: Gtk.Align.CENTER,
+                    valign: Gtk.Align.CENTER,
+                });
+            }
+            this._refresh_button.set_child(this._refreshSpinner);
+            this._refreshSpinner.start();
+            return;
+        }
+
+        if (this._refreshSpinner) {
+            this._refreshSpinner.stop();
+        }
+        this._refresh_button.set_child(null);
+        this._refresh_button.set_icon_name('view-refresh-symbolic');
     }
 
     async _onTabChanged() {
@@ -163,7 +201,7 @@ export const MementoPersonPage = GObject.registerClass({
     }
 
     async _loadWatchedAndWatchlistMovies() {
-        // Get person's credits from database only (movies we know about)
+        // Get person's credits from database only (titles we know about)
         this._personMovies = await this._getPersonMoviesFromDb();
         this._renderWatchedAndWatchlistMovies();
     }
@@ -180,6 +218,8 @@ export const MementoPersonPage = GObject.registerClass({
 
         for (const movie of this._personMovies) {
             const roleType = movie.role_type || '';
+            const mediaType = movie.media_type === 'tv' ? 'tv' : 'movie';
+            const titleKey = `${mediaType}:${movie.tmdb_id}`;
 
             if (roleType !== watchedRole && roleType !== watchlistRole)
                 continue;
@@ -187,14 +227,18 @@ export const MementoPersonPage = GObject.registerClass({
             const card = createMovieCard(movie, {
                 showRating: false,
                 showYear: true,
-                jobText: movie.character_name || '',
-                onActivate: tmdbId => this.emit('view-movie', String(tmdbId || movie.id)),
+                jobText: this._formatPersonCardJobText(
+                    movie.character_name || '',
+                    mediaType,
+                    movie.episode_count
+                ),
+                onActivate: (tmdbId, selectedMediaType) => this.emit('view-movie', String(tmdbId || movie.id), selectedMediaType || mediaType),
             });
             
-            if (this._watchedIds.has(movie.tmdb_id) && roleType === watchedRole) {
+            if (this._watchedIds.has(titleKey) && roleType === watchedRole) {
                 this._watched_grid.append(card);
                 watchedCount++;
-            } else if (this._watchlistIds.has(movie.tmdb_id) && roleType === watchlistRole) {
+            } else if (this._watchlistIds.has(titleKey) && roleType === watchlistRole) {
                 this._watchlist_grid.append(card);
                 watchlistCount++;
             }
@@ -207,25 +251,29 @@ export const MementoPersonPage = GObject.registerClass({
     async _loadExploreMovies() {
         try {
             // Fetch full filmography from TMDB (only when needed)
-            const credits = await getPersonMovieCredits(this._personId);
+            const credits = await getPersonTitleCredits(this._personId);
             
             const [watchedIds, watchlistIds] = await Promise.all([
-                getAllWatchedTmdbIds(),
-                getAllWatchlistTmdbIds()
+                getAllWatchedTitleKeys(),
+                getAllWatchlistTitleKeys()
             ]);
             
-            // Filter to only show unwatched movies for supported roles
+            // Filter to only show unwatched titles for supported roles
             const seenKeys = new Set();
             const unwatchedMovies = [];
 
             if (credits.cast) {
                 for (const credit of credits.cast) {
-                    const key = `${credit.id}:actor`;
-                    if (seenKeys.has(key) || watchedIds.has(credit.id) || watchlistIds.has(credit.id))
+                    const mediaType = credit.media_type === 'tv' ? 'tv' : 'movie';
+                    const tmdbId = Number(credit.id);
+                    const titleKey = `${mediaType}:${tmdbId}`;
+                    const key = `${mediaType}:${tmdbId}:actor`;
+                    if (seenKeys.has(key) || watchedIds.has(titleKey) || watchlistIds.has(titleKey))
                         continue;
                     seenKeys.add(key);
                     unwatchedMovies.push({
                         ...credit,
+                        media_type: mediaType,
                         role_type: 'actor',
                     });
                 }
@@ -236,12 +284,16 @@ export const MementoPersonPage = GObject.registerClass({
                     const roleType = this._mapCrewJobToRole(credit.job);
                     if (!roleType)
                         continue;
-                    const key = `${credit.id}:${roleType}`;
-                    if (seenKeys.has(key) || watchedIds.has(credit.id) || watchlistIds.has(credit.id))
+                    const mediaType = credit.media_type === 'tv' ? 'tv' : 'movie';
+                    const tmdbId = Number(credit.id);
+                    const titleKey = `${mediaType}:${tmdbId}`;
+                    const key = `${mediaType}:${tmdbId}:${roleType}`;
+                    if (seenKeys.has(key) || watchedIds.has(titleKey) || watchlistIds.has(titleKey))
                         continue;
                     seenKeys.add(key);
                     unwatchedMovies.push({
                         ...credit,
+                        media_type: mediaType,
                         role_type: roleType,
                     });
                 }
@@ -249,17 +301,19 @@ export const MementoPersonPage = GObject.registerClass({
 
             // Sort by release date descending
             unwatchedMovies.sort((a, b) => {
-                if (!a.release_date) return 1;
-                if (!b.release_date) return -1;
-                return new Date(b.release_date) - new Date(a.release_date);
+                const firstDate = a.release_date || a.first_air_date;
+                const secondDate = b.release_date || b.first_air_date;
+                if (!firstDate) return 1;
+                if (!secondDate) return -1;
+                return new Date(secondDate) - new Date(firstDate);
             });
 
             this._unwatchedExploreMovies = unwatchedMovies;
             this._renderExploreMovies();
             
         } catch (error) {
-            console.error('Failed to load explore movies:', error);
-            this._explore_empty_label.set_label(_('Failed to load movies.'));
+            console.error('Failed to load explore titles:', error);
+            this._explore_empty_label.set_label(_('Failed to load titles.'));
         }
     }
 
@@ -267,7 +321,7 @@ export const MementoPersonPage = GObject.registerClass({
         clearGrid(this._explore_grid);
 
         if (!this._exploreLoaded) {
-            this._explore_empty_label.set_label(_('Click to explore more movies...'));
+            this._explore_empty_label.set_label(_('Click to explore more titles...'));
             this._explore_empty_label.set_visible(true);
             return;
         }
@@ -276,18 +330,23 @@ export const MementoPersonPage = GObject.registerClass({
         const filteredMovies = this._unwatchedExploreMovies.filter(movie => (movie.role_type || '') === selectedRole);
 
         for (const movie of filteredMovies) {
+            const mediaType = movie.media_type === 'tv' ? 'tv' : 'movie';
             const card = createMovieCard(movie, {
                 showRating: false,
                 showYear: true,
-                jobText: movie.character || movie.job || '',
-                onActivate: tmdbId => this.emit('view-movie', String(tmdbId || movie.id)),
+                jobText: this._formatPersonCardJobText(
+                    movie.character || movie.job || '',
+                    mediaType,
+                    movie.total_episode_count ?? movie.episode_count
+                ),
+                onActivate: (tmdbId, selectedMediaType) => this.emit('view-movie', String(tmdbId || movie.id), selectedMediaType || mediaType),
             });
             this._explore_grid.append(card);
         }
 
         this._explore_empty_label.set_visible(filteredMovies.length === 0);
         if (filteredMovies.length === 0) {
-            this._explore_empty_label.set_label(_('No other movies found.'));
+            this._explore_empty_label.set_label(_('No other titles found.'));
         }
     }
 
@@ -422,5 +481,20 @@ export const MementoPersonPage = GObject.registerClass({
         if (normalizedJob === 'original music composer' || normalizedJob === 'music' || normalizedJob === 'composer')
             return 'music_composer';
         return null;
+    }
+
+    _formatPersonCardJobText(baseText, mediaType, episodeCountValue) {
+        const primaryText = String(baseText || '').trim();
+        if (mediaType !== 'tv') {
+            return primaryText;
+        }
+
+        const episodeCount = Number(episodeCountValue) || 0;
+        if (episodeCount <= 0) {
+            return primaryText;
+        }
+
+        const episodeText = _('%d episodes').format(episodeCount);
+        return primaryText ? `${primaryText} • ${episodeText}` : episodeText;
     }
 });

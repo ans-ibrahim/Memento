@@ -15,6 +15,7 @@ export function createPersonStatCard(person, options = {}) {
     const height = options.height ?? STANDARD_CARD_HEIGHT;
     const titleMaxChars = options.titleMaxChars ?? STANDARD_CARD_TITLE_MAX_CHARS;
     const subtitleText = options.subtitleText ?? '';
+    const statChips = Array.isArray(options.statChips) ? options.statChips : [];
     const showCount = options.showCount !== false;
     const marginStart = options.marginStart ?? 8;
     const marginEnd = options.marginEnd ?? 8;
@@ -101,7 +102,23 @@ export function createPersonStatCard(person, options = {}) {
         infoBox.append(subtitleLabel);
     }
 
-    if (showCount) {
+    if (statChips.length > 0) {
+        const chipsBox = new Gtk.Box({
+            orientation: Gtk.Orientation.VERTICAL,
+            spacing: 4,
+        });
+        for (const chipText of statChips) {
+            const chipLabel = new Gtk.Label({
+                label: String(chipText || '').trim(),
+                css_classes: ['caption', 'stat-chip'],
+                xalign: 0,
+                ellipsize: 3,
+                lines: 1,
+            });
+            chipsBox.append(chipLabel);
+        }
+        infoBox.append(chipsBox);
+    } else if (showCount) {
         const countLabel = new Gtk.Label({
             label: _('%d plays').format(person.play_count || 0),
             css_classes: ['caption', 'dim-label'],

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: memento\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-03-01 00:01+0500\n"
+"POT-Creation-Date: 2026-03-22 03:56+0500\n"
 "PO-Revision-Date: 2026-02-28 21:21+0500\n"
 "Last-Translator: خودکار طور پر تیار شدہ\n"
 "Language-Team: اردو پاکستان\n"
@@ -42,7 +42,7 @@ msgid "Automatically remove movie from watchlist when adding a play"
 msgstr "اندراج شامل کرتے وقت فلم کو خودکار طور پر دیکھنے کی فہرست سے ہٹا دیں"
 
 #: data/io.github.ans_ibrahim.Memento.gschema.xml:16
-#: src/pages/preferences-page.ui:60
+#: src/pages/preferences-page.ui:62
 msgid "Enable TMDB rating"
 msgstr "ٹی ایم ڈی بی درجہ بندی فعال کریں"
 
@@ -51,7 +51,7 @@ msgid "Show TMDB ratings in the movie details ratings section"
 msgstr "فلم کی تفصیلات کے درجہ بندی حصے میں ٹی ایم ڈی بی درجہ بندیاں دکھائیں"
 
 #: data/io.github.ans_ibrahim.Memento.gschema.xml:21
-#: src/pages/preferences-page.ui:71
+#: src/pages/preferences-page.ui:73
 msgid "Enable IMDb rating"
 msgstr "آئی ایم ڈی بی درجہ بندی فعال کریں"
 
@@ -60,6 +60,25 @@ msgid "Show and fetch IMDb ratings in the movie details ratings section"
 msgstr ""
 "فلم کی تفصیلات کے درجہ بندی حصے میں آئی ایم ڈی بی درجہ بندی حاصل کریں اور "
 "دکھائیں"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:26
+msgid "Dashboard people metric"
+msgstr "جائزہ تختہ شخصیات کا پیمانہ"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:27
+msgid ""
+"Default people metric for dashboard and top people page (total or unique)"
+msgstr "جائزہ تختہ اور سرِفہرست شخصیات صفحے کے لیے طے شدہ پیمانہ (کل یا منفرد)"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:31
+msgid "TV people counting mode"
+msgstr "ٹی وی شخصیات کی گنتی کا طریقہ"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:32
+msgid "If enabled, TV people stats count episodes; otherwise TV shows"
+msgstr ""
+"اگر فعال ہو تو ٹی وی شخصیات کے اعداد و شمار اقساط کے مطابق گنے جائیں گے، "
+"ورنہ ٹی وی شوز کے مطابق"
 
 #: src/dialogs/places-dialog.js:70
 msgid "🎬 Cinema"
@@ -73,8 +92,8 @@ msgstr "🏠 گھر"
 msgid "Edit"
 msgstr "ترمیم"
 
-#: src/dialogs/places-dialog.js:92 src/pages/movie-detail-page.js:942
-#: src/widgets/play-card.js:153
+#: src/dialogs/places-dialog.js:92 src/pages/movie-detail-page.js:1137
+#: src/widgets/play-card.js:191
 msgid "Delete"
 msgstr "حذف کریں"
 
@@ -95,13 +114,14 @@ msgid "Is Cinema"
 msgstr "کیا یہ سینما ہے"
 
 #: src/dialogs/places-dialog.js:124 src/dialogs/places-dialog.js:166
-#: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:763
-#: src/pages/movie-detail-page.js:941 src/pages/movie-detail-page.js:1059
-#: src/widgets/play-card.js:152
+#: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:908
+#: src/pages/movie-detail-page.js:1136 src/pages/movie-detail-page.js:1261
+#: src/pages/tv-detail-page.js:915 src/pages/tv-detail-page.js:1194
+#: src/widgets/play-card.js:190
 msgid "Cancel"
 msgstr "منسوخ کریں"
 
-#: src/dialogs/places-dialog.js:125 src/pages/movie-detail-page.js:764
+#: src/dialogs/places-dialog.js:125 src/pages/movie-detail-page.js:909
 msgid "Add"
 msgstr "شامل کریں"
 
@@ -113,7 +133,8 @@ msgstr "جگہ میں ترمیم"
 msgid "Update the place details"
 msgstr "جگہ کی تفصیلات تازہ کریں"
 
-#: src/dialogs/places-dialog.js:167 src/pages/movie-detail-page.js:1060
+#: src/dialogs/places-dialog.js:167 src/pages/movie-detail-page.js:1262
+#: src/pages/tv-detail-page.js:916 src/pages/tv-detail-page.js:1195
 msgid "Save"
 msgstr "محفوظ کریں"
 
@@ -129,29 +150,38 @@ msgstr "میری جگہیں"
 msgid "Manage your viewing locations"
 msgstr "اپنی دیکھنے کی جگہیں منظم کریں"
 
-#: src/dialogs/search-dialog.js:189
+#: src/dialogs/search-dialog.js:191
 msgid "Unknown Title"
 msgstr "نامعلوم عنوان"
 
-#: src/dialogs/search-dialog.js:246
+#: src/dialogs/search-dialog.js:240
+msgid "TV"
+msgstr "ٹی وی"
+
+#: src/dialogs/search-dialog.js:240 src/widgets/movie-card.js:139
+#: src/widgets/play-card.js:162
+msgid "Movie"
+msgstr "فلم"
+
+#: src/dialogs/search-dialog.js:252
 msgid "Unknown Year"
 msgstr "نامعلوم سال"
 
 #: src/dialogs/search-dialog.ui:6 src/window.ui:21
-msgid "Add Movie"
-msgstr "فلم شامل کریں"
+msgid "Add Title"
+msgstr "عنوان شامل کریں"
 
 #: src/dialogs/search-dialog.ui:33
-msgid "Search movies..."
-msgstr "فلمیں تلاش کریں..."
+msgid "Search movies or TV shows..."
+msgstr "فلمیں یا ٹی وی شوز تلاش کریں..."
 
 #: src/dialogs/search-dialog.ui:47
-msgid "Search for Movies"
-msgstr "فلمیں تلاش کریں"
+msgid "Search for Titles"
+msgstr "عنوانات تلاش کریں"
 
 #: src/dialogs/search-dialog.ui:48
-msgid "Type a movie name to search"
-msgstr "تلاش کے لیے فلم کا نام لکھیں"
+msgid "Type a movie or TV show name to search"
+msgstr "تلاش کے لیے فلم یا ٹی وی شو کا نام لکھیں"
 
 #: src/dialogs/search-dialog.ui:98
 msgid "No Results"
@@ -165,102 +195,199 @@ msgstr "کوئی دوسرا تلاش لفظ آزمائیں"
 msgid "translator-credits"
 msgstr "مترجمین کے نام"
 
-#. Show error to user
 #: src/pages/movie-detail-page.js:259
-msgid "Error loading movie"
-msgstr "فلم لوڈ کرنے میں خرابی"
+msgid "Error loading title"
+msgstr "عنوان لوڈ کرنے میں خرابی"
 
 #: src/pages/movie-detail-page.js:260
-msgid "An error occurred while loading movie details."
-msgstr "فلم کی تفصیلات لوڈ کرتے وقت خرابی پیش آئی۔"
+msgid "An error occurred while loading title details."
+msgstr "عنوان کی تفصیلات لوڈ کرتے وقت خرابی پیش آئی۔"
 
-#: src/pages/movie-detail-page.js:278
-msgid "Failed to load movie data from database."
-msgstr "ڈیٹابیس سے فلم کا ڈیٹا لوڈ نہ ہو سکا۔"
+#: src/pages/movie-detail-page.js:280
+msgid "Failed to load title data from database."
+msgstr "ڈیٹابیس سے عنوان کا ڈیٹا لوڈ نہ ہو سکا۔"
 
-#: src/pages/movie-detail-page.js:289
-msgid "Error refreshing movie"
-msgstr "فلم تازہ کرنے میں خرابی"
+#: src/pages/movie-detail-page.js:291
+msgid "Error refreshing title"
+msgstr "عنوان تازہ کرنے میں خرابی"
 
-#: src/pages/movie-detail-page.js:290
-msgid "An error occurred while refreshing movie details."
-msgstr "فلم کی تفصیلات تازہ کرتے وقت خرابی پیش آئی۔"
+#: src/pages/movie-detail-page.js:292
+msgid "An error occurred while refreshing title details."
+msgstr "عنوان کی تفصیلات تازہ کرتے وقت خرابی پیش آئی۔"
+
+#: src/pages/movie-detail-page.js:301 src/pages/person-page.js:170
+#: src/pages/tv-detail-page.js:200
+msgid "Refreshing..."
+msgstr "تازہ کیا جا رہا ہے..."
+
+#: src/pages/movie-detail-page.js:301 src/pages/movie-detail-page.ui:14
+#: src/pages/person-page.js:170 src/pages/person-page.ui:13
+#: src/pages/preferences-page.ui:125 src/pages/preferences-page.ui:137
+#: src/pages/tv-detail-page.js:200 src/pages/tv-detail-page.ui:14
+msgid "Refresh"
+msgstr "تازہ کریں"
 
 #. Title and tagline
-#: src/pages/movie-detail-page.js:416 src/widgets/movie-card.js:102
-#: src/widgets/person-stat-card.js:80 src/widgets/play-card.js:112
-#: src/widgets/play-card.js:147
+#: src/pages/movie-detail-page.js:487 src/widgets/movie-card.js:103
+#: src/widgets/person-stat-card.js:81 src/widgets/play-card.js:115
+#: src/widgets/play-card.js:185
 msgid "Unknown"
 msgstr "نامعلوم"
 
-#: src/pages/movie-detail-page.js:532
+#: src/pages/movie-detail-page.js:522
+msgid "Episode Runtime"
+msgstr "قسط کا دورانیہ"
+
+#: src/pages/movie-detail-page.js:522 src/pages/movie-detail-page.ui:196
+msgid "Runtime"
+msgstr "مدت"
+
+#: src/pages/movie-detail-page.js:548 src/pages/tv-detail-page.ui:286
+msgid "Seasons"
+msgstr "سیزنز"
+
+#: src/pages/movie-detail-page.js:550 src/pages/tv-detail-page.js:315
+#, javascript-format
+msgid "%d seasons • %d episodes"
+msgstr "%d سیزنز • %d اقساط"
+
+#: src/pages/movie-detail-page.js:557 src/pages/movie-detail-page.ui:214
+msgid "Budget"
+msgstr "بجٹ"
+
+#: src/pages/movie-detail-page.js:569 src/pages/tv-detail-page.ui:200
+msgid "Status"
+msgstr "حیثیت"
+
+#: src/pages/movie-detail-page.js:578
+msgid "Revenue"
+msgstr "آمدنی"
+
+#: src/pages/movie-detail-page.js:626 src/pages/tv-detail-page.js:441
+#: src/pages/tv-detail-page.ui:218
 msgid "Ratings"
 msgstr "درجہ بندیاں"
 
-#: src/pages/movie-detail-page.js:676
+#: src/pages/movie-detail-page.js:770 src/pages/tv-detail-page.js:755
 msgid "Remove from Watchlist"
 msgstr "دیکھنے کی فہرست سے ہٹائیں"
 
-#: src/pages/movie-detail-page.js:680 src/pages/movie-detail-page.ui:80
+#: src/pages/movie-detail-page.js:774 src/pages/movie-detail-page.ui:80
+#: src/pages/tv-detail-page.js:759 src/pages/tv-detail-page.ui:73
 msgid "Add to Watchlist"
 msgstr "دیکھنے کی فہرست میں شامل کریں"
 
-#: src/pages/movie-detail-page.js:701 src/pages/movie-detail-page.ui:104
+#: src/pages/movie-detail-page.js:795 src/pages/movie-detail-page.ui:104
 msgid "Add a Play"
 msgstr "ایک اندراج شامل کریں"
 
-#: src/pages/movie-detail-page.js:715 src/pages/movie-detail-page.js:980
+#: src/pages/movie-detail-page.js:809 src/pages/movie-detail-page.js:1175
+#: src/pages/tv-detail-page.js:1116
 msgid "Watch Date:"
 msgstr "دیکھنے کی تاریخ:"
 
-#: src/pages/movie-detail-page.js:730 src/pages/movie-detail-page.js:1017
+#: src/pages/movie-detail-page.js:828
+msgid "What to log:"
+msgstr "کیا لاگ کرنا ہے:"
+
+#: src/pages/movie-detail-page.js:840
+msgid "Select target"
+msgstr "ہدف منتخب کریں"
+
+#: src/pages/movie-detail-page.js:845 src/pages/tv-detail-page.js:555
+#: src/pages/tv-detail-page.js:819
+#, javascript-format
+msgid "Season %d"
+msgstr "سیزن %d"
+
+#: src/pages/movie-detail-page.js:847
+#, javascript-format
+msgid "%s (all %d episodes)"
+msgstr "%s (تمام %d اقساط)"
+
+#: src/pages/movie-detail-page.js:857 src/pages/movie-detail-page.js:1054
+#: src/pages/tv-detail-page.js:640 src/pages/tv-detail-page.js:848
+#: src/pages/tv-detail-page.js:1031 src/widgets/play-card.js:143
+msgid "Untitled Episode"
+msgstr "بلاعنوان قسط"
+
+#: src/pages/movie-detail-page.js:875 src/pages/movie-detail-page.js:1219
+#: src/pages/tv-detail-page.js:1159
 msgid "Place (optional):"
 msgstr "جگہ (اختیاری):"
 
-#: src/pages/movie-detail-page.js:742 src/pages/movie-detail-page.js:1029
+#: src/pages/movie-detail-page.js:887 src/pages/movie-detail-page.js:1231
+#: src/pages/tv-detail-page.js:905 src/pages/tv-detail-page.js:1168
 msgid "None"
 msgstr "کوئی نہیں"
 
-#: src/pages/movie-detail-page.js:752 src/pages/movie-detail-page.js:1047
+#: src/pages/movie-detail-page.js:897 src/pages/movie-detail-page.js:1249
+#: src/pages/tv-detail-page.js:1182
 msgid "Comment (optional):"
 msgstr "تبصرہ (اختیاری):"
 
-#: src/pages/movie-detail-page.js:759 src/pages/movie-detail-page.js:1054
+#: src/pages/movie-detail-page.js:904 src/pages/movie-detail-page.js:1256
+#: src/pages/tv-detail-page.js:1189
 msgid "Add a note about this play"
 msgstr "اس اندراج کے بارے میں نوٹ شامل کریں"
 
-#: src/pages/movie-detail-page.js:823 src/pages/movie-detail-page.ui:117
+#: src/pages/movie-detail-page.js:941
+msgid "Please select an episode or season."
+msgstr "براہ کرم ایک قسط یا سیزن منتخب کریں۔"
+
+#: src/pages/movie-detail-page.js:961 src/pages/tv-detail-page.js:944
+#: src/pages/tv-detail-page.js:968
+msgid "Could not save play"
+msgstr "اندراج محفوظ نہ ہو سکا"
+
+#: src/pages/movie-detail-page.js:962
+msgid "An unexpected error occurred while saving the play."
+msgstr "اندراج محفوظ کرتے وقت غیر متوقع خرابی پیش آئی۔"
+
+#: src/pages/movie-detail-page.js:964 src/pages/tv-detail-page.js:947
+#: src/pages/tv-detail-page.js:971 src/pages/tv-detail-page.js:1220
+msgid "OK"
+msgstr "ٹھیک ہے"
+
+#: src/pages/movie-detail-page.js:990 src/pages/movie-detail-page.ui:117
+#: src/pages/tv-detail-page.js:1006 src/pages/tv-detail-page.ui:108
 msgid "No plays recorded"
 msgstr "کوئی اندراج ریکارڈ نہیں"
 
-#: src/pages/movie-detail-page.js:826
+#: src/pages/movie-detail-page.js:993
 msgid "1 play recorded"
 msgstr "1 اندراج ریکارڈ ہوا"
 
-#: src/pages/movie-detail-page.js:827
+#: src/pages/movie-detail-page.js:994
 #, javascript-format
 msgid "%d plays recorded"
 msgstr "%d اندراج ریکارڈ ہوئے"
 
-#: src/pages/movie-detail-page.js:913 src/pages/movie-detail-page.js:966
+#: src/pages/movie-detail-page.js:998
+#, javascript-format
+msgid "%d play logs • %d/%d episodes watched • %d/%d seasons completed"
+msgstr "%d اندراج لاگز • %d/%d اقساط دیکھی گئیں • %d/%d سیزنز مکمل"
+
+#: src/pages/movie-detail-page.js:1108 src/pages/movie-detail-page.js:1161
+#: src/pages/tv-detail-page.js:1075 src/pages/tv-detail-page.js:1103
 msgid "Edit Play"
 msgstr "اندراج میں ترمیم"
 
-#: src/pages/movie-detail-page.js:929 src/widgets/play-card.js:139
-#: src/widgets/play-entry.ui:22
+#: src/pages/movie-detail-page.js:1124 src/pages/tv-detail-page.js:1086
+#: src/widgets/play-card.js:177 src/widgets/play-entry.ui:22
 msgid "Delete Play"
 msgstr "اندراج حذف کریں"
 
-#: src/pages/movie-detail-page.js:935 src/widgets/play-card.js:145
+#: src/pages/movie-detail-page.js:1130 src/widgets/play-card.js:183
 msgid "Delete Play?"
 msgstr "اندراج حذف کریں؟"
 
-#: src/pages/movie-detail-page.js:936
+#: src/pages/movie-detail-page.js:1131
 #, javascript-format
 msgid "Are you sure you want to delete this play from %s?"
 msgstr "کیا آپ واقعی %s والا یہ اندراج حذف کرنا چاہتے ہیں؟"
 
-#: src/pages/movie-detail-page.js:1005
+#: src/pages/movie-detail-page.js:1207 src/pages/tv-detail-page.js:1144
 msgid "Watch Order:"
 msgstr "دیکھنے کی ترتیب:"
 
@@ -268,17 +395,13 @@ msgstr "دیکھنے کی ترتیب:"
 msgid "Movie Details"
 msgstr "فلم کی تفصیلات"
 
-#: src/pages/movie-detail-page.ui:14 src/pages/person-page.ui:13
-#: src/pages/preferences-page.ui:93 src/pages/preferences-page.ui:105
-msgid "Refresh"
-msgstr "تازہ کریں"
-
 #: src/pages/movie-detail-page.ui:71 src/pages/person-page.ui:209
-#: src/window.js:355 src/window.ui:163 src/window.ui:317
+#: src/pages/tv-detail-page.ui:64 src/window.ui:170 src/window.ui:324
 msgid "Watchlist"
 msgstr "دیکھنے کی فہرست"
 
 #: src/pages/movie-detail-page.ui:95 src/pages/plays-page.ui:6
+#: src/pages/tv-detail-page.ui:86
 msgid "Viewing History"
 msgstr "دیکھنے کی تاریخ"
 
@@ -290,7 +413,7 @@ msgstr "فلم کا عنوان"
 msgid "Tagline"
 msgstr "مختصر جملہ"
 
-#: src/pages/movie-detail-page.ui:181
+#: src/pages/movie-detail-page.ui:181 src/pages/tv-detail-page.ui:167
 msgid "Details"
 msgstr "تفصیلات"
 
@@ -298,25 +421,17 @@ msgstr "تفصیلات"
 msgid "Release Year"
 msgstr "اجرا کا سال"
 
-#: src/pages/movie-detail-page.ui:190
+#: src/pages/movie-detail-page.ui:190 src/pages/tv-detail-page.ui:170
 msgid "Original Title"
 msgstr "اصل عنوان"
 
-#: src/pages/movie-detail-page.ui:196
-msgid "Runtime"
-msgstr "مدت"
-
-#: src/pages/movie-detail-page.ui:202
+#: src/pages/movie-detail-page.ui:202 src/pages/tv-detail-page.ui:188
 msgid "Original Language"
 msgstr "اصل زبان"
 
 #: src/pages/movie-detail-page.ui:208
 msgid "Genre"
 msgstr "صنف"
-
-#: src/pages/movie-detail-page.ui:214
-msgid "Budget"
-msgstr "بجٹ"
 
 #: src/pages/movie-detail-page.ui:220 src/pages/watchlist-page.ui:31
 msgid "Rating"
@@ -326,7 +441,7 @@ msgstr "درجہ بندی"
 msgid "Box Office"
 msgstr "باکس آفس"
 
-#: src/pages/movie-detail-page.ui:241
+#: src/pages/movie-detail-page.ui:241 src/pages/tv-detail-page.ui:232
 msgid "Overview"
 msgstr "خلاصہ"
 
@@ -334,23 +449,23 @@ msgstr "خلاصہ"
 msgid "Movie overview"
 msgstr "فلم کا خلاصہ"
 
-#: src/pages/movie-detail-page.ui:262
+#: src/pages/movie-detail-page.ui:262 src/pages/tv-detail-page.ui:250
 msgid "External Links"
 msgstr "بیرونی ربط"
 
-#: src/pages/movie-detail-page.ui:273
+#: src/pages/movie-detail-page.ui:273 src/pages/tv-detail-page.ui:261
 msgid "IMDb"
 msgstr "آئی ایم ڈی بی"
 
-#: src/pages/movie-detail-page.ui:274
+#: src/pages/movie-detail-page.ui:274 src/pages/tv-detail-page.ui:262
 msgid "Open on IMDb"
 msgstr "آئی ایم ڈی بی پر کھولیں"
 
-#: src/pages/movie-detail-page.ui:282
+#: src/pages/movie-detail-page.ui:282 src/pages/tv-detail-page.ui:271
 msgid "TMDB"
 msgstr "ٹی ایم ڈی بی"
 
-#: src/pages/movie-detail-page.ui:283
+#: src/pages/movie-detail-page.ui:283 src/pages/tv-detail-page.ui:272
 msgid "Open on TMDB"
 msgstr "ٹی ایم ڈی بی پر کھولیں"
 
@@ -362,11 +477,11 @@ msgstr "لیٹر باکسڈ"
 msgid "Open on Letterboxd"
 msgstr "لیٹر باکسڈ پر کھولیں"
 
-#: src/pages/movie-detail-page.ui:318
+#: src/pages/movie-detail-page.ui:318 src/pages/tv-detail-page.ui:311
 msgid "Directed By"
 msgstr "ہدایت کار"
 
-#: src/pages/movie-detail-page.ui:342
+#: src/pages/movie-detail-page.ui:342 src/pages/tv-detail-page.ui:337
 msgid "Produced By"
 msgstr "منتج"
 
@@ -376,41 +491,47 @@ msgstr "منتج"
 msgid "Cinematography"
 msgstr "فلم بندی"
 
-#: src/pages/movie-detail-page.ui:390
+#: src/pages/movie-detail-page.ui:390 src/pages/tv-detail-page.ui:389
 msgid "Music By"
 msgstr "موسیقی"
 
 #: src/pages/movie-detail-page.ui:414 src/pages/top-people-page.ui:29
+#: src/pages/tv-detail-page.ui:412
 msgid "Cast"
 msgstr "اداکاروں کی فہرست"
 
-#: src/pages/person-page.js:144 src/pages/person-page.js:270
-#: src/pages/person-page.ui:292
-msgid "Click to explore more movies..."
-msgstr "مزید فلمیں دیکھنے کے لیے کلک کریں..."
+#: src/pages/person-page.js:154 src/pages/person-page.js:324
+msgid "Click to explore more titles..."
+msgstr "مزید عنوانات دیکھنے کے لیے کلک کریں..."
 
-#: src/pages/person-page.js:262
-msgid "Failed to load movies."
-msgstr "فلمیں لوڈ نہ ہو سکیں۔"
+#: src/pages/person-page.js:316
+msgid "Failed to load titles."
+msgstr "عنوانات لوڈ نہ ہو سکے۔"
 
-#: src/pages/person-page.js:290
-msgid "No other movies found."
-msgstr "کوئی دوسری فلمیں نہیں ملیں۔"
+#: src/pages/person-page.js:349
+msgid "No other titles found."
+msgstr "کوئی دوسرے عنوانات نہیں ملے۔"
 
-#: src/pages/person-page.js:318
+#: src/pages/person-page.js:377
 #, javascript-format
 msgid "%d years"
 msgstr "%d سال"
 
-#: src/pages/person-page.js:323
+#: src/pages/person-page.js:382
 #, javascript-format
 msgid "%d years old"
 msgstr "%d سال عمر"
 
-#: src/pages/person-page.js:340
+#: src/pages/person-page.js:399
 #, javascript-format
 msgid "Known for: %s"
 msgstr "معروف برائے: %s"
+
+#: src/pages/person-page.js:497 src/pages/tv-detail-page.js:478
+#: src/pages/tv-detail-page.js:512 src/pages/tv-detail-page.js:540
+#, javascript-format
+msgid "%d episodes"
+msgstr "%d اقساط"
 
 #: src/pages/person-page.ui:4
 msgid "Person Details"
@@ -456,7 +577,11 @@ msgstr "دیکھنے کی فہرست میں کوئی فلم نہیں ملی۔"
 msgid "Explore More"
 msgstr "مزید دیکھیں"
 
-#: src/pages/plays-page.ui:23 src/window.ui:387
+#: src/pages/person-page.ui:292
+msgid "Click to explore more movies..."
+msgstr "مزید فلمیں دیکھنے کے لیے کلک کریں..."
+
+#: src/pages/plays-page.ui:23 src/window.ui:394
 msgid "No Plays Recorded"
 msgstr "کوئی اندراج ریکارڈ نہیں"
 
@@ -468,42 +593,42 @@ msgstr ""
 "اپنی فلم دیکھنے کی تاریخ\n"
 "                      کا ریکارڈ رکھنا شروع کریں"
 
-#: src/pages/preferences-page.js:77
+#: src/pages/preferences-page.js:112
 msgid "API key saved"
 msgstr "اے پی آئی کلید محفوظ ہو گئی"
 
-#: src/pages/preferences-page.js:127 src/pages/preferences-page.js:188
+#: src/pages/preferences-page.js:162 src/pages/preferences-page.js:230
 msgid "Starting..."
 msgstr "شروع ہو رہا ہے..."
 
-#: src/pages/preferences-page.js:135 src/pages/preferences-page.js:196
-msgid "Failed to load movies list"
-msgstr "فلموں کی فہرست لوڈ نہ ہو سکی"
-
-#: src/pages/preferences-page.js:142
-msgid "No movies to refresh"
-msgstr "تازہ کرنے کے لیے کوئی فلم نہیں"
-
-#: src/pages/preferences-page.js:171
-#, javascript-format
-msgid "Refreshed %d/%d movies (%d failed)"
-msgstr "%d/%d فلمیں تازہ ہوئیں (%d ناکام)"
+#: src/pages/preferences-page.js:170 src/pages/preferences-page.js:238
+msgid "Failed to load titles list"
+msgstr "عنوانات کی فہرست لوڈ نہ ہو سکی"
 
 #: src/pages/preferences-page.js:177
+msgid "No titles to refresh"
+msgstr "تازہ کرنے کے لیے کوئی عنوان نہیں"
+
+#: src/pages/preferences-page.js:213
 #, javascript-format
-msgid "Refreshed %d movies"
-msgstr "%d فلمیں تازہ ہوئیں"
+msgid "Refreshed %d/%d titles (%d failed)"
+msgstr "%d/%d عنوانات تازہ ہوئے (%d ناکام)"
 
-#: src/pages/preferences-page.js:203
-msgid "No movies with IMDb IDs to refresh"
-msgstr "تازہ کرنے کے لیے آئی ایم ڈی بی شناخت والی کوئی فلم نہیں"
+#: src/pages/preferences-page.js:219
+#, javascript-format
+msgid "Refreshed %d titles"
+msgstr "%d عنوانات تازہ ہوئے"
 
-#: src/pages/preferences-page.js:230
+#: src/pages/preferences-page.js:245
+msgid "No titles with IMDb IDs to refresh"
+msgstr "تازہ کرنے کے لیے IMDb شناخت والے کوئی عنوانات نہیں"
+
+#: src/pages/preferences-page.js:276
 #, javascript-format
 msgid "Refreshed %d/%d IMDb ratings (%d failed)"
 msgstr "%d/%d آئی ایم ڈی بی درجہ بندیاں تازہ ہوئیں (%d ناکام)"
 
-#: src/pages/preferences-page.js:236
+#: src/pages/preferences-page.js:282
 #, javascript-format
 msgid "Refreshed %d IMDb ratings"
 msgstr "%d آئی ایم ڈی بی درجہ بندیاں تازہ ہوئیں"
@@ -512,78 +637,131 @@ msgstr "%d آئی ایم ڈی بی درجہ بندیاں تازہ ہوئیں"
 msgid "Preferences"
 msgstr "ترجیحات"
 
-#: src/pages/preferences-page.ui:18
+#: src/pages/preferences-page.ui:20
 msgid "The Movie Database (TMDB)"
 msgstr "دی مووی ڈیٹابیس (ٹی ایم ڈی بی)"
 
-#: src/pages/preferences-page.ui:19
-msgid "Configure your TMDB API key for movie search and information"
-msgstr "فلم تلاش اور معلومات کے لیے اپنی ٹی ایم ڈی بی اے پی آئی کلید مقرر کریں"
+#: src/pages/preferences-page.ui:21
+msgid "Configure your TMDB API key for movie and TV search"
+msgstr "فلم اور ٹی وی تلاش کے لیے اپنی TMDB API کلید مرتب کریں"
 
-#: src/pages/preferences-page.ui:22
+#: src/pages/preferences-page.ui:24
 msgid "API Key"
 msgstr "اے پی آئی کلید"
 
-#: src/pages/preferences-page.ui:29
+#: src/pages/preferences-page.ui:31
 msgid "Get API Key"
 msgstr "اے پی آئی کلید حاصل کریں"
 
-#: src/pages/preferences-page.ui:30
+#: src/pages/preferences-page.ui:32
 msgid "Visit themoviedb.org to create a free account and generate an API key"
 msgstr ""
 "مفت کھاتہ بنانے اور اے پی آئی کلید بنانے کے لیے themoviedb.org پر جائیں"
 
-#: src/pages/preferences-page.ui:46
+#: src/pages/preferences-page.ui:48
 msgid "Behavior"
 msgstr "رویہ"
 
-#: src/pages/preferences-page.ui:49
+#: src/pages/preferences-page.ui:51
 msgid "Auto-remove from Watchlist"
 msgstr "دیکھنے کی فہرست سے خودکار ہٹانا"
 
-#: src/pages/preferences-page.ui:50
-msgid "Automatically remove movies from watchlist when you add a play"
+#: src/pages/preferences-page.ui:52
+msgid "Automatically remove titles from watchlist when you add a play"
 msgstr ""
-"جب آپ اندراج شامل کریں تو فلموں کو خودکار طور پر دیکھنے کی فہرست سے ہٹا دیں"
+"جب آپ اندراج شامل کریں تو عنوانات کو خودکار طور پر دیکھنے کی فہرست سے ہٹا "
+"دیں"
 
-#: src/pages/preferences-page.ui:61
+#: src/pages/preferences-page.ui:63
 msgid "Show TMDB rating in the ratings section"
 msgstr "درجہ بندی کے حصے میں ٹی ایم ڈی بی درجہ بندی دکھائیں"
 
-#: src/pages/preferences-page.ui:72
+#: src/pages/preferences-page.ui:74
 msgid "Fetch and show IMDb rating in the ratings section"
 msgstr "درجہ بندی کے حصے میں آئی ایم ڈی بی درجہ بندی حاصل کریں اور دکھائیں"
 
-#: src/pages/preferences-page.ui:86
+#: src/pages/preferences-page.ui:84
+msgid "People metric default"
+msgstr "شخصیات کا طے شدہ پیمانہ"
+
+#: src/pages/preferences-page.ui:85
+msgid "Choose the default metric used on dashboard and Top People page"
+msgstr ""
+"جائزہ تختہ اور سرِفہرست شخصیات صفحے میں استعمال ہونے والا طے شدہ پیمانہ منتخب "
+"کریں"
+
+#: src/pages/preferences-page.ui:92
+msgid "Total plays"
+msgstr "کل اندراجات"
+
+#: src/pages/preferences-page.ui:93
+msgid "Unique titles"
+msgstr "منفرد عنوانات"
+
+#: src/pages/preferences-page.ui:103
+msgid "TV people counting level"
+msgstr "ٹی وی شخصیات کی گنتی کی سطح"
+
+#: src/pages/preferences-page.ui:104
+msgid "Count TV contribution by episodes instead of TV shows"
+msgstr "ٹی وی کردار کو ٹی وی شوز کے بجائے اقساط کی بنیاد پر گنیں"
+
+#: src/pages/preferences-page.ui:118
 msgid "Data"
 msgstr "ڈیٹا"
 
-#: src/pages/preferences-page.ui:89
-msgid "Refresh all movies"
-msgstr "تمام فلمیں تازہ کریں"
+#: src/pages/preferences-page.ui:121
+msgid "Refresh all titles"
+msgstr "تمام عنوانات تازہ کریں"
 
-#: src/pages/preferences-page.ui:90
-msgid "Re-download details and credits for every saved movie"
-msgstr "ہر محفوظ فلم کی تفصیلات اور کریڈٹس دوبارہ ڈاؤن لوڈ کریں"
+#: src/pages/preferences-page.ui:122
+msgid "Re-download details and credits for every saved movie or TV show"
+msgstr "ہر محفوظ فلم یا ٹی وی شو کی تفصیلات اور کریڈٹس دوبارہ ڈاؤن لوڈ کریں"
 
-#: src/pages/preferences-page.ui:101
+#: src/pages/preferences-page.ui:133
 msgid "Refresh all IMDb ratings"
 msgstr "تمام آئی ایم ڈی بی درجہ بندیاں تازہ کریں"
 
-#: src/pages/preferences-page.ui:102
-msgid "Update cached IMDb ratings for all saved movies"
-msgstr "تمام محفوظ فلموں کی محفوظ شدہ آئی ایم ڈی بی درجہ بندیاں تازہ کریں"
+#: src/pages/preferences-page.ui:134
+msgid "Update cached IMDb ratings for all saved titles"
+msgstr "تمام محفوظ عنوانات کی محفوظ شدہ IMDb درجہ بندیاں تازہ کریں"
 
-#: src/pages/preferences-page.ui:113
+#: src/pages/preferences-page.ui:145
 msgid "Refresh progress"
 msgstr "تازہ کاری کی پیش رفت"
 
-#: src/pages/preferences-page.ui:132
+#: src/pages/preferences-page.ui:164
 msgid "IMDb refresh progress"
 msgstr "آئی ایم ڈی بی تازہ کاری کی پیش رفت"
 
-#: src/pages/top-people-page.js:154 src/pages/watchlist-page.js:140
-#: src/window.js:285
+#: src/pages/top-people-page.js:181 src/window.js:453 src/window.js:489
+#, javascript-format
+msgid "%d movies"
+msgstr "%d فلمیں"
+
+#: src/pages/top-people-page.js:185 src/window.js:457 src/window.js:493
+#, javascript-format
+msgid "%d unique episodes • %d TV shows"
+msgstr "%d منفرد اقساط • %d ٹی وی شوز"
+
+#: src/pages/top-people-page.js:188 src/pages/top-people-page.js:199
+#: src/window.js:460 src/window.js:471 src/window.js:496 src/window.js:507
+#, javascript-format
+msgid "%d TV shows"
+msgstr "%d ٹی وی شوز"
+
+#: src/pages/top-people-page.js:192 src/window.js:464 src/window.js:500
+#, javascript-format
+msgid "%d movie plays"
+msgstr "%d فلمی اندراجات"
+
+#: src/pages/top-people-page.js:196 src/window.js:468 src/window.js:504
+#, javascript-format
+msgid "%d episode plays • %d TV shows"
+msgstr "%d قسطی اندراج • %d ٹی وی شوز"
+
+#: src/pages/top-people-page.js:220 src/pages/watchlist-page.js:140
+#: src/window.js:372
 #, javascript-format
 msgid "Page %d of %d"
 msgstr "صفحہ %d از %d"
@@ -613,12 +791,12 @@ msgid "Total Appearances (Low-High)"
 msgstr "کل نموداریاں (کم سے زیادہ)"
 
 #: src/pages/top-people-page.ui:45
-msgid "Unique Movies (High-Low)"
-msgstr "منفرد فلمیں (زیادہ سے کم)"
+msgid "Unique Titles (High-Low)"
+msgstr "منفرد عنوانات (زیادہ سے کم)"
 
 #: src/pages/top-people-page.ui:46
-msgid "Unique Movies (Low-High)"
-msgstr "منفرد فلمیں (کم سے زیادہ)"
+msgid "Unique Titles (Low-High)"
+msgstr "منفرد عنوانات (کم سے زیادہ)"
 
 #: src/pages/top-people-page.ui:47
 msgid "Name (A-Z)"
@@ -633,19 +811,161 @@ msgid "Try a different search or filter"
 msgstr "کوئی دوسری تلاش یا فلٹر آزمائیں"
 
 #: src/pages/top-people-page.ui:106 src/pages/watchlist-page.ui:90
-#: src/window.ui:428
+#: src/window.ui:435
 msgid "Previous"
 msgstr "پچھلا"
 
 #: src/pages/top-people-page.ui:111 src/pages/watchlist-page.ui:95
-#: src/window.ui:433
+#: src/window.ui:440
 msgid "Page 1 of 1"
 msgstr "صفحہ 1 از 1"
 
 #: src/pages/top-people-page.ui:119 src/pages/watchlist-page.ui:103
-#: src/window.ui:441
+#: src/window.ui:448
 msgid "Next"
 msgstr "اگلا"
+
+#: src/pages/tv-detail-page.js:143 src/pages/tv-detail-page.js:687
+msgid "Error loading TV show"
+msgstr "ٹی وی شو لوڈ کرنے میں خرابی"
+
+#: src/pages/tv-detail-page.js:144 src/pages/tv-detail-page.js:688
+msgid "Could not load TV show details."
+msgstr "ٹی وی شو کی تفصیلات لوڈ نہ ہو سکیں۔"
+
+#: src/pages/tv-detail-page.js:292
+msgid "Unknown TV Show"
+msgstr "نامعلوم ٹی وی شو"
+
+#: src/pages/tv-detail-page.js:322
+#, javascript-format
+msgid "%d/%d episodes watched"
+msgstr "%d/%d اقساط دیکھی گئیں"
+
+#: src/pages/tv-detail-page.js:544 src/pages/tv-detail-page.js:614
+#, javascript-format
+msgid "TMDB %s/10"
+msgstr "TMDB %s/10"
+
+#: src/pages/tv-detail-page.js:593
+msgid "Log whole season"
+msgstr "پورا سیزن لاگ کریں"
+
+#: src/pages/tv-detail-page.js:610
+#, javascript-format
+msgid "%d min"
+msgstr "%d منٹ"
+
+#: src/pages/tv-detail-page.js:623
+#, javascript-format
+msgid "Dir: %s"
+msgstr "ہدایت: %s"
+
+#: src/pages/tv-detail-page.js:626
+#, javascript-format
+msgid "Writer: %s"
+msgstr "مصنف: %s"
+
+#: src/pages/tv-detail-page.js:638 src/pages/tv-detail-page.js:846
+#, javascript-format
+msgid "E%s • %s"
+msgstr "E%s • %s"
+
+#: src/pages/tv-detail-page.js:669
+msgid "Log this episode"
+msgstr "اس قسط کو لاگ کریں"
+
+#: src/pages/tv-detail-page.js:778
+msgid "Log TV Plays"
+msgstr "ٹی وی اندراجات لاگ کریں"
+
+#: src/pages/tv-detail-page.js:796
+msgid "Log type"
+msgstr "لاگ کی قسم"
+
+#: src/pages/tv-detail-page.js:802 src/pages/tv-detail-page.js:827
+msgid "Episode"
+msgstr "قسط"
+
+#: src/pages/tv-detail-page.js:803 src/pages/tv-detail-page.js:809
+msgid "Season"
+msgstr "سیزن"
+
+#: src/pages/tv-detail-page.js:817
+#, javascript-format
+msgid "S%s • %s"
+msgstr "S%s • %s"
+
+#: src/pages/tv-detail-page.js:857
+msgid "No episodes available"
+msgstr "کوئی قسط دستیاب نہیں"
+
+#: src/pages/tv-detail-page.js:912
+msgid "Comment (optional)"
+msgstr "تبصرہ (اختیاری)"
+
+#: src/pages/tv-detail-page.js:945
+msgid "Please select an episode to log."
+msgstr "لاگ کرنے کے لیے براہ کرم ایک قسط منتخب کریں۔"
+
+#: src/pages/tv-detail-page.js:969
+msgid "An unexpected error occurred while saving play logs."
+msgstr "اندراج لاگز محفوظ کرتے وقت غیر متوقع خرابی پیش آئی۔"
+
+#: src/pages/tv-detail-page.js:1011
+#, javascript-format
+msgid "%d play logs • %d/%d episodes watched"
+msgstr "%d اندراج لاگز • %d/%d اقساط دیکھی گئیں"
+
+#: src/pages/tv-detail-page.js:1028
+#, javascript-format
+msgid "S%sE%s • %s"
+msgstr "S%sE%s • %s"
+
+#: src/pages/tv-detail-page.js:1217
+msgid "Could not update play"
+msgstr "اندراج اپڈیٹ نہ ہو سکا"
+
+#: src/pages/tv-detail-page.js:1218
+msgid "An unexpected error occurred while updating play logs."
+msgstr "اندراج لاگز اپڈیٹ کرتے وقت غیر متوقع خرابی پیش آئی۔"
+
+#: src/pages/tv-detail-page.ui:6
+msgid "TV Show Details"
+msgstr "ٹی وی شو کی تفصیلات"
+
+#: src/pages/tv-detail-page.ui:95
+msgid "Log Episode / Season"
+msgstr "قسط / سیزن لاگ کریں"
+
+#: src/pages/tv-detail-page.ui:144 src/widgets/movie-card.js:139
+#: src/widgets/play-card.js:162
+msgid "TV Show"
+msgstr "ٹی وی شو"
+
+#: src/pages/tv-detail-page.ui:176
+msgid "First Air Date"
+msgstr "پہلی نشر کی تاریخ"
+
+#: src/pages/tv-detail-page.ui:182
+msgid "Last Air Date"
+msgstr "آخری نشر کی تاریخ"
+
+#: src/pages/tv-detail-page.ui:194
+msgid "Genres"
+msgstr "اصناف"
+
+#: src/pages/tv-detail-page.ui:206
+msgid "Seasons / Episodes"
+msgstr "سیزنز / اقساط"
+
+#: src/pages/tv-detail-page.ui:212
+msgid "Progress"
+msgstr "پیش رفت"
+
+#: src/pages/tv-detail-page.ui:363
+msgid "Cinematography By"
+msgstr "فلم بندی از"
 
 #: src/pages/watchlist-page.ui:20
 msgid "Search watchlist"
@@ -655,7 +975,7 @@ msgstr "دیکھنے کی فہرست تلاش کریں"
 msgid "Recently Added"
 msgstr "حال ہی میں شامل شدہ"
 
-#: src/pages/watchlist-page.ui:29 src/window.ui:369
+#: src/pages/watchlist-page.ui:29 src/window.ui:376
 msgid "Title (A–Z)"
 msgstr "عنوان (الف تا ی)"
 
@@ -668,8 +988,8 @@ msgid "Your Watchlist is Empty"
 msgstr "آپ کی دیکھنے کی فہرست خالی ہے"
 
 #: src/pages/watchlist-page.ui:50
-msgid "Click the + button to add movies"
-msgstr "فلمیں شامل کرنے کے لیے + بٹن دبائیں"
+msgid "Click the + button to add movies or TV shows"
+msgstr "فلمیں یا ٹی وی شوز شامل کرنے کے لیے + بٹن دبائیں"
 
 #: src/shortcuts-dialog.ui:6
 msgid "Shortcuts"
@@ -685,17 +1005,17 @@ msgctxt "shortcut window"
 msgid "Quit"
 msgstr "بند کریں"
 
-#: src/widgets/person-stat-card.js:104
+#: src/widgets/person-stat-card.js:123
 #, javascript-format
 msgid "%d plays"
 msgstr "%d اندراج"
 
-#: src/widgets/person-stat-card.js:110
+#: src/widgets/person-stat-card.js:129
 #, javascript-format
 msgid "%d plays • %d unique"
 msgstr "%d اندراج • %d منفرد"
 
-#: src/widgets/play-card.js:146
+#: src/widgets/play-card.js:184
 #, javascript-format
 msgid "Are you sure you want to delete this play of \"%s\" from %s?"
 msgstr "کیا آپ واقعی \"%s\" کا یہ اندراج %s سے حذف کرنا چاہتے ہیں؟"
@@ -704,102 +1024,121 @@ msgstr "کیا آپ واقعی \"%s\" کا یہ اندراج %s سے حذف کر
 msgid "Date"
 msgstr "تاریخ"
 
-#: src/window.js:325 src/window.js:326 src/window.ui:118 src/window.ui:172
-#: src/window.ui:226 src/window.ui:272
+#: src/window.js:435 src/window.js:436 src/window.ui:125 src/window.ui:179
+#: src/window.ui:233 src/window.ui:279
 msgid "See all"
 msgstr "سب دیکھیں"
 
-#: src/window.js:353
-msgid "Total Plays"
-msgstr "کل اندراج"
+#: src/window.js:523
+msgid "Movie Plays"
+msgstr "فلمی اندراجات"
 
-#: src/window.js:354
-msgid "Unique Movies"
-msgstr "منفرد فلمیں"
+#: src/window.js:524
+msgid "TV Episode Plays"
+msgstr "ٹی وی قسطی اندراج"
 
-#: src/window.js:356
-msgid "Watch Time"
-msgstr "دیکھنے کا وقت"
+#: src/window.js:525
+msgid "Movies Watched"
+msgstr "دیکھی گئی فلمیں"
 
-#: src/window.ui:13 src/window.ui:50
+#: src/window.js:526
+msgid "TV Shows Watched"
+msgstr "دیکھے گئے ٹی وی شوز"
+
+#: src/window.js:527
+msgid "Movie Watchlist"
+msgstr "فلموں کی دیکھنے کی فہرست"
+
+#: src/window.js:528
+msgid "TV Watchlist"
+msgstr "ٹی وی شوز کی دیکھنے کی فہرست"
+
+#: src/window.js:529
+msgid "Total Time Watched"
+msgstr "کل دیکھا گیا وقت"
+
+#: src/window.ui:13 src/window.ui:57
 msgid "Dashboard"
 msgstr "جائزہ تختہ"
 
-#: src/window.ui:37
+#: src/window.ui:36
 msgid "Main Menu"
 msgstr "مرکزی مینو"
 
-#: src/window.ui:76
+#: src/window.ui:83
 msgid "Stats"
 msgstr "شمار"
 
-#: src/window.ui:109
+#: src/window.ui:116
 msgid "Recent Plays"
 msgstr "حالیہ اندراج"
 
-#: src/window.ui:129
+#: src/window.ui:136
 msgid "No plays recorded yet."
 msgstr "ابھی تک کوئی اندراج ریکارڈ نہیں ہوا۔"
 
-#: src/window.ui:183
+#: src/window.ui:190
 msgid "Your watchlist is empty."
 msgstr "آپ کی دیکھنے کی فہرست خالی ہے۔"
 
-#: src/window.ui:217
+#: src/window.ui:224
 msgid "Top Directors"
 msgstr "نمایاں ہدایت کار"
 
-#: src/window.ui:237
+#: src/window.ui:244
 msgid "No director stats yet."
 msgstr "ابھی تک ہدایت کاروں کا کوئی شمار نہیں۔"
 
-#: src/window.ui:263
+#: src/window.ui:270
 msgid "Top Cast"
 msgstr "نمایاں اداکاروں کی فہرست"
 
-#: src/window.ui:283
+#: src/window.ui:290
 msgid "No cast stats yet."
 msgstr "ابھی تک اداکاروں کی فہرست کا کوئی شمار نہیں۔"
 
-#: src/window.ui:329
+#: src/window.ui:336
 msgid "People"
 msgstr "شخصیات"
 
-#: src/window.ui:341
+#: src/window.ui:348
 msgid "Plays"
 msgstr "اندراج"
 
-#: src/window.ui:359
+#: src/window.ui:366
 msgid "Search plays"
 msgstr "اندراج تلاش کریں"
 
-#: src/window.ui:367
+#: src/window.ui:374
 msgid "Newest"
 msgstr "تازہ ترین"
 
-#: src/window.ui:368
+#: src/window.ui:375
 msgid "Oldest"
 msgstr "قدیم ترین"
 
-#: src/window.ui:388
+#: src/window.ui:395
 msgid "Start tracking your movie viewing history"
 msgstr "اپنی فلم دیکھنے کی تاریخ کا ریکارڈ رکھنا شروع کریں"
 
-#: src/window.ui:470
+#: src/window.ui:477
 msgid "_Places"
 msgstr "_جگہیں"
 
-#: src/window.ui:474
+#: src/window.ui:481
 msgid "_Preferences"
 msgstr "_ترجیحات"
 
-#: src/window.ui:478
+#: src/window.ui:485
 msgid "_Keyboard Shortcuts"
 msgstr "_کلیدی تختہ مختصر راستے"
 
-#: src/window.ui:482
+#: src/window.ui:489
 msgid "_About Memento"
 msgstr "_میمنٹو کے بارے میں"
+
+#~ msgid "Watch Time"
+#~ msgstr "دیکھنے کا وقت"
 
 #~ msgid "Track movies you watch"
 #~ msgstr "دیکھی گئی فلموں کا ریکارڈ رکھیں"
@@ -825,9 +1164,6 @@ msgstr "_میمنٹو کے بارے میں"
 
 #~ msgid "Ans Ibrahim"
 #~ msgstr "انس ابراہیم"
-
-#~ msgid "Dashboard overview"
-#~ msgstr "جائزہ تختہ کا جائزہ"
 
 #~ msgid "Watchlist page"
 #~ msgstr "دیکھنے کی فہرست صفحہ"

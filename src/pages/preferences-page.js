@@ -4,9 +4,21 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-import { getMovieDetails, getMovieCredits } from '../services/tmdb-service.js';
+import { getTitleDetails, getTitleCredits, getTvSeasonDetails } from '../services/tmdb-service.js';
 import { scrapeImdbRating } from '../services/imdb-service.js';
-import {getAllMovieTmdbIds,getAllMoviesWithImdbIds,upsertMovieFromTmdb,upsertPerson,upsertMovieCredits,updateMovieImdbRating,} from '../utils/database-utils.js';
+import {
+    getAllTitlesForRefresh,
+    getAllTitlesWithImdbIds,
+    upsertMovieFromTmdb,
+    upsertTvShowFromTmdb,
+    upsertTvSeasons,
+    upsertSeasonEpisodes,
+    upsertPerson,
+    upsertMovieCredits,
+    upsertTvCredits,
+    updateMovieImdbRating,
+    updateTvShowImdbRating,
+} from '../utils/database-utils.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
@@ -20,6 +32,8 @@ export const MementoPreferencesDialog = GObject.registerClass({
         'auto_remove_switch',
         'tmdb_rating_switch',
         'imdb_rating_switch',
+        'people_metric_dropdown',
+        'people_tv_episode_level_switch',
         'refresh_all_button',
         'refresh_progress_bar',
         'refresh_progress_row',
@@ -35,8 +49,23 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._refreshImdbInProgress = false;
         this._setupBindings();
         this._loadApiKey();
-        this._setupRefreshAllMovies();
+        this._loadPeopleMetricPreference();
+        this._setupPeopleMetricPreference();
+        this._setupRefreshAllTitles();
         this._setupRefreshAllImdbRatings();
+    }
+
+    _loadPeopleMetricPreference() {
+        const metric = this._settings.get_string('dashboard-people-metric');
+        this._people_metric_dropdown.set_selected(metric === 'unique' ? 1 : 0);
+    }
+
+    _setupPeopleMetricPreference() {
+        this._people_metric_dropdown.connect('notify::selected', () => {
+            const selectedIndex = Number(this._people_metric_dropdown.get_selected());
+            const metric = selectedIndex === 1 ? 'unique' : 'total';
+            this._settings.set_string('dashboard-people-metric', metric);
+        });
     }
 
     _setupBindings() {
@@ -56,6 +85,12 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._settings.bind(
             'enable-imdb-rating',
             this._imdb_rating_switch,
+            'active',
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        this._settings.bind(
+            'dashboard-people-tv-episode-level',
+            this._people_tv_episode_level_switch,
             'active',
             Gio.SettingsBindFlags.DEFAULT
         );
@@ -85,9 +120,9 @@ export const MementoPreferencesDialog = GObject.registerClass({
         launcher.launch(this.get_root(), null, null);
     }
 
-    _setupRefreshAllMovies() {
+    _setupRefreshAllTitles() {
         this._refresh_all_button.connect('clicked', () => {
-            this._refreshAllMovies();
+            this._refreshAllTitles();
         });
     }
 
@@ -117,7 +152,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         }
     }
 
-    async _refreshAllMovies() {
+    async _refreshAllTitles() {
         if (this._refreshInProgress) {
             return;
         }
@@ -126,41 +161,48 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._setRefreshUiState(true);
         this._refresh_progress_bar.set_text(_('Starting...'));
 
-        let tmdbIds = [];
+        let titleRefs = [];
         try {
-            tmdbIds = await getAllMovieTmdbIds();
+            titleRefs = await getAllTitlesForRefresh();
         } catch (error) {
             this._setRefreshUiState(false);
             this._refreshInProgress = false;
-            this._showToast(_('Failed to load movies list'), 3);
+            this._showToast(_('Failed to load titles list'), 3);
             return;
         }
 
-        if (tmdbIds.length === 0) {
+        if (titleRefs.length === 0) {
             this._setRefreshUiState(false);
             this._refreshInProgress = false;
-            this._showToast(_('No movies to refresh'), 2);
+            this._showToast(_('No titles to refresh'), 2);
             return;
         }
 
         let completed = 0;
         let failed = 0;
 
-        for (const tmdbId of tmdbIds) {
+        for (const titleRef of titleRefs) {
             try {
-                const details = await getMovieDetails(tmdbId);
-                const credits = await getMovieCredits(tmdbId);
-                const movieId = await upsertMovieFromTmdb(details);
-                await this._saveCredits(movieId, credits);
+                const tmdbId = Number(titleRef.tmdb_id);
+                const mediaType = titleRef.media_type === 'tv' ? 'tv' : 'movie';
+                const details = await getTitleDetails(tmdbId, mediaType);
+                const credits = await getTitleCredits(tmdbId, mediaType);
+                const titleId = mediaType === 'tv'
+                    ? await upsertTvShowFromTmdb(details)
+                    : await upsertMovieFromTmdb(details);
+                if (mediaType === 'tv') {
+                    await this._refreshTvSeasonsAndEpisodes(titleId, tmdbId, details);
+                }
+                await this._saveCredits(titleId, credits, mediaType);
             } catch (error) {
                 failed += 1;
-                console.error(`Failed to refresh movie ${tmdbId}:`, error);
+                console.error('Failed to refresh title:', error);
             }
 
             completed += 1;
-            const fraction = completed / tmdbIds.length;
+            const fraction = completed / titleRefs.length;
             this._refresh_progress_bar.set_fraction(fraction);
-            this._refresh_progress_bar.set_text(`${completed}/${tmdbIds.length}`);
+            this._refresh_progress_bar.set_text(`${completed}/${titleRefs.length}`);
             await this._yieldToUi();
         }
 
@@ -168,13 +210,13 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._refreshInProgress = false;
 
         if (failed > 0) {
-            this._showToast(_('Refreshed %d/%d movies (%d failed)').format(
+            this._showToast(_('Refreshed %d/%d titles (%d failed)').format(
                 completed - failed,
-                tmdbIds.length,
+                titleRefs.length,
                 failed
             ), 4);
         } else {
-            this._showToast(_('Refreshed %d movies').format(completed), 3);
+            this._showToast(_('Refreshed %d titles').format(completed), 3);
         }
     }
 
@@ -187,39 +229,43 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._setRefreshImdbUiState(true);
         this._refresh_imdb_progress_bar.set_text(_('Starting...'));
 
-        let movies = [];
+        let titles = [];
         try {
-            movies = await getAllMoviesWithImdbIds();
+            titles = await getAllTitlesWithImdbIds();
         } catch (error) {
             this._setRefreshImdbUiState(false);
             this._refreshImdbInProgress = false;
-            this._showToast(_('Failed to load movies list'), 3);
+            this._showToast(_('Failed to load titles list'), 3);
             return;
         }
 
-        if (movies.length === 0) {
+        if (titles.length === 0) {
             this._setRefreshImdbUiState(false);
             this._refreshImdbInProgress = false;
-            this._showToast(_('No movies with IMDb IDs to refresh'), 3);
+            this._showToast(_('No titles with IMDb IDs to refresh'), 3);
             return;
         }
 
         let completed = 0;
         let failed = 0;
 
-        for (const movie of movies) {
+        for (const title of titles) {
             try {
-                const imdbRating = await scrapeImdbRating(movie.imdb_id);
-                await updateMovieImdbRating(movie.id, imdbRating?.value ?? null);
+                const imdbRating = await scrapeImdbRating(title.imdb_id);
+                if (title.media_type === 'tv') {
+                    await updateTvShowImdbRating(title.id, imdbRating?.value ?? null);
+                } else {
+                    await updateMovieImdbRating(title.id, imdbRating?.value ?? null);
+                }
             } catch (error) {
                 failed += 1;
-                console.error(`Failed to refresh IMDb rating for movie ${movie.id}:`, error);
+                console.error('Failed to refresh IMDb rating for title:', error);
             }
 
             completed += 1;
-            const fraction = completed / movies.length;
+            const fraction = completed / titles.length;
             this._refresh_imdb_progress_bar.set_fraction(fraction);
-            this._refresh_imdb_progress_bar.set_text(`${completed}/${movies.length}`);
+            this._refresh_imdb_progress_bar.set_text(`${completed}/${titles.length}`);
             await this._yieldToUi();
         }
 
@@ -229,7 +275,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         if (failed > 0) {
             this._showToast(_('Refreshed %d/%d IMDb ratings (%d failed)').format(
                 completed - failed,
-                movies.length,
+                titles.length,
                 failed
             ), 4);
         } else {
@@ -237,36 +283,66 @@ export const MementoPreferencesDialog = GObject.registerClass({
         }
     }
 
-    async _saveCredits(movieId, creditsData) {
-        if (!movieId || !creditsData) {
+    async _refreshTvSeasonsAndEpisodes(showId, tmdbId, showDetails) {
+        const seasons = Array.isArray(showDetails?.seasons) ? showDetails.seasons : [];
+        await upsertTvSeasons(showId, seasons);
+
+        const seasonNumbers = seasons
+            .map(season => Number(season?.season_number))
+            .filter(seasonNumber => Number.isFinite(seasonNumber) && seasonNumber >= 0);
+
+        for (const seasonNumber of seasonNumbers) {
+            try {
+                const seasonDetails = await getTvSeasonDetails(tmdbId, seasonNumber);
+                const episodes = Array.isArray(seasonDetails?.episodes) ? seasonDetails.episodes : [];
+                await upsertSeasonEpisodes(showId, seasonNumber, episodes);
+            } catch {
+                // Keep bulk refresh resilient when a season request fails.
+            }
+        }
+    }
+
+    async _saveCredits(titleId, creditsData, mediaType = 'movie') {
+        if (!titleId || !creditsData) {
             return;
         }
 
         const credits = [];
+        const seenCreditKeys = new Set();
         let order = 0;
 
         if (creditsData.crew) {
-            const addCrewCredits = async (crewJobs, roleType, maxItems = 5) => {
+            const addCrewCredits = async (crewJobs, roleType) => {
                 const members = creditsData.crew.filter(member => crewJobs.includes(member.job));
-                for (const member of members.slice(0, maxItems)) {
+                for (const member of members) {
                     const personId = await upsertPerson(member.id, {
                         name: member.name,
                         profile_path: member.profile_path || null
                     });
+                    const creditKey = `${personId}:${roleType}:crew`;
+                    if (seenCreditKeys.has(creditKey)) {
+                        continue;
+                    }
+                    seenCreditKeys.add(creditKey);
 
                     credits.push({
                         person_id: personId,
                         role_type: roleType,
                         character_name: null,
+                        episode_count: mediaType === 'tv' && Number.isFinite(Number(member.total_episode_count))
+                            ? Number(member.total_episode_count)
+                            : (mediaType === 'tv' && Number.isFinite(Number(member.episode_count))
+                                ? Number(member.episode_count)
+                                : null),
                         display_order: order++
                     });
                 }
             };
 
-            await addCrewCredits(['Director'], 'director', 5);
-            await addCrewCredits(['Producer'], 'producer', 5);
-            await addCrewCredits(['Director of Photography', 'Cinematography'], 'cinematographer', 5);
-            await addCrewCredits(['Original Music Composer', 'Music', 'Composer'], 'music_composer', 5);
+            await addCrewCredits(['Director'], 'director');
+            await addCrewCredits(['Producer'], 'producer');
+            await addCrewCredits(['Director of Photography', 'Cinematography'], 'cinematographer');
+            await addCrewCredits(['Original Music Composer', 'Music', 'Composer'], 'music_composer');
         }
 
         if (creditsData.cast) {
@@ -275,17 +351,30 @@ export const MementoPreferencesDialog = GObject.registerClass({
                     name: actor.name,
                     profile_path: actor.profile_path || null
                 });
+                const characterName = actor.character || null;
+                const creditKey = `${personId}:actor:${characterName || ''}`;
+                if (seenCreditKeys.has(creditKey)) {
+                    continue;
+                }
+                seenCreditKeys.add(creditKey);
 
                 credits.push({
                     person_id: personId,
                     role_type: 'actor',
-                    character_name: actor.character || null,
+                    character_name: characterName,
+                    episode_count: mediaType === 'tv' && Number.isFinite(Number(actor.total_episode_count))
+                        ? Number(actor.total_episode_count)
+                        : null,
                     display_order: order++
                 });
             }
         }
 
-        await upsertMovieCredits(movieId, credits);
+        if (mediaType === 'tv') {
+            await upsertTvCredits(titleId, credits);
+            return;
+        }
+        await upsertMovieCredits(titleId, credits);
     }
 
     _yieldToUi() {

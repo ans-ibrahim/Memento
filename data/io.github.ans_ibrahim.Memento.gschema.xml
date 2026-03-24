@@ -21,5 +21,15 @@
 			<summary>Enable IMDb rating</summary>
 			<description>Show and fetch IMDb ratings in the movie details ratings section</description>
 		</key>
+		<key name="dashboard-people-metric" type="s">
+			<default>"total"</default>
+			<summary>Dashboard people metric</summary>
+			<description>Default people metric for dashboard and top people page (total or unique)</description>
+		</key>
+		<key name="dashboard-people-tv-episode-level" type="b">
+			<default>false</default>
+			<summary>TV people counting mode</summary>
+			<description>If enabled, TV people stats count episodes; otherwise TV shows</description>
+		</key>
 	</schema>
 </schemalist>

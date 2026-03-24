@@ -81,7 +81,9 @@ export function createPlayCard(play, options = {}) {
     posterStack.add_named(posterImage, 'poster');
     posterStack.set_visible_child_name('fallback');
 
-    const posterPath = play.poster ?? null;
+    const posterPath = play.media_type === 'tv'
+        ? (play.season_poster ?? play.poster ?? null)
+        : (play.poster ?? null);
     const posterUrl = buildPosterUrl(posterPath);
     loadTextureFromUrl(posterUrl, posterPath, width, height).then(texture => {
         if (texture) {
@@ -93,7 +95,8 @@ export function createPlayCard(play, options = {}) {
     posterButton.set_child(posterStack);
     if (typeof onActivate === 'function') {
         posterButton.connect('clicked', () => {
-            onActivate(play.tmdb_id);
+            const mediaType = play.media_type === 'tv' ? 'tv' : 'movie';
+            onActivate(play.tmdb_id, mediaType);
         });
     }
 
@@ -126,6 +129,41 @@ export function createPlayCard(play, options = {}) {
         xalign: 0,
     });
     infoBox.append(dateLabel);
+
+    let detailText = '';
+    if (play.episode_id) {
+        const seasonNumber = String(play.season_number || 0).padStart(2, '0');
+        if (play.is_grouped_play) {
+            const startEpisode = String(play.grouped_episode_start || 0).padStart(2, '0');
+            const endEpisode = String(play.grouped_episode_end || 0).padStart(2, '0');
+            const episodeCount = Number(play.grouped_episode_count) || 0;
+            detailText = `S${seasonNumber}E${startEpisode}-E${endEpisode} • ${episodeCount} episodes`;
+        } else {
+            const episodeNumber = String(play.episode_number || 0).padStart(2, '0');
+            const episodeName = play.episode_name || _('Untitled Episode');
+            detailText = `S${seasonNumber}E${episodeNumber} • ${episodeName}`;
+        }
+    } else if (play.release_date) {
+        detailText = String(play.release_date).substring(0, 4);
+    }
+
+    if (detailText) {
+        const detailLabel = new Gtk.Label({
+            label: detailText,
+            css_classes: ['dim-label', 'caption'],
+            xalign: 0,
+            ellipsize: 3,
+            lines: 1,
+        });
+        infoBox.append(detailLabel);
+    }
+
+    const typeLabel = new Gtk.Label({
+        label: play.media_type === 'tv' ? _('TV Show') : _('Movie'),
+        css_classes: ['dim-label', 'caption'],
+        xalign: 0,
+    });
+    infoBox.append(typeLabel);
 
     if (!options.compact && typeof onDelete === 'function') {
         const actionsBox = new Gtk.Box({

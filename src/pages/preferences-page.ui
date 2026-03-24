@@ -18,7 +18,7 @@
             <child>
               <object class="AdwPreferencesGroup">
                 <property name="title" translatable="yes">The Movie Database (TMDB)</property>
-                <property name="description" translatable="yes">Configure your TMDB API key for movie search and information</property>
+                <property name="description" translatable="yes">Configure your TMDB API key for movie and TV search</property>
                 <child>
                   <object class="AdwEntryRow" id="api_key_row">
                     <property name="title" translatable="yes">API Key</property>
@@ -49,7 +49,7 @@
                 <child>
                   <object class="AdwActionRow">
                     <property name="title" translatable="yes">Auto-remove from Watchlist</property>
-                    <property name="subtitle" translatable="yes">Automatically remove movies from watchlist when you add a play</property>
+                    <property name="subtitle" translatable="yes">Automatically remove titles from watchlist when you add a play</property>
                     <child type="suffix">
                       <object class="GtkSwitch" id="auto_remove_switch">
                         <property name="valign">center</property>
@@ -79,6 +79,36 @@
                     </child>
                   </object>
                 </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title" translatable="yes">People metric default</property>
+                    <property name="subtitle" translatable="yes">Choose the default metric used on dashboard and Top People page</property>
+                    <child type="suffix">
+                      <object class="GtkDropDown" id="people_metric_dropdown">
+                        <property name="valign">center</property>
+                        <property name="model">
+                          <object class="GtkStringList">
+                            <items>
+                              <item translatable="yes">Total plays</item>
+                              <item translatable="yes">Unique titles</item>
+                            </items>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow">
+                    <property name="title" translatable="yes">TV people counting level</property>
+                    <property name="subtitle" translatable="yes">Count TV contribution by episodes instead of TV shows</property>
+                    <child type="suffix">
+                      <object class="GtkSwitch" id="people_tv_episode_level_switch">
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
 
@@ -88,8 +118,8 @@
                 <property name="title" translatable="yes">Data</property>
                 <child>
                   <object class="AdwActionRow" id="refresh_movies_row">
-                    <property name="title" translatable="yes">Refresh all movies</property>
-                    <property name="subtitle" translatable="yes">Re-download details and credits for every saved movie</property>
+                    <property name="title" translatable="yes">Refresh all titles</property>
+                    <property name="subtitle" translatable="yes">Re-download details and credits for every saved movie or TV show</property>
                     <child type="suffix">
                       <object class="GtkButton" id="refresh_all_button">
                         <property name="label" translatable="yes">Refresh</property>
@@ -101,7 +131,7 @@
                 <child>
                   <object class="AdwActionRow" id="refresh_imdb_ratings_row">
                     <property name="title" translatable="yes">Refresh all IMDb ratings</property>
-                    <property name="subtitle" translatable="yes">Update cached IMDb ratings for all saved movies</property>
+                    <property name="subtitle" translatable="yes">Update cached IMDb ratings for all saved titles</property>
                     <child type="suffix">
                       <object class="GtkButton" id="refresh_imdb_ratings_button">
                         <property name="label" translatable="yes">Refresh</property>

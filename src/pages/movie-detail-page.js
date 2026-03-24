@@ -25,14 +25,18 @@ import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
 
-import { getMovieDetails, getMovieCredits, buildPosterUrl, buildImdbUrl, buildTmdbUrl, buildLetterboxdUrl } from '../services/tmdb-service.js';
+import { getTitleDetails, getTitleCredits, buildPosterUrl, buildImdbUrl, buildTmdbTitleUrl, buildLetterboxdUrl, getTvSeasonDetails } from '../services/tmdb-service.js';
 import { scrapeImdbRating } from '../services/imdb-service.js';
 import {
-    findMovieByTmdbId, 
-    upsertMovieFromTmdb, 
+    findTitleByTmdbId,
+    upsertMovieFromTmdb,
+    upsertTvShowFromTmdb,
     upsertPerson,
     upsertMovieCredits,
+    upsertTvSeasons,
+    upsertSeasonEpisodes,
     getMovieById,
+    getTvShowById,
     getMovieCredits as getDbCredits,
     addMovieToWatchlist,
     removeFromWatchlist,
@@ -40,9 +44,14 @@ import {
     addPlay,
     updatePlay,
     getPlaysForMovie,
+    getEpisodesForTitle,
+    getSeasonsForTitle,
+    getTitleEpisodeProgress,
     deletePlay,
     getAllPlaces,
-    updateMovieImdbRating
+    updateMovieImdbRating,
+    addSeasonPlays,
+    addTvEpisodePlay
 } from '../utils/database-utils.js';
 import { loadTextureFromUrlWithFallback } from '../utils/image-utils.js';
 import { enforceFixedPictureSize, enforceFixedWidgetSize, formatDate } from '../utils/ui-utils.js';
@@ -103,10 +112,12 @@ export const MementoMovieDetailPage = GObject.registerClass({
     },
 }, class MementoMovieDetailPage extends Adw.NavigationPage {
     _tmdbId = null;
+    _mediaType = 'movie';
     _movieId = null;
     _movieData = null;
     _imdbRating = null;
     _settings = null;
+    _refreshInProgress = false;
 
     _init(params = {}) {
         super._init(params);
@@ -208,74 +219,66 @@ export const MementoMovieDetailPage = GObject.registerClass({
     }
 
     async loadMovie(tmdbId) {
+        return this.loadTitle(tmdbId, 'movie');
+    }
+
+    async loadTitle(tmdbId, mediaType = 'movie') {
         this._tmdbId = tmdbId;
-        
+        this._mediaType = mediaType === 'tv' ? 'tv' : 'movie';
+
         try {
-            // Check database first
-            const existingMovie = await findMovieByTmdbId(tmdbId);
-            
-            if (existingMovie) {
-                // Movie already in database - load from DB (fast!)
-                this._movieId = existingMovie.id;
-                this._movieData = existingMovie;
+            const existingTitle = await findTitleByTmdbId(tmdbId, this._mediaType);
+
+            if (existingTitle) {
+                this._movieId = existingTitle.id;
+                this._movieData = existingTitle;
             } else {
-                // Movie not in database - fetch from TMDB
-                const details = await getMovieDetails(tmdbId);
-                const credits = await getMovieCredits(tmdbId);
-                
-                // Save to database
-                this._movieId = await upsertMovieFromTmdb(details);
-                
-                // Process and save credits
+                const details = await getTitleDetails(tmdbId, this._mediaType);
+                const credits = await getTitleCredits(tmdbId, this._mediaType);
+                this._movieId = await this._upsertTitleByType(details);
                 await this._saveCredits(credits);
-                
-                // Load from database to get complete info
-                this._movieData = await getMovieById(this._movieId);
+                await this._saveTvSeasons(details);
+                this._movieData = await this._getTitleByTypeId(this._movieId);
             }
-            
+
             if (!this._movieData) {
-                console.error('Failed to load movie data from database');
+                console.error('Failed to load title data from database');
                 return;
             }
 
             this._loadCachedRatings();
-            
-            // Check if movie is in watchlist
             this._isInWatchlist = await isInWatchlist(this._movieId);
-            
-            // Display the data
+
             this._displayMovieInfo();
             this._displayCredits();
             this._loadExternalRatingsInBackground();
             await this._updateWatchlistButton();
             await this._loadPlays();
-            
-            // Setup actions after data is loaded
             this._setupActions();
-            
         } catch (error) {
-            console.error('Failed to load movie:', error);
-            // Show error to user
-            this._title_label.set_label(_('Error loading movie'));
-            this._overview_label.set_label(error.message || _('An error occurred while loading movie details.'));
+            console.error('Failed to load title:', error);
+            this._title_label.set_label(_('Error loading title'));
+            this._overview_label.set_label(error.message || _('An error occurred while loading title details.'));
         }
     }
 
     async _refreshMovieData() {
-        if (!this._tmdbId) {
+        if (!this._tmdbId || this._refreshInProgress) {
             return;
         }
 
+        this._setRefreshUiState(true);
         try {
-            const details = await getMovieDetails(this._tmdbId);
-            const credits = await getMovieCredits(this._tmdbId);
+            const details = await getTitleDetails(this._tmdbId, this._mediaType);
+            const credits = await getTitleCredits(this._tmdbId, this._mediaType);
 
-            this._movieId = await upsertMovieFromTmdb(details);
+            this._movieId = await this._upsertTitleByType(details);
             await this._saveCredits(credits);
+            await this._saveTvSeasons(details);
 
-            this._movieData = await getMovieById(this._movieId);
+            this._movieData = await this._getTitleByTypeId(this._movieId);
             if (!this._movieData) {
-                throw new Error(_('Failed to load movie data from database.'));
+                throw new Error(_('Failed to load title data from database.'));
             }
 
             this._loadCachedRatings();
@@ -285,9 +288,73 @@ export const MementoMovieDetailPage = GObject.registerClass({
             await this._updateWatchlistButton();
             await this._loadPlays();
         } catch (error) {
-            console.error('Failed to refresh movie:', error);
-            this._title_label.set_label(_('Error refreshing movie'));
-            this._overview_label.set_label(error.message || _('An error occurred while refreshing movie details.'));
+            console.error('Failed to refresh title:', error);
+            this._title_label.set_label(_('Error refreshing title'));
+            this._overview_label.set_label(error.message || _('An error occurred while refreshing title details.'));
+        } finally {
+            this._setRefreshUiState(false);
+        }
+    }
+
+    _setRefreshUiState(isRefreshing) {
+        this._refreshInProgress = isRefreshing;
+        this._refresh_button.set_sensitive(!isRefreshing);
+        this._refresh_button.set_tooltip_text(isRefreshing ? _('Refreshing...') : _('Refresh'));
+
+        if (isRefreshing) {
+            if (!this._refreshSpinner) {
+                this._refreshSpinner = new Gtk.Spinner({
+                    width_request: 16,
+                    height_request: 16,
+                    halign: Gtk.Align.CENTER,
+                    valign: Gtk.Align.CENTER,
+                });
+            }
+            this._refresh_button.set_child(this._refreshSpinner);
+            this._refreshSpinner.start();
+            return;
+        }
+
+        if (this._refreshSpinner) {
+            this._refreshSpinner.stop();
+        }
+        this._refresh_button.set_child(null);
+        this._refresh_button.set_icon_name('view-refresh-symbolic');
+    }
+
+    async _upsertTitleByType(details) {
+        if (this._mediaType === 'tv') {
+            return upsertTvShowFromTmdb(details);
+        }
+        return upsertMovieFromTmdb(details);
+    }
+
+    async _getTitleByTypeId(titleId) {
+        if (this._mediaType === 'tv') {
+            return getTvShowById(titleId);
+        }
+        return getMovieById(titleId);
+    }
+
+    async _saveTvSeasons(details) {
+        if (this._mediaType !== 'tv' || !this._movieId) {
+            return;
+        }
+        const seasons = Array.isArray(details?.seasons) ? details.seasons : [];
+        await upsertTvSeasons(this._movieId, seasons);
+
+        const seasonCandidates = seasons
+            .map(season => Number(season?.season_number))
+            .filter(seasonNumber => Number.isFinite(seasonNumber) && seasonNumber >= 0);
+
+        for (const seasonNumber of seasonCandidates) {
+            try {
+                const seasonDetails = await getTvSeasonDetails(this._tmdbId, seasonNumber);
+                const episodes = Array.isArray(seasonDetails?.episodes) ? seasonDetails.episodes : [];
+                await upsertSeasonEpisodes(this._movieId, seasonNumber, episodes);
+            } catch {
+                // Keep TV support resilient even when individual season requests fail.
+            }
         }
     }
 
@@ -364,16 +431,22 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
     async _saveCredits(creditsData) {
         const credits = [];
+        const seenCreditKeys = new Set();
         let order = 0;
 
         if (creditsData.crew) {
-            const addCrewCredits = async (crewJobs, roleType, maxItems = 5) => {
+            const addCrewCredits = async (crewJobs, roleType) => {
                 const members = creditsData.crew.filter(member => crewJobs.includes(member.job));
-                for (const member of members.slice(0, maxItems)) {
+                for (const member of members) {
                     const personId = await upsertPerson(member.id, {
                         name: member.name,
                         profile_path: member.profile_path || null
                     });
+                    const creditKey = `${personId}:${roleType}:crew`;
+                    if (seenCreditKeys.has(creditKey)) {
+                        continue;
+                    }
+                    seenCreditKeys.add(creditKey);
 
                     credits.push({
                         person_id: personId,
@@ -384,10 +457,10 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 }
             };
 
-            await addCrewCredits(['Director'], 'director', 5);
-            await addCrewCredits(['Producer'], 'producer', 5);
-            await addCrewCredits(['Director of Photography', 'Cinematography'], 'cinematographer', 5);
-            await addCrewCredits(['Original Music Composer', 'Music', 'Composer'], 'music_composer', 5);
+            await addCrewCredits(['Director'], 'director');
+            await addCrewCredits(['Producer'], 'producer');
+            await addCrewCredits(['Director of Photography', 'Cinematography'], 'cinematographer');
+            await addCrewCredits(['Original Music Composer', 'Music', 'Composer'], 'music_composer');
         }
 
         // Process cast
@@ -398,11 +471,17 @@ export const MementoMovieDetailPage = GObject.registerClass({
                     name: actor.name,
                     profile_path: actor.profile_path || null
                 });
+                const characterName = actor.character || null;
+                const creditKey = `${personId}:actor:${characterName || ''}`;
+                if (seenCreditKeys.has(creditKey)) {
+                    continue;
+                }
+                seenCreditKeys.add(creditKey);
 
                 credits.push({
                     person_id: personId,
                     role_type: 'actor',
-                    character_name: actor.character || null,
+                    character_name: characterName,
                     display_order: order++
                 });
             }
@@ -432,10 +511,13 @@ export const MementoMovieDetailPage = GObject.registerClass({
         }
 
         // Year
-        if (this._movieData.release_date) {
-            const year = this._movieData.release_date.substring(0, 4);
+        const releaseDate = this._movieData.release_date || this._movieData.first_air_date;
+        if (releaseDate) {
+            const year = releaseDate.substring(0, 4);
             this._year_row.set_subtitle(year);
             this._year_row.set_visible(true);
+        } else {
+            this._year_row.set_visible(false);
         }
 
         // Runtime
@@ -445,6 +527,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
             const runtimeText = hours > 0 
                 ? `${hours}h ${minutes}m` 
                 : `${minutes}m`;
+            this._runtime_row.set_title(this._mediaType === 'tv' ? _('Episode Runtime') : _('Runtime'));
             this._runtime_row.set_subtitle(runtimeText);
             this._runtime_row.set_visible(true);
         } else {
@@ -467,9 +550,19 @@ export const MementoMovieDetailPage = GObject.registerClass({
             this._genre_row.set_visible(false);
         }
 
-        // Budget
-        if (this._movieData.budget && this._movieData.budget > 0) {
+        if (this._mediaType === 'tv') {
+            const seasonCount = Number(this._movieData.number_of_seasons) || 0;
+            const episodeCount = Number(this._movieData.number_of_episodes) || 0;
+            this._budget_row.set_title(_('Seasons'));
+            if (seasonCount > 0 || episodeCount > 0) {
+                this._budget_row.set_subtitle(_('%d seasons • %d episodes').format(seasonCount, episodeCount));
+                this._budget_row.set_visible(true);
+            } else {
+                this._budget_row.set_visible(false);
+            }
+        } else if (this._movieData.budget && this._movieData.budget > 0) {
             const budgetText = this._formatCurrency(this._movieData.budget);
+            this._budget_row.set_title(_('Budget'));
             this._budget_row.set_subtitle(budgetText);
             this._budget_row.set_visible(true);
         } else {
@@ -479,9 +572,18 @@ export const MementoMovieDetailPage = GObject.registerClass({
         // Ratings section
         this._updateRatingsRow();
 
-        // Revenue
-        if (this._movieData.revenue && this._movieData.revenue > 0) {
+        if (this._mediaType === 'tv') {
+            const statusText = String(this._movieData.status || '').trim();
+            this._revenue_row.set_title(_('Status'));
+            if (statusText) {
+                this._revenue_row.set_subtitle(statusText);
+                this._revenue_row.set_visible(true);
+            } else {
+                this._revenue_row.set_visible(false);
+            }
+        } else if (this._movieData.revenue && this._movieData.revenue > 0) {
             const revenueText = this._formatCurrency(this._movieData.revenue);
+            this._revenue_row.set_title(_('Revenue'));
             this._revenue_row.set_subtitle(revenueText);
             this._revenue_row.set_visible(true);
         } else {
@@ -636,7 +738,7 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
 
         this._tmdb_button.connect('clicked', () => {
-            const url = buildTmdbUrl(this._movieData.tmdb_id);
+            const url = buildTmdbTitleUrl(this._movieData.tmdb_id, this._mediaType);
             if (url) {
                 this._openUrl(url);
             }
@@ -725,6 +827,57 @@ export const MementoMovieDetailPage = GObject.registerClass({
             return `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
         };
 
+        let episodeRows = [];
+        let seasonRows = [];
+        let targetDropdown = null;
+        const tvPlayTargets = [];
+        if (this._mediaType === 'tv') {
+            const episodeLabel = new Gtk.Label({
+                label: _('What to log:'),
+                xalign: 0,
+                margin_top: 12,
+            });
+            contentArea.append(episodeLabel);
+
+            targetDropdown = new Gtk.DropDown({
+                model: null,
+            });
+
+            episodeRows = await getEpisodesForTitle(this._movieId);
+            seasonRows = await getSeasonsForTitle(this._movieId);
+            const targetNames = [_('Select target')];
+            tvPlayTargets.push({type: 'none'});
+
+            for (const season of seasonRows) {
+                const seasonNumber = Number(season.season_number) || 0;
+                const seasonName = season.name || _('Season %d').format(seasonNumber);
+                const totalEpisodes = Number(season.total_episodes) || Number(season.episode_count) || 0;
+                targetNames.push(_('%s (all %d episodes)').format(seasonName, totalEpisodes));
+                tvPlayTargets.push({
+                    type: 'season',
+                    season_number: seasonNumber,
+                });
+            }
+
+            for (const episode of episodeRows) {
+                const seasonNumber = String(episode.season_number || 0).padStart(2, '0');
+                const episodeNumber = String(episode.episode_number || 0).padStart(2, '0');
+                const episodeName = episode.name || _('Untitled Episode');
+                targetNames.push(`S${seasonNumber}E${episodeNumber} • ${episodeName}`);
+                tvPlayTargets.push({
+                    type: 'episode',
+                    episode_id: episode.id,
+                });
+            }
+
+            const targetList = new Gtk.StringList();
+            for (const name of targetNames) {
+                targetList.append(name);
+            }
+            targetDropdown.set_model(targetList);
+            contentArea.append(targetDropdown);
+        }
+
         // Place selector
         const placeLabel = new Gtk.Label({
             label: _('Place (optional):'),
@@ -776,31 +929,53 @@ export const MementoMovieDetailPage = GObject.registerClass({
                 
                 const trimmedComment = commentEntry.get_text().trim();
                 const comment = trimmedComment ? trimmedComment : null;
-                
-                await addPlay(this._movieId, isoDate, placeId, comment);
-                await this._loadPlays();
-                this.emit('plays-changed');
-                
-                // Check if auto-remove from watchlist is enabled
+
                 try {
+                    if (this._mediaType === 'tv') {
+                        const selectedIndex = Number(targetDropdown?.get_selected() ?? 0);
+                        const selectedTarget = tvPlayTargets[selectedIndex] || {type: 'none'};
+
+                        if (selectedTarget.type === 'episode') {
+                            await addTvEpisodePlay(this._movieId, selectedTarget.episode_id, isoDate, placeId, comment);
+                        } else if (selectedTarget.type === 'season') {
+                            await addSeasonPlays(
+                                this._movieId,
+                                selectedTarget.season_number,
+                                isoDate,
+                                placeId,
+                                comment
+                            );
+                        } else {
+                            throw new Error(_('Please select an episode or season.'));
+                        }
+                    } else {
+                        await addPlay(this._movieId, isoDate, placeId, comment);
+                    }
+
+                    await this._loadPlays();
+                    this.emit('plays-changed');
+                
                     const settings = new Gio.Settings({ schema_id: SETTINGS_SCHEMA_ID });
                     const autoRemove = settings.get_boolean('auto-remove-from-watchlist');
-                    
-                    console.log('Auto-remove setting:', autoRemove);
-                    console.log('Is in watchlist:', this._isInWatchlist);
-                    console.log('Movie ID:', this._movieId);
-                    
+
                     if (autoRemove && this._isInWatchlist) {
-                        console.log('Removing movie from watchlist...');
                         await removeFromWatchlist(this._movieId);
                         this._isInWatchlist = false;
                         this._updateWatchlistButton();
                         this.emit('watchlist-changed');
-                        console.log('Movie removed from watchlist');
                     }
                 } catch (error) {
-                    console.error('Failed to check auto-remove setting:', error);
+                    const errorDialog = new Adw.AlertDialog({
+                        heading: _('Could not save play'),
+                        body: error.message || _('An unexpected error occurred while saving the play.'),
+                    });
+                    errorDialog.add_response('ok', _('OK'));
+                    errorDialog.present(this.get_root());
+                    return;
                 }
+
+                dlg.close();
+                return;
             }
             dlg.close();
         });
@@ -822,9 +997,20 @@ export const MementoMovieDetailPage = GObject.registerClass({
         if (plays.length === 0) {
             this._plays_count_label.set_label(_('No plays recorded'));
         } else {
-            const countText = plays.length === 1 
+            let countText = plays.length === 1
                 ? _('1 play recorded')
                 : _('%d plays recorded').format(plays.length);
+
+            if (this._mediaType === 'tv') {
+                const progress = await getTitleEpisodeProgress(this._movieId);
+                countText = _('%d play logs • %d/%d episodes watched • %d/%d seasons completed').format(
+                    plays.length,
+                    progress.watched_episodes,
+                    progress.total_episodes,
+                    progress.completed_seasons,
+                    progress.total_seasons
+                );
+            }
             this._plays_count_label.set_label(countText);
 
             // Add play entries
@@ -869,6 +1055,23 @@ export const MementoMovieDetailPage = GObject.registerClass({
             width_request: textColumnWidth,
         });
         leftBox.append(dateLabel);
+
+        if (play.episode_id) {
+            const seasonNumber = String(play.season_number || 0).padStart(2, '0');
+            const episodeNumber = String(play.episode_number || 0).padStart(2, '0');
+            const episodeName = play.episode_name || _('Untitled Episode');
+            const episodeText = `S${seasonNumber}E${episodeNumber} • ${episodeName}`;
+            const episodeLabel = new Gtk.Label({
+                label: episodeText,
+                xalign: 0,
+                css_classes: ['dim-label', 'caption'],
+                wrap: true,
+                wrap_mode: Pango.WrapMode.WORD_CHAR,
+                max_width_chars: 28,
+                width_request: textColumnWidth,
+            });
+            leftBox.append(episodeLabel);
+        }
 
         // Show place if available
         if (play.place_id && play.place_name) {
@@ -986,11 +1189,18 @@ export const MementoMovieDetailPage = GObject.registerClass({
         
         // Set calendar to the play's date - GTK4 API uses GDateTime directly
         try {
-            const playDate = new Date(play.watched_at);
+            const watchedDateText = String(play.watched_at || '').trim();
+            const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            const playYear = dateMatch ? Number(dateMatch[1]) : NaN;
+            const playMonth = dateMatch ? Number(dateMatch[2]) : NaN;
+            const playDay = dateMatch ? Number(dateMatch[3]) : NaN;
+            if (!Number.isFinite(playYear) || !Number.isFinite(playMonth) || !Number.isFinite(playDay)) {
+                throw new Error('Invalid watched_at date');
+            }
             const gDateTime = GLib.DateTime.new_local(
-                playDate.getFullYear(),
-                playDate.getMonth() + 1,
-                playDate.getDate(),
+                playYear,
+                playMonth,
+                playDay,
                 0, 0, 0
             );
             calendar.select_day(gDateTime);

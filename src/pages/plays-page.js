@@ -21,7 +21,7 @@
 import GObject from 'gi://GObject';
 import Adw from 'gi://Adw';
 
-import { getAllPlays, deletePlay } from '../utils/database-utils.js';
+import { getAllPlays, deletePlay, deleteTvEpisodePlay } from '../utils/database-utils.js';
 import { clearGrid } from '../utils/ui-utils.js';
 import { createPlayCard } from '../widgets/play-card.js';
 
@@ -31,7 +31,7 @@ export const MementoPlaysPage = GObject.registerClass({
     InternalChildren: ['plays_stack', 'plays_grid'],
     Signals: {
         'play-deleted': {},
-        'view-movie': {param_types: [GObject.TYPE_INT]},
+        'view-movie': {param_types: [GObject.TYPE_INT, GObject.TYPE_STRING]},
     },
 }, class MementoPlaysPage extends Adw.NavigationPage {
     
@@ -55,9 +55,13 @@ export const MementoPlaysPage = GObject.registerClass({
             // Add play cards
             for (const play of plays) {
                 const card = createPlayCard(play, {
-                    onActivate: tmdbId => this.emit('view-movie', tmdbId),
+                    onActivate: (tmdbId, mediaType) => this.emit('view-movie', tmdbId, mediaType),
                     onDelete: async playToDelete => {
-                        await deletePlay(playToDelete.id);
+                        if (playToDelete.source_type === 'tv') {
+                            await deleteTvEpisodePlay(playToDelete.source_play_id ?? playToDelete.id);
+                        } else {
+                            await deletePlay(playToDelete.source_play_id ?? playToDelete.id);
+                        }
                         this.emit('play-deleted');
                         await this._loadPlays();
                     },

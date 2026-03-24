@@ -47,7 +47,7 @@
               <object class="AdwStatusPage" id="watchlist_empty_page">
                 <property name="icon-name">video-display-symbolic</property>
                 <property name="title" translatable="yes">Your Watchlist is Empty</property>
-                <property name="description" translatable="yes">Click the + button to add movies</property>
+                <property name="description" translatable="yes">Click the + button to add movies or TV shows</property>
               </object>
             </property>
           </object>

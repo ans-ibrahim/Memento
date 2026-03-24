@@ -42,8 +42,8 @@
                 <items>
                   <item translatable="yes">Total Appearances (High-Low)</item>
                   <item translatable="yes">Total Appearances (Low-High)</item>
-                  <item translatable="yes">Unique Movies (High-Low)</item>
-                  <item translatable="yes">Unique Movies (Low-High)</item>
+                  <item translatable="yes">Unique Titles (High-Low)</item>
+                  <item translatable="yes">Unique Titles (Low-High)</item>
                   <item translatable="yes">Name (A-Z)</item>
                 </items>
               </object>

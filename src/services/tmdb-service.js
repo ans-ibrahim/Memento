@@ -6,6 +6,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const DEFAULT_LANGUAGE = 'en-US';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 const PROFILE_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
+const STILL_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w780';
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
     : 'io.github.ans_ibrahim.Memento';
@@ -92,6 +93,73 @@ async function fetchJson(url) {
     return JSON.parse(decoded);
 }
 
+function normalizeTvStandardCredits(payload) {
+    const cast = Array.isArray(payload?.cast) ? payload.cast.map(member => ({
+        id: member?.id,
+        name: member?.name,
+        profile_path: member?.profile_path || null,
+        character: member?.character || null,
+        order: Number(member?.order) || 0,
+        total_episode_count: Number(member?.total_episode_count) || Number(member?.episode_count) || null,
+    })) : [];
+    const crew = Array.isArray(payload?.crew) ? payload.crew.map(member => ({
+        id: member?.id,
+        name: member?.name,
+        profile_path: member?.profile_path || null,
+        job: member?.job || null,
+        department: member?.department || null,
+        total_episode_count: Number(member?.total_episode_count) || Number(member?.episode_count) || null,
+    })) : [];
+    return {cast, crew};
+}
+
+function normalizeTvAggregateCredits(payload) {
+    const castSource = Array.isArray(payload?.cast) ? payload.cast : [];
+    const cast = castSource.map(member => {
+        const roles = Array.isArray(member?.roles) ? member.roles : [];
+        const totalEpisodes = roles.reduce((sum, role) => sum + (Number(role?.episode_count) || 0), 0);
+        const firstRoleWithCharacter = roles.find(role => String(role?.character || '').trim().length > 0) || roles[0] || null;
+        return {
+            id: member?.id,
+            name: member?.name,
+            profile_path: member?.profile_path || null,
+            character: firstRoleWithCharacter?.character || member?.character || null,
+            order: Number(member?.order) || 0,
+            total_episode_count: totalEpisodes > 0 ? totalEpisodes : null,
+        };
+    });
+
+    const crewSource = Array.isArray(payload?.crew) ? payload.crew : [];
+    const crew = [];
+    for (const member of crewSource) {
+        const jobs = Array.isArray(member?.jobs) ? member.jobs : [];
+        if (jobs.length === 0) {
+            crew.push({
+                id: member?.id,
+                name: member?.name,
+                profile_path: member?.profile_path || null,
+                job: member?.job || member?.department || null,
+                department: member?.department || null,
+                total_episode_count: Number(member?.total_episode_count) || Number(member?.episode_count) || null,
+            });
+            continue;
+        }
+        for (const job of jobs) {
+            crew.push({
+                id: member?.id,
+                name: member?.name,
+                profile_path: member?.profile_path || null,
+                job: job?.job || member?.department || null,
+                department: member?.department || null,
+                total_episode_count: Number(job?.episode_count) || Number(member?.total_episode_count) || Number(member?.episode_count) || null,
+            });
+        }
+    }
+
+    cast.sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0));
+    return {cast, crew};
+}
+
 export async function searchMovies(query) {
     const apiKey = getApiKey();
     const tmdbLanguage = getTmdbLanguage();
@@ -101,6 +169,16 @@ export async function searchMovies(query) {
     return payload.results ?? [];
 }
 
+export async function searchTitles(query) {
+    const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
+    const encodedQuery = encodeURIComponent(query.trim());
+    const url = `${TMDB_BASE_URL}/search/multi?query=${encodedQuery}&include_adult=false&language=${tmdbLanguage}&page=1&api_key=${apiKey}`;
+    const payload = await fetchJson(url);
+    const results = Array.isArray(payload.results) ? payload.results : [];
+    return results.filter(item => item?.media_type === 'movie' || item?.media_type === 'tv');
+}
+
 export async function getMovieDetails(tmdbId) {
     const apiKey = getApiKey();
     const tmdbLanguage = getTmdbLanguage();
@@ -108,10 +186,59 @@ export async function getMovieDetails(tmdbId) {
     return fetchJson(url);
 }
 
+export async function getTvDetails(tmdbId) {
+    const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/tv/${encodeURIComponent(tmdbId)}?language=${tmdbLanguage}&append_to_response=external_ids&api_key=${apiKey}`;
+    const payload = await fetchJson(url);
+    if (!payload.imdb_id && payload?.external_ids?.imdb_id) {
+        payload.imdb_id = payload.external_ids.imdb_id;
+    }
+    return payload;
+}
+
+export async function getTitleDetails(tmdbId, mediaType = 'movie') {
+    if (mediaType === 'tv')
+        return getTvDetails(tmdbId);
+    return getMovieDetails(tmdbId);
+}
+
 export async function getMovieCredits(tmdbId) {
     const apiKey = getApiKey();
     const tmdbLanguage = getTmdbLanguage();
     const url = `${TMDB_BASE_URL}/movie/${encodeURIComponent(tmdbId)}/credits?language=${tmdbLanguage}&api_key=${apiKey}`;
+    return fetchJson(url);
+}
+
+export async function getTvCredits(tmdbId) {
+    const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
+    const aggregateUrl = `${TMDB_BASE_URL}/tv/${encodeURIComponent(tmdbId)}/aggregate_credits?language=${tmdbLanguage}&api_key=${apiKey}`;
+    try {
+        const aggregatePayload = await fetchJson(aggregateUrl);
+        const normalizedAggregate = normalizeTvAggregateCredits(aggregatePayload);
+        if (normalizedAggregate.cast.length > 0 || normalizedAggregate.crew.length > 0) {
+            return normalizedAggregate;
+        }
+    } catch {
+        // Fall through to regular credits endpoint for compatibility.
+    }
+
+    const creditsUrl = `${TMDB_BASE_URL}/tv/${encodeURIComponent(tmdbId)}/credits?language=${tmdbLanguage}&api_key=${apiKey}`;
+    const creditsPayload = await fetchJson(creditsUrl);
+    return normalizeTvStandardCredits(creditsPayload);
+}
+
+export async function getTitleCredits(tmdbId, mediaType = 'movie') {
+    if (mediaType === 'tv')
+        return getTvCredits(tmdbId);
+    return getMovieCredits(tmdbId);
+}
+
+export async function getTvSeasonDetails(tvTmdbId, seasonNumber) {
+    const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/tv/${encodeURIComponent(tvTmdbId)}/season/${encodeURIComponent(seasonNumber)}?language=${tmdbLanguage}&api_key=${apiKey}`;
     return fetchJson(url);
 }
 
@@ -129,6 +256,13 @@ export async function getPersonMovieCredits(personId) {
     return fetchJson(url);
 }
 
+export async function getPersonTitleCredits(personId) {
+    const apiKey = getApiKey();
+    const tmdbLanguage = getTmdbLanguage();
+    const url = `${TMDB_BASE_URL}/person/${encodeURIComponent(personId)}/combined_credits?language=${tmdbLanguage}&api_key=${apiKey}`;
+    return fetchJson(url);
+}
+
 export function buildPosterUrl(posterPath) {
     if (!posterPath)
         return null;
@@ -141,6 +275,12 @@ export function buildProfileUrl(profilePath) {
     return `${PROFILE_IMAGE_BASE_URL}${profilePath}`;
 }
 
+export function buildStillUrl(stillPath) {
+    if (!stillPath)
+        return null;
+    return `${STILL_IMAGE_BASE_URL}${stillPath}`;
+}
+
 export function buildImdbUrl(imdbId) {
     if (!imdbId)
         return null;
@@ -150,6 +290,14 @@ export function buildImdbUrl(imdbId) {
 export function buildTmdbUrl(tmdbId) {
     if (!tmdbId)
         return null;
+    return `https://www.themoviedb.org/movie/${tmdbId}`;
+}
+
+export function buildTmdbTitleUrl(tmdbId, mediaType = 'movie') {
+    if (!tmdbId)
+        return null;
+    if (mediaType === 'tv')
+        return `https://www.themoviedb.org/tv/${tmdbId}`;
     return `https://www.themoviedb.org/movie/${tmdbId}`;
 }
 

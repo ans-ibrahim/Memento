@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="memento">
+  <requires lib="gtk" version="4.0" />
+  <requires lib="Adw" version="1.0" />
+  <template class="MementoTvDetailPage" parent="AdwNavigationPage">
+    <property name="title" translatable="yes">TV Show Details</property>
+    <property name="child">
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar">
+            <child type="end">
+              <object class="GtkButton" id="refresh_button">
+                <property name="icon-name">view-refresh-symbolic</property>
+                <property name="tooltip-text" translatable="yes">Refresh</property>
+                <style>
+                  <class name="flat" />
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        <property name="content">
+          <object class="GtkScrolledWindow">
+            <property name="hscrollbar-policy">never</property>
+            <property name="vexpand">true</property>
+            <child>
+              <object class="AdwClamp">
+                <property name="maximum-size">1200</property>
+                <property name="tightening-threshold">800</property>
+                <property name="child">
+                  <object class="GtkBox" id="main_box">
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">36</property>
+                    <property name="margin-start">36</property>
+                    <property name="margin-end">36</property>
+                    <property name="margin-top">28</property>
+                    <property name="margin-bottom">36</property>
+
+                    <child>
+                      <object class="GtkBox" id="left_sidebar">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">0</property>
+                        <property name="valign">start</property>
+                        <child>
+                          <object class="GtkFrame" id="poster_frame">
+                            <style>
+                              <class name="movie-detail-poster-frame" />
+                            </style>
+                            <child>
+                              <object class="GtkPicture" id="poster_image">
+                                <property name="content-fit">cover</property>
+                                <property name="width-request">250</property>
+                                <property name="height-request">375</property>
+                                <property name="can-shrink">true</property>
+                                <style>
+                                  <class name="movie-detail-poster" />
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Watchlist</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="halign">center</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <child>
+                                  <object class="GtkButton" id="watchlist_button">
+                                    <property name="label" translatable="yes">Add to Watchlist</property>
+                                    <style>
+                                      <class name="pill" />
+                                      <class name="suggested-action" />
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Viewing History</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">12</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <child>
+                                  <object class="GtkButton" id="add_play_button">
+                                    <property name="label" translatable="yes">Log Episode / Season</property>
+                                    <property name="halign">center</property>
+                                    <style>
+                                      <class name="pill" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="orientation">vertical</property>
+                                    <property name="spacing">6</property>
+                                    <child>
+                                      <object class="GtkLabel" id="plays_count_label">
+                                        <property name="label" translatable="yes">No plays recorded</property>
+                                        <property name="xalign">0</property>
+                                        <property name="margin-start">12</property>
+                                        <style>
+                                          <class name="dim-label" />
+                                          <class name="caption" />
+                                        </style>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkBox" id="plays_list">
+                                        <property name="orientation">vertical</property>
+                                        <property name="spacing">6</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox" id="right_content">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">24</property>
+                        <property name="hexpand">true</property>
+
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel" id="title_label">
+                                <property name="label" translatable="yes">TV Show</property>
+                                <property name="xalign">0</property>
+                                <property name="wrap">true</property>
+                                <style>
+                                  <class name="title-1" />
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="tagline_label">
+                                <property name="xalign">0</property>
+                                <property name="wrap">true</property>
+                                <property name="visible">false</property>
+                                <style>
+                                  <class name="dim-label" />
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwPreferencesGroup" id="metadata_group">
+                            <property name="title" translatable="yes">Details</property>
+                            <child>
+                              <object class="AdwActionRow" id="original_title_row">
+                                <property name="title" translatable="yes">Original Title</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="first_air_row">
+                                <property name="title" translatable="yes">First Air Date</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="last_air_row">
+                                <property name="title" translatable="yes">Last Air Date</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="language_row">
+                                <property name="title" translatable="yes">Original Language</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="genre_row">
+                                <property name="title" translatable="yes">Genres</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="status_row">
+                                <property name="title" translatable="yes">Status</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="season_count_row">
+                                <property name="title" translatable="yes">Seasons / Episodes</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="progress_row">
+                                <property name="title" translatable="yes">Progress</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow" id="rating_row">
+                                <property name="title" translatable="yes">Ratings</property>
+                                <property name="visible">false</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox" id="overview_box">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">8</property>
+                            <property name="visible">false</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Overview</property>
+                                <property name="xalign">0</property>
+                                <style>
+                                  <class name="title-4" />
+                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="overview_label">
+                                <property name="xalign">0</property>
+                                <property name="wrap">true</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">External Links</property>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">12</property>
+                                <property name="halign">start</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <property name="margin-start">12</property>
+                                <child>
+                                  <object class="GtkButton" id="imdb_button">
+                                    <property name="label" translatable="yes">IMDb</property>
+                                    <property name="tooltip-text" translatable="yes">Open on IMDb</property>
+                                    <style>
+                                      <class name="pill" />
+                                      <class name="external-link-button" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="tmdb_button">
+                                    <property name="label" translatable="yes">TMDB</property>
+                                    <property name="tooltip-text" translatable="yes">Open on TMDB</property>
+                                    <style>
+                                      <class name="pill" />
+                                      <class name="external-link-button" />
+                                    </style>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwPreferencesGroup" id="seasons_group">
+                            <property name="title" translatable="yes">Seasons</property>
+                            <child>
+                              <object class="GtkListBox" id="seasons_list">
+                                <property name="selection-mode">none</property>
+                                <style>
+                                  <class name="boxed-list" />
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox" id="series_crew_box">
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">16</property>
+                            <property name="visible">false</property>
+
+                            <child>
+                              <object class="GtkBox" id="directors_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel" id="directors_label">
+                                    <property name="label" translatable="yes">Directed By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBox" id="directors_grid">
+                                    <property name="selection-mode">none</property>
+                                    <property name="column-spacing">20</property>
+                                    <property name="row-spacing">28</property>
+                                    <property name="min-children-per-line">2</property>
+                                    <property name="max-children-per-line">6</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="producers_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel" id="producers_label">
+                                    <property name="label" translatable="yes">Produced By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBox" id="producers_grid">
+                                    <property name="selection-mode">none</property>
+                                    <property name="column-spacing">20</property>
+                                    <property name="row-spacing">28</property>
+                                    <property name="min-children-per-line">2</property>
+                                    <property name="max-children-per-line">6</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="cinematographers_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel" id="cinematographers_label">
+                                    <property name="label" translatable="yes">Cinematography By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBox" id="cinematographers_grid">
+                                    <property name="selection-mode">none</property>
+                                    <property name="column-spacing">20</property>
+                                    <property name="row-spacing">28</property>
+                                    <property name="min-children-per-line">2</property>
+                                    <property name="max-children-per-line">6</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkBox" id="composers_box">
+                                <property name="orientation">vertical</property>
+                                <property name="spacing">8</property>
+                                <property name="visible">false</property>
+                                <child>
+                                  <object class="GtkLabel" id="composers_label">
+                                    <property name="label" translatable="yes">Music By</property>
+                                    <property name="xalign">0</property>
+                                    <style>
+                                      <class name="title-4" />
+                                    </style>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBox" id="composers_grid">
+                                    <property name="selection-mode">none</property>
+                                    <property name="column-spacing">20</property>
+                                    <property name="row-spacing">28</property>
+                                    <property name="min-children-per-line">2</property>
+                                    <property name="max-children-per-line">6</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="AdwPreferencesGroup" id="credits_group">
+                            <property name="title" translatable="yes">Cast</property>
+                            <child>
+                              <object class="GtkFlowBox" id="credits_grid">
+                                <property name="selection-mode">none</property>
+                                <property name="column-spacing">20</property>
+                                <property name="row-spacing">28</property>
+                                <property name="min-children-per-line">2</property>
+                                <property name="max-children-per-line">6</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </property>
+  </template>
+</interface>

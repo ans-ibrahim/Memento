@@ -96,16 +96,17 @@ export function createMovieCard(movie, options = {}) {
         margin_start: marginStart,
         margin_end: marginEnd,
         margin_bottom: marginBottom,
+        vexpand: true,
     });
 
     const titleLabel = new Gtk.Label({
-        label: movie.title || _('Unknown'),
+        label: movie.title || movie.name || _('Unknown'),
         css_classes: ['heading'],
         xalign: 0,
+        yalign: 0,
+        valign: Gtk.Align.START,
         ellipsize: 3,
-        lines: 2,
         wrap: true,
-        width_chars: titleMaxChars,
         max_width_chars: titleMaxChars,
     });
     infoBox.append(titleLabel);
@@ -121,7 +122,10 @@ export function createMovieCard(movie, options = {}) {
         infoBox.append(jobLabel);
     }
 
-    const year = movie.release_date ? movie.release_date.substring(0, 4) : '';
+    const yearSource = String(movie.release_date || movie.first_air_date || '').trim();
+    const yearMatch = yearSource.match(/^(\d{4})/);
+    const year = yearMatch ? yearMatch[1] : '';
+    const mediaType = movie.media_type === 'tv' ? 'tv' : 'movie';
     if (showYear && year) {
         const yearLabel = new Gtk.Label({
             label: year,
@@ -131,12 +135,24 @@ export function createMovieCard(movie, options = {}) {
         infoBox.append(yearLabel);
     }
 
+    const typeLabel = new Gtk.Label({
+        label: mediaType === 'tv' ? _('TV Show') : _('Movie'),
+        css_classes: ['dim-label', 'caption'],
+        xalign: 0,
+    });
+    infoBox.append(typeLabel);
+
+    const bottomSpacer = new Gtk.Box({
+        vexpand: true,
+    });
+    infoBox.append(bottomSpacer);
+
     card.append(infoBox);
     button.set_child(card);
 
     if (typeof onActivate === 'function') {
         button.connect('clicked', () => {
-            onActivate(movie.tmdb_id ?? movie.id);
+            onActivate(movie.tmdb_id ?? movie.id, mediaType);
         });
     }
 

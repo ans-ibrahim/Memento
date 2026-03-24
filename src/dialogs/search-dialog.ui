@@ -3,7 +3,7 @@
   <requires lib="gtk" version="4.0" />
   <requires lib="Adw" version="1.0" />
   <template class="MementoSearchDialog" parent="AdwDialog">
-    <property name="title" translatable="yes">Add Movie</property>
+    <property name="title" translatable="yes">Add Title</property>
     <property name="content-width">480</property>
     <property name="content-height">600</property>
     <property name="child">
@@ -30,7 +30,7 @@
             <property name="margin-bottom">16</property>
             <child>
               <object class="GtkSearchEntry" id="search_entry">
-                <property name="placeholder-text" translatable="yes">Search movies...</property>
+                <property name="placeholder-text" translatable="yes">Search movies or TV shows...</property>
                 <property name="hexpand">true</property>
               </object>
             </child>
@@ -44,8 +44,8 @@
                     <property name="child">
                       <object class="AdwStatusPage" id="empty_status">
                         <property name="icon-name">system-search-symbolic</property>
-                        <property name="title" translatable="yes">Search for Movies</property>
-                        <property name="description" translatable="yes">Type a movie name to search</property>
+                        <property name="title" translatable="yes">Search for Titles</property>
+                        <property name="description" translatable="yes">Type a movie or TV show name to search</property>
                       </object>
                     </property>
                   </object>

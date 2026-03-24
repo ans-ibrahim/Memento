@@ -24,7 +24,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { searchMovies, getMovieDetails, buildPosterUrl } from '../services/tmdb-service.js';
+import { searchTitles, getTitleDetails, buildPosterUrl } from '../services/tmdb-service.js';
 import { loadTextureFromUrl } from '../utils/image-utils.js';
 
 export const MementoSearchDialog = GObject.registerClass({
@@ -32,7 +32,7 @@ export const MementoSearchDialog = GObject.registerClass({
     Template: 'resource:///app/memento/memento/dialogs/search-dialog.ui',
     InternalChildren: ['search_entry', 'content_stack', 'results_list'],
     Signals: {
-        'view-details': {param_types: [GObject.TYPE_INT]},
+        'view-details': {param_types: [GObject.TYPE_INT, GObject.TYPE_STRING]},
     },
 }, class MementoSearchDialog extends Adw.Dialog {
     _searchTimeoutId = null;
@@ -49,10 +49,11 @@ export const MementoSearchDialog = GObject.registerClass({
 
         this._results_list.connect('row-activated', (listBox, row) => {
             const tmdbId = row?.tmdbId;
+            const mediaType = row?.mediaType || 'movie';
             if (!Number.isInteger(tmdbId)) {
                 return;
             }
-            this._showMovieDetail(tmdbId);
+            this._showMovieDetail(tmdbId, mediaType);
         });
     }
 
@@ -80,7 +81,7 @@ export const MementoSearchDialog = GObject.registerClass({
         this._content_stack.set_visible_child_name('loading');
 
         try {
-            const results = await searchMovies(query);
+            const results = await searchTitles(query);
 
             if (results.length === 0) {
                 this._content_stack.set_visible_child_name('no-results');
@@ -105,8 +106,8 @@ export const MementoSearchDialog = GObject.registerClass({
         }
 
         // Add new results
-        for (const movie of results.slice(0, 10)) {
-            const row = this._createResultRow(movie);
+        for (const result of results.slice(0, 12)) {
+            const row = this._createResultRow(result);
             this._results_list.append(row);
         }
     }
@@ -118,6 +119,7 @@ export const MementoSearchDialog = GObject.registerClass({
             css_classes: ['search-result-row'],
         });
         row.tmdbId = Number(movie.id);
+        row.mediaType = movie.media_type === 'tv' ? 'tv' : 'movie';
 
         const rowContentBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
@@ -186,7 +188,7 @@ export const MementoSearchDialog = GObject.registerClass({
         rowContentBox.append(textContainer);
 
         const titleLabel = new Gtk.Label({
-            label: movie.title || _('Unknown Title'),
+            label: movie.title || movie.name || _('Unknown Title'),
             xalign: 0,
             wrap: true,
             wrap_mode: Pango.WrapMode.WORD_CHAR,
@@ -226,7 +228,7 @@ export const MementoSearchDialog = GObject.registerClass({
         textContainer.append(overviewLabel);
 
         if (!movie.tagline) {
-            this._loadTagline(movie.id, taglineLabel);
+            this._loadTagline(movie.id, row.mediaType, taglineLabel);
         }
 
         return row;
@@ -234,9 +236,13 @@ export const MementoSearchDialog = GObject.registerClass({
 
     _buildSubtitle(movie) {
         const parts = [];
-        
-        if (movie.release_date) {
-            parts.push(movie.release_date.substring(0, 4));
+
+        const mediaType = movie.media_type === 'tv' ? _('TV') : _('Movie');
+        parts.push(mediaType);
+
+        const firstDate = movie.release_date || movie.first_air_date;
+        if (firstDate) {
+            parts.push(firstDate.substring(0, 4));
         }
         
         if (movie.vote_average && movie.vote_average > 0) {
@@ -267,17 +273,17 @@ export const MementoSearchDialog = GObject.registerClass({
         labelWidget.set_visible(Boolean(textValue));
     }
 
-    async _loadTagline(tmdbId, taglineLabel) {
+    async _loadTagline(tmdbId, mediaType, taglineLabel) {
         try {
-            const movieDetails = await getMovieDetails(tmdbId);
+            const movieDetails = await getTitleDetails(tmdbId, mediaType);
             this._setOptionalLabel(taglineLabel, this._formatTagline(movieDetails?.tagline));
         } catch {
             // Ignore failures for optional tagline loading.
         }
     }
 
-    _showMovieDetail(tmdbId) {
-        this.emit('view-details', tmdbId);
+    _showMovieDetail(tmdbId, mediaType) {
+        this.emit('view-details', tmdbId, mediaType);
         this.close();
     }
 });
