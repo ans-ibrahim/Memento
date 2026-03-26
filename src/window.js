@@ -269,6 +269,20 @@ export const MementoWindow = GObject.registerClass({
 
     _groupPlaysForCards(plays) {
         const output = [];
+        const buildGroupedPlayCard = playsToGroup => {
+            const sortedEpisodes = [...playsToGroup].sort((firstPlay, secondPlay) => {
+                return (Number(firstPlay.episode_number) || 0) - (Number(secondPlay.episode_number) || 0);
+            });
+            const firstPlay = sortedEpisodes[0];
+            return {
+                ...firstPlay,
+                is_grouped_play: true,
+                grouped_play_ids: sortedEpisodes.map(play => play.source_play_id ?? play.id),
+                grouped_episode_count: sortedEpisodes.length,
+                grouped_episode_start: sortedEpisodes[0]?.episode_number ?? null,
+                grouped_episode_end: sortedEpisodes[sortedEpisodes.length - 1]?.episode_number ?? null,
+            };
+        };
 
         for (let index = 0; index < plays.length; index += 1) {
             const play = plays[index];
@@ -305,15 +319,28 @@ export const MementoWindow = GObject.registerClass({
             const sortedEpisodes = [...groupedPlays].sort((firstPlay, secondPlay) => {
                 return (Number(firstPlay.episode_number) || 0) - (Number(secondPlay.episode_number) || 0);
             });
-            const firstPlay = sortedEpisodes[0];
-            output.push({
-                ...firstPlay,
-                is_grouped_play: true,
-                grouped_play_ids: sortedEpisodes.map(play => play.source_play_id ?? play.id),
-                grouped_episode_count: sortedEpisodes.length,
-                grouped_episode_start: sortedEpisodes[0]?.episode_number ?? null,
-                grouped_episode_end: sortedEpisodes[sortedEpisodes.length - 1]?.episode_number ?? null,
-            });
+            let currentRun = [sortedEpisodes[0]];
+            for (let runIndex = 1; runIndex < sortedEpisodes.length; runIndex += 1) {
+                const previousEpisodeNumber = Number(currentRun[currentRun.length - 1]?.episode_number) || 0;
+                const currentEpisodeNumber = Number(sortedEpisodes[runIndex]?.episode_number) || 0;
+                if (currentEpisodeNumber === previousEpisodeNumber + 1) {
+                    currentRun.push(sortedEpisodes[runIndex]);
+                    continue;
+                }
+
+                if (currentRun.length <= 1) {
+                    output.push(currentRun[0]);
+                } else {
+                    output.push(buildGroupedPlayCard(currentRun));
+                }
+                currentRun = [sortedEpisodes[runIndex]];
+            }
+
+            if (currentRun.length <= 1) {
+                output.push(currentRun[0]);
+            } else {
+                output.push(buildGroupedPlayCard(currentRun));
+            }
             index = nextIndex - 1;
         }
 
