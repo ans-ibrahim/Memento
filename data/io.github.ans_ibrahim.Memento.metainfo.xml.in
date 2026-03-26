@@ -5,16 +5,18 @@
   <project_license>GPL-3.0-or-later</project_license>
 
   <name>Memento</name>
-  <summary>Track movies you watch</summary>
+  <summary>Track movies and TV shows you watch</summary>
   <description>
     <p>
-      Memento helps you keep a personal movie diary. Search for movies, add them to your
+      Memento helps you keep a personal watch diary. Search movies and TV shows, add them to your
       watchlist, and record plays when you watch them.
     </p>
     <p>The app includes:</p>
     <ul>
+      <li>Movie and TV title search powered by TMDB</li>
       <li>A searchable watchlist with sorting and pagination</li>
       <li>Play history with filters and quick navigation</li>
+      <li>TV details with seasons/episodes and episode or full-season logging</li>
       <li>Dashboard cards for recent activity and top people stats</li>
     </ul>
   </description>
@@ -53,7 +55,7 @@
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/movie-details-page.png</image>
-      <caption>Movie details</caption>
+      <caption>Title details</caption>
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/person-page.png</image>
@@ -61,11 +63,24 @@
     </screenshot>
     <screenshot>
       <image>https://raw.githubusercontent.com/ans-ibrahim/Memento/main/screenshots/person-page-movies.png</image>
-      <caption>Person Movies</caption>
+      <caption>Person titles</caption>
     </screenshot>
   </screenshots>
 
   <releases>
+    <release version="1.2.0" date="2026-03-25">
+      <description>
+        <p>Peaky Blinders</p>
+        <ul>
+          <li>Added first-class TV support across search, watchlist, plays, and dashboards</li>
+          <li>Added TV detail page with seasons, episodes, and episode/season play logging</li>
+          <li>Added mixed-title person credits and configurable people metrics in preferences</li>
+          <li>Improved refresh flows to update both movie and TV metadata and IMDb ratings</li>
+          <li>Updated some translations for new TV-focused labels and UI text</li>
+        </ul>
+      </description>
+      <url type="details">https://github.com/ans-ibrahim/Memento/releases/tag/v1.2.0</url>
+    </release>
     <release version="1.1.2" date="2026-03-15">
       <description>
         <p>Doodlebug</p>

@@ -5,6 +5,6 @@ Icon=io.github.ans_ibrahim.Memento
 Terminal=false
 Type=Application
 Categories=Utility;
-Keywords=movies;watchlist;tracker;cinema;tmdb;
+Keywords=movies;tv;shows;episodes;watchlist;tracker;cinema;tmdb;
 StartupNotify=true
 DBusActivatable=true

@@ -13,13 +13,13 @@ You can search titles from TMDB, keep a watchlist, log plays, and view personal 
 
 - Movie and TV show search powered by TMDB
 - Watchlist with search and sorting options
-- Play history with search, sorting and sorting options
+- Play history with search and sorting options
 - Dashboard with totals, recent activity, and top people (directors/cast)
-- Title detail pages with credits and play logging
-- TMDB and IMDb ratings in movie details (configurable in Preferences)
+- Movie and TV detail pages with credits and play logging
+- TMDB and IMDb ratings in title details (configurable in Preferences)
 - Person pages with appearance stats
 - Places management (cinema/home/custom places)
-- Preferences for TMDB API key, auto-remove from watchlist, and full metadata refresh
+- Preferences for TMDB API key, people metrics, auto-remove from watchlist, and full metadata refresh
 
 ## How To Use
 
@@ -90,3 +90,7 @@ Some of the features are borrowed from [Movary](https://github.com/leepeuker/mov
 ## License
 
 GPL-3.0-or-later. See `COPYING`.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
