@@ -201,6 +201,50 @@ CREATE TABLE IF NOT EXISTS tv_credits (
 );
 `,
     },
+    {
+        version: 5,
+        name: 'make_play_dates_nullable',
+        sql: `
+CREATE TABLE plays_new (
+    id INTEGER PRIMARY KEY,
+    movie_id INTEGER NOT NULL,
+    watched_at TEXT,
+    watch_order INTEGER NOT NULL DEFAULT 1,
+    place_id INTEGER,
+    comment TEXT,
+    FOREIGN KEY (movie_id) REFERENCES movies (id) ON DELETE CASCADE,
+    FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
+);
+
+INSERT INTO plays_new (id, movie_id, watched_at, watch_order, place_id, comment)
+SELECT id, movie_id, watched_at, watch_order, place_id, comment
+FROM plays;
+
+DROP TABLE plays;
+ALTER TABLE plays_new RENAME TO plays;
+
+CREATE TABLE tv_episode_plays_new (
+    id INTEGER PRIMARY KEY,
+    show_id INTEGER NOT NULL,
+    episode_id INTEGER NOT NULL,
+    watched_at TEXT,
+    watch_order INTEGER NOT NULL DEFAULT 1,
+    place_id INTEGER,
+    comment TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (show_id) REFERENCES tv_shows (id) ON DELETE CASCADE,
+    FOREIGN KEY (episode_id) REFERENCES tv_episodes (id) ON DELETE CASCADE,
+    FOREIGN KEY (place_id) REFERENCES places (id) ON DELETE SET NULL
+);
+
+INSERT INTO tv_episode_plays_new (id, show_id, episode_id, watched_at, watch_order, place_id, comment, created_at)
+SELECT id, show_id, episode_id, watched_at, watch_order, place_id, comment, created_at
+FROM tv_episode_plays;
+
+DROP TABLE tv_episode_plays;
+ALTER TABLE tv_episode_plays_new RENAME TO tv_episode_plays;
+`,
+    },
 ];
 
 function ensureAppDataDir() {
@@ -327,19 +371,30 @@ function toSqlLiteral(value) {
 }
 
 function getNextGlobalWatchOrderForDate(watchedDate) {
+    const watchedAtFilter = watchedDate === null || watchedDate === undefined
+        ? 'watched_at IS NULL'
+        : `watched_at = ${toSqlLiteral(watchedDate)}`;
     const row = queryOne(`
 SELECT COALESCE(MAX(watch_order), 0) AS max_order
 FROM (
     SELECT watch_order
     FROM plays
-    WHERE watched_at = ${toSqlLiteral(watchedDate)}
+    WHERE ${watchedAtFilter}
     UNION ALL
     SELECT watch_order
     FROM tv_episode_plays
-    WHERE watched_at = ${toSqlLiteral(watchedDate)}
+    WHERE ${watchedAtFilter}
 );
 `);
     return (Number(row?.max_order) || 0) + 1;
+}
+
+function getNormalizedWatchedDate(watchedDate) {
+    const trimmedDate = String(watchedDate ?? '').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
+        return trimmedDate;
+    }
+    return null;
 }
 
 export async function initializeDatabase() {
@@ -867,13 +922,14 @@ export async function addPlay(titleId, watchedDate, placeId = null, comment = nu
         throw new Error('Movie plays do not support episode ids.');
     }
 
-    const watchOrder = getNextGlobalWatchOrderForDate(watchedDate);
+    const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);
+    const watchOrder = getNextGlobalWatchOrderForDate(normalizedWatchedDate);
 
     const sql = `
 INSERT INTO plays (movie_id, watched_at, watch_order, place_id, comment)
 VALUES (
     ${toSqlLiteral(normalizedTitleId)},
-    ${toSqlLiteral(watchedDate)},
+    ${toSqlLiteral(normalizedWatchedDate)},
     ${toSqlLiteral(watchOrder)},
     ${toSqlLiteral(placeId)},
     ${toSqlLiteral(comment)}
@@ -887,9 +943,10 @@ export async function addSeasonPlays(titleId, seasonNumber, watchedDate, placeId
 }
 
 export async function updatePlay(playId, watchedDate, placeId = null, watchOrder = 1, comment = null) {
+    const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);
     const sql = `
 UPDATE plays
-SET watched_at = ${toSqlLiteral(watchedDate)},
+SET watched_at = ${toSqlLiteral(normalizedWatchedDate)},
     place_id = ${toSqlLiteral(placeId)},
     watch_order = ${toSqlLiteral(watchOrder)},
     comment = ${toSqlLiteral(comment)}
@@ -1799,13 +1856,14 @@ export async function isTvShowInWatchlist(showId) {
 }
 
 export async function addTvEpisodePlay(showId, episodeId, watchedDate, placeId = null, comment = null) {
-    const watchOrder = getNextGlobalWatchOrderForDate(watchedDate);
+    const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);
+    const watchOrder = getNextGlobalWatchOrderForDate(normalizedWatchedDate);
     execute(`
 INSERT INTO tv_episode_plays (show_id, episode_id, watched_at, watch_order, place_id, comment)
 VALUES (
     ${toSqlLiteral(showId)},
     ${toSqlLiteral(episodeId)},
-    ${toSqlLiteral(watchedDate)},
+    ${toSqlLiteral(normalizedWatchedDate)},
     ${toSqlLiteral(watchOrder)},
     ${toSqlLiteral(placeId)},
     ${toSqlLiteral(comment)}
@@ -1814,6 +1872,7 @@ VALUES (
 }
 
 export async function addTvSeasonPlays(showId, seasonNumber, watchedDate, placeId = null, comment = null) {
+    const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);
     const episodes = queryAll(`
 SELECT id
 FROM tv_episodes
@@ -1825,7 +1884,7 @@ ORDER BY episode_number ASC;
         throw new Error('No episodes found for selected season.');
     }
 
-    let currentOrder = getNextGlobalWatchOrderForDate(watchedDate) - 1;
+    let currentOrder = getNextGlobalWatchOrderForDate(normalizedWatchedDate) - 1;
 
     for (const episode of episodes) {
         currentOrder += 1;
@@ -1834,7 +1893,7 @@ INSERT INTO tv_episode_plays (show_id, episode_id, watched_at, watch_order, plac
 VALUES (
     ${toSqlLiteral(showId)},
     ${toSqlLiteral(episode.id)},
-    ${toSqlLiteral(watchedDate)},
+    ${toSqlLiteral(normalizedWatchedDate)},
     ${toSqlLiteral(currentOrder)},
     ${toSqlLiteral(placeId)},
     ${toSqlLiteral(comment)}
@@ -1865,9 +1924,10 @@ ORDER BY tv_episode_plays.watched_at DESC, tv_episode_plays.watch_order DESC;
 }
 
 export async function updateTvEpisodePlay(playId, watchedDate, placeId = null, watchOrder = 1, comment = null) {
+    const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);
     execute(`
 UPDATE tv_episode_plays
-SET watched_at = ${toSqlLiteral(watchedDate)},
+SET watched_at = ${toSqlLiteral(normalizedWatchedDate)},
     place_id = ${toSqlLiteral(placeId)},
     watch_order = ${toSqlLiteral(watchOrder)},
     comment = ${toSqlLiteral(comment)}

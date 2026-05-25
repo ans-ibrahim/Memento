@@ -12,8 +12,20 @@ export function clearGrid(grid) {
 }
 
 export function formatDate(isoDate, options = {}) {
+    if (isoDate === null || isoDate === undefined) {
+        return 'No date';
+    }
+
+    const trimmedDate = String(isoDate).trim();
+    if (!trimmedDate) {
+        return 'No date';
+    }
+
     try {
-        const date = new Date(isoDate);
+        const date = new Date(trimmedDate);
+        if (Number.isNaN(date.getTime())) {
+            return 'No date';
+        }
         const month = options.month || 'short';
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -21,7 +33,7 @@ export function formatDate(isoDate, options = {}) {
             day: 'numeric'
         });
     } catch {
-        return isoDate;
+        return 'No date';
     }
 }
 
