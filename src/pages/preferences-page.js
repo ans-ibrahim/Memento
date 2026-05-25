@@ -24,6 +24,10 @@ const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
     ? 'io.github.ans_ibrahim.Memento.Devel'
     : 'io.github.ans_ibrahim.Memento';
 
+const BACKUP_EXTENSION = '.backup';
+const DATABASE_FILENAME = 'memento.db';
+const SETTINGS_FILENAME = 'settings.json';
+
 export const MementoPreferencesDialog = GObject.registerClass({
     GTypeName: 'MementoPreferencesDialog',
     Template: 'resource:///app/memento/memento/pages/preferences-page.ui',
@@ -40,6 +44,8 @@ export const MementoPreferencesDialog = GObject.registerClass({
         'refresh_imdb_ratings_button',
         'refresh_imdb_progress_bar',
         'refresh_imdb_progress_row',
+        'export_backup_button',
+        'import_backup_button',
     ],
 }, class MementoPreferencesDialog extends Adw.Dialog {
     constructor(params = {}) {
@@ -53,6 +59,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._setupPeopleMetricPreference();
         this._setupRefreshAllTitles();
         this._setupRefreshAllImdbRatings();
+        this._setupBackupActions();
     }
 
     _loadPeopleMetricPreference() {
@@ -130,6 +137,373 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._refresh_imdb_ratings_button.connect('clicked', () => {
             this._refreshAllImdbRatings();
         });
+    }
+
+    _setupBackupActions() {
+        this._export_backup_button.connect('clicked', () => {
+            this._onExportBackupClicked();
+        });
+        this._import_backup_button.connect('clicked', () => {
+            this._onImportBackupClicked();
+        });
+    }
+
+    _onExportBackupClicked() {
+        const chooser = new Gtk.FileChooserNative({
+            title: _('Export backup'),
+            action: Gtk.FileChooserAction.SAVE,
+            transient_for: this.get_root(),
+            modal: true,
+            accept_label: _('Export'),
+            cancel_label: _('Cancel'),
+        });
+
+        chooser.set_current_name(`memento-${GLib.DateTime.new_now_local().format('%Y%m%d-%H%M%S')}${BACKUP_EXTENSION}`);
+
+        const filter = new Gtk.FileFilter();
+        filter.set_name(_('Backup files'));
+        filter.add_pattern(`*${BACKUP_EXTENSION}`);
+        chooser.add_filter(filter);
+        chooser.set_filter(filter);
+
+        chooser.connect('response', (_dialog, response) => {
+            if (response === Gtk.ResponseType.ACCEPT) {
+                const file = chooser.get_file();
+                if (file) {
+                    this._exportBackupToFile(file).catch(error => {
+                        console.error('Failed to export backup:', error);
+                        this._showToast(_('Failed to export backup'), 4);
+                    });
+                }
+            }
+            chooser.destroy();
+        });
+
+        chooser.show();
+    }
+
+    _onImportBackupClicked() {
+        const chooser = new Gtk.FileChooserNative({
+            title: _('Import backup'),
+            action: Gtk.FileChooserAction.OPEN,
+            transient_for: this.get_root(),
+            modal: true,
+            accept_label: _('Import'),
+            cancel_label: _('Cancel'),
+        });
+
+        const filter = new Gtk.FileFilter();
+        filter.set_name(_('Backup files'));
+        filter.add_pattern(`*${BACKUP_EXTENSION}`);
+        chooser.add_filter(filter);
+        chooser.set_filter(filter);
+
+        chooser.connect('response', (_dialog, response) => {
+            if (response === Gtk.ResponseType.ACCEPT) {
+                const file = chooser.get_file();
+                if (file) {
+                    this._importBackupFromFile(file).catch(error => {
+                        console.error('Failed to import backup:', error);
+                        this._showToast(_('Failed to import backup'), 4);
+                    });
+                }
+            }
+            chooser.destroy();
+        });
+
+        chooser.show();
+    }
+
+    async _exportBackupToFile(targetFile) {
+        const sourceDatabasePath = this._getDatabasePath();
+        if (!GLib.file_test(sourceDatabasePath, GLib.FileTest.EXISTS)) {
+            throw new Error('Database file does not exist.');
+        }
+
+        const targetPath = this._checkBackupExtension(targetFile.get_path());
+        if (!targetPath) {
+            throw new Error('Invalid export path.');
+        }
+
+        const tempDir = this._createTempDir('memento-backup-export-XXXXXX');
+        const tempDatabasePath = GLib.build_filenamev([tempDir, DATABASE_FILENAME]);
+        const tempSettingsPath = GLib.build_filenamev([tempDir, SETTINGS_FILENAME]);
+
+        try {
+            this._copyFile(sourceDatabasePath, tempDatabasePath);
+
+            const settingsPayload = this._serializeSettings();
+            GLib.file_set_contents(tempSettingsPath, JSON.stringify(settingsPayload, null, 2));
+
+            this._runSubprocess([
+                'zip',
+                '-j',
+                '-q',
+                targetPath,
+                tempDatabasePath,
+                tempSettingsPath,
+            ]);
+        } finally {
+            this._removePathRecursive(tempDir);
+        }
+
+        this._showToast(_('Backup exported successfully'), 3);
+    }
+
+    async _importBackupFromFile(backupFile) {
+        const backupPath = backupFile.get_path();
+        if (!backupPath || !GLib.file_test(backupPath, GLib.FileTest.EXISTS)) {
+            throw new Error('Backup file does not exist.');
+        }
+
+        const tempDir = this._createTempDir('memento-backup-import-XXXXXX');
+        const extractedDatabasePath = GLib.build_filenamev([tempDir, DATABASE_FILENAME]);
+        const extractedSettingsPath = GLib.build_filenamev([tempDir, SETTINGS_FILENAME]);
+
+        try {
+            this._validateBackupArchiveEntries(backupPath);
+            this._runSubprocess([
+                'unzip',
+                '-j',
+                '-o',
+                '-q',
+                backupPath,
+                DATABASE_FILENAME,
+                SETTINGS_FILENAME,
+                '-d',
+                tempDir,
+            ]);
+
+            if (!GLib.file_test(extractedDatabasePath, GLib.FileTest.EXISTS)) {
+                throw new Error('Backup is missing database file.');
+            }
+            if (!GLib.file_test(extractedSettingsPath, GLib.FileTest.EXISTS)) {
+                throw new Error('Backup is missing settings file.');
+            }
+
+            const [, rawSettings] = GLib.file_get_contents(extractedSettingsPath);
+            const parsedSettings = JSON.parse(new TextDecoder().decode(rawSettings));
+            const importSettingsState = this._buildImportSettingsState(parsedSettings);
+            const currentSettingsState = this._buildImportSettingsState(this._serializeSettings());
+
+            const destinationDatabasePath = this._getDatabasePath();
+            const existingDatabasePath = GLib.build_filenamev([tempDir, `existing-${DATABASE_FILENAME}`]);
+            const hadExistingDatabase = GLib.file_test(destinationDatabasePath, GLib.FileTest.EXISTS);
+            if (hadExistingDatabase) {
+                this._copyFile(destinationDatabasePath, existingDatabasePath);
+            }
+
+            try {
+                this._copyFile(extractedDatabasePath, destinationDatabasePath);
+                this._applyImportSettingsState(importSettingsState);
+            } catch (error) {
+                if (hadExistingDatabase) {
+                    this._copyFile(existingDatabasePath, destinationDatabasePath);
+                } else if (GLib.file_test(destinationDatabasePath, GLib.FileTest.EXISTS)) {
+                    Gio.File.new_for_path(destinationDatabasePath).delete(null);
+                }
+                this._applyImportSettingsState(currentSettingsState);
+                throw error;
+            }
+        } finally {
+            this._removePathRecursive(tempDir);
+        }
+
+        this._showRestartPromptAfterImport();
+    }
+
+    _serializeSettings() {
+        const schema = this._settings.settings_schema;
+        const keys = schema.list_keys();
+        const values = {};
+
+        for (const key of keys) {
+            const value = this._settings.get_value(key);
+            values[key] = {
+                type: value.get_type_string(),
+                value: value.deepUnpack(),
+            };
+        }
+
+        return {
+            schema: SETTINGS_SCHEMA_ID,
+            values,
+        };
+    }
+
+    _restoreSettings(payload) {
+        const state = this._buildImportSettingsState(payload);
+        this._applyImportSettingsState(state);
+    }
+
+    _buildImportSettingsState(payload) {
+        const values = payload?.values;
+        if (!values || typeof values !== 'object') {
+            throw new Error('Invalid settings payload in backup.');
+        }
+
+        const knownKeys = new Set(this._settings.settings_schema.list_keys());
+        const state = [];
+
+        for (const [key, entry] of Object.entries(values)) {
+            if (!knownKeys.has(key)) {
+                continue;
+            }
+
+            const variantType = entry?.type;
+            const rawValue = entry?.value;
+            if (!variantType) {
+                continue;
+            }
+
+            try {
+                const variant = new GLib.Variant(variantType, rawValue);
+                state.push([key, variant]);
+            } catch (error) {
+                throw new Error(`Invalid value for setting '${key}': ${error.message}`);
+            }
+        }
+
+        return state;
+    }
+
+    _applyImportSettingsState(state) {
+        for (const [key, variant] of state) {
+            this._settings.set_value(key, variant);
+        }
+    }
+
+    _getDatabasePath() {
+        const dataDir = GLib.get_user_data_dir();
+        if (!GLib.file_test(dataDir, GLib.FileTest.IS_DIR)) {
+            const mkdirResult = GLib.mkdir_with_parents(dataDir, 0o755);
+            if (mkdirResult !== 0) {
+                throw new Error(`Failed to create data directory: ${dataDir}`);
+            }
+        }
+        return GLib.build_filenamev([dataDir, DATABASE_FILENAME]);
+    }
+
+    _copyFile(sourcePath, destinationPath) {
+        const source = Gio.File.new_for_path(sourcePath);
+        const destination = Gio.File.new_for_path(destinationPath);
+        source.copy(destination, Gio.FileCopyFlags.OVERWRITE, null, null);
+    }
+
+    _createTempDir(template) {
+        try {
+            return GLib.dir_make_tmp(template);
+        } catch (error) {
+            throw new Error(`Failed to create temporary directory: ${error.message}`);
+        }
+    }
+
+    _runSubprocess(argv) {
+        let process;
+        try {
+            process = Gio.Subprocess.new(
+                argv,
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+            );
+        } catch (error) {
+            throw new Error(`Failed to start command '${argv[0]}': ${error.message}`);
+        }
+
+        let stderr = '';
+        try {
+            const [, , processStderr] = process.communicate_utf8(null, null);
+            stderr = processStderr ?? '';
+        } catch (error) {
+            throw new Error(`Failed to run command '${argv[0]}': ${error.message}`);
+        }
+
+        if (!process.get_successful()) {
+            const message = stderr.trim() || `${argv[0]} command failed.`;
+            throw new Error(message);
+        }
+    }
+
+    _validateBackupArchiveEntries(backupPath) {
+        const output = this._runSubprocessAndCaptureStdout([
+            'unzip',
+            '-Z1',
+            backupPath,
+        ]);
+
+        const entries = output
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
+        for (const entry of entries) {
+            if (
+                entry !== DATABASE_FILENAME &&
+                entry !== SETTINGS_FILENAME
+            ) {
+                throw new Error('Backup archive contains unsupported files.');
+            }
+        }
+    }
+
+    _runSubprocessAndCaptureStdout(argv) {
+        let process;
+        try {
+            process = Gio.Subprocess.new(
+                argv,
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE
+            );
+        } catch (error) {
+            throw new Error(`Failed to start command '${argv[0]}': ${error.message}`);
+        }
+
+        let stdout = '';
+        let stderr = '';
+        try {
+            const [, processStdout, processStderr] = process.communicate_utf8(null, null);
+            stdout = processStdout ?? '';
+            stderr = processStderr ?? '';
+        } catch (error) {
+            throw new Error(`Failed to run command '${argv[0]}': ${error.message}`);
+        }
+
+        if (!process.get_successful()) {
+            const message = stderr.trim() || `${argv[0]} command failed.`;
+            throw new Error(message);
+        }
+
+        return stdout;
+    }
+
+    _removePathRecursive(path) {
+        const file = Gio.File.new_for_path(path);
+        try {
+            file.delete(null);
+        } catch {
+            const enumerator = file.enumerate_children(
+                'standard::name,standard::type',
+                Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                null
+            );
+
+            let info = enumerator.next_file(null);
+            while (info) {
+                const child = file.get_child(info.get_name());
+                this._removePathRecursive(child.get_path());
+                info = enumerator.next_file(null);
+            }
+            enumerator.close(null);
+            file.delete(null);
+        }
+    }
+
+    _checkBackupExtension(path) {
+        if (!path) {
+            return null;
+        }
+        if (path.endsWith(BACKUP_EXTENSION)) {
+            return path;
+        }
+        return `${path}${BACKUP_EXTENSION}`;
     }
 
     _setRefreshUiState(isRunning) {
@@ -398,6 +772,46 @@ export const MementoPreferencesDialog = GObject.registerClass({
         }
         if (widget) {
             widget.add_toast(toast);
+            return;
         }
+
+        this._showInfoDialog(message);
+    }
+
+    _showInfoDialog(message) {
+        const dialog = new Adw.AlertDialog({
+            heading: _('Notice'),
+            body: message,
+            close_response: 'ok',
+        });
+        dialog.add_response('ok', _('OK'));
+        dialog.present(this.get_root());
+    }
+
+    _showRestartPromptAfterImport() {
+        const dialog = new Adw.AlertDialog({
+            heading: _('Backup imported'),
+            body: _('Import completed successfully. Restart the app now to reload the imported data.'),
+            close_response: 'later',
+        });
+
+        dialog.add_response('later', _('Later'));
+        dialog.add_response('restart', _('Restart now'));
+        dialog.set_response_appearance('restart', Adw.ResponseAppearance.SUGGESTED);
+
+        dialog.choose(this.get_root(), null, (_dialog, result) => {
+            try {
+                const response = dialog.choose_finish(result);
+                if (response === 'restart') {
+                    const root = this.get_root();
+                    const app = root?.get_application?.();
+                    if (app) {
+                        app.quit();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to handle restart prompt:', error);
+            }
+        });
     }
 });
