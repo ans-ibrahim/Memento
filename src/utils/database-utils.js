@@ -979,6 +979,16 @@ ORDER BY plays.watched_at DESC, plays.watch_order DESC;
     return queryAll(sql);
 }
 
+export async function hasMoviePlays(titleId) {
+    const row = queryOne(`
+SELECT 1 AS exists_flag
+FROM plays
+WHERE movie_id = ${toSqlLiteral(titleId)}
+LIMIT 1;
+`);
+    return row !== null;
+}
+
 export async function deletePlay(playId) {
     execute(`DELETE FROM plays WHERE id = ${toSqlLiteral(playId)};`);
 }
@@ -1822,6 +1832,17 @@ ORDER BY episode_number ASC;
     return output;
 }
 
+export async function getTvEpisodeByShowSeasonEpisode(showId, seasonNumber, episodeNumber) {
+    return queryOne(`
+SELECT id
+FROM tv_episodes
+WHERE show_id = ${toSqlLiteral(showId)}
+  AND season_number = ${toSqlLiteral(seasonNumber)}
+  AND episode_number = ${toSqlLiteral(episodeNumber)}
+LIMIT 1;
+`);
+}
+
 export async function getTvProgress(showId) {
     const row = queryOne(`
 SELECT
@@ -1922,6 +1943,18 @@ WHERE tv_episode_plays.show_id = ${toSqlLiteral(showId)}
 ORDER BY tv_episode_plays.watched_at DESC, tv_episode_plays.watch_order DESC;
 `);
 }
+
+export async function hasTvEpisodePlay(showId, episodeId) {
+    const row = queryOne(`
+SELECT 1 AS exists_flag
+FROM tv_episode_plays
+WHERE show_id = ${toSqlLiteral(showId)}
+  AND episode_id = ${toSqlLiteral(episodeId)}
+LIMIT 1;
+`);
+    return row !== null;
+}
+
 
 export async function updateTvEpisodePlay(playId, watchedDate, placeId = null, watchOrder = 1, comment = null) {
     const normalizedWatchedDate = getNormalizedWatchedDate(watchedDate);

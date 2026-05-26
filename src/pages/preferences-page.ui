@@ -184,6 +184,18 @@
                   </object>
                 </child>
                 <child>
+                  <object class="AdwActionRow" id="import_ticketbooth_row">
+                    <property name="title" translatable="yes">Import Ticket Booth</property>
+                    <property name="subtitle" translatable="yes">Import watchlist and watched titles from a Ticket Booth .zip export</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="import_ticketbooth_button">
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="AdwActionRow" id="refresh_imdb_progress_row">
                     <property name="title" translatable="yes">IMDb refresh progress</property>
                     <property name="visible">false</property>

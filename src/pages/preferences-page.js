@@ -18,6 +18,13 @@ import {
     upsertTvCredits,
     updateMovieImdbRating,
     updateTvShowImdbRating,
+    addMovieToWatchlist,
+    addTvShowToWatchlist,
+    addPlay,
+    addTvEpisodePlay,
+    hasMoviePlays,
+    hasTvEpisodePlay,
+    getTvEpisodeByShowSeasonEpisode,
 } from '../utils/database-utils.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
@@ -27,6 +34,9 @@ const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
 const BACKUP_EXTENSION = '.backup';
 const DATABASE_FILENAME = 'memento.db';
 const SETTINGS_FILENAME = 'settings.json';
+const TICKETBOOTH_DATA_FILENAME = 'data.json';
+const TICKETBOOTH_PLAY_MODE_ADD = 'add';
+const TICKETBOOTH_PLAY_MODE_SKIP_EXISTING = 'skip_existing';
 
 export const MementoPreferencesDialog = GObject.registerClass({
     GTypeName: 'MementoPreferencesDialog',
@@ -46,6 +56,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         'refresh_imdb_progress_row',
         'export_backup_button',
         'import_backup_button',
+        'import_ticketbooth_button',
     ],
 }, class MementoPreferencesDialog extends Adw.Dialog {
     constructor(params = {}) {
@@ -60,6 +71,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._setupRefreshAllTitles();
         this._setupRefreshAllImdbRatings();
         this._setupBackupActions();
+        this._setupTicketboothImportAction();
     }
 
     _loadPeopleMetricPreference() {
@@ -148,6 +160,12 @@ export const MementoPreferencesDialog = GObject.registerClass({
         });
     }
 
+    _setupTicketboothImportAction() {
+        this._import_ticketbooth_button.connect('clicked', () => {
+            this._onImportTicketboothClicked();
+        });
+    }
+
     _onExportBackupClicked() {
         const chooser = new Gtk.FileChooserNative({
             title: _('Export backup'),
@@ -212,6 +230,75 @@ export const MementoPreferencesDialog = GObject.registerClass({
         });
 
         chooser.show();
+    }
+
+    _onImportTicketboothClicked() {
+        const chooser = new Gtk.FileChooserNative({
+            title: _('Import Ticket Booth backup'),
+            action: Gtk.FileChooserAction.OPEN,
+            transient_for: this.get_root(),
+            modal: true,
+            accept_label: _('Import'),
+            cancel_label: _('Cancel'),
+        });
+
+        const filter = new Gtk.FileFilter();
+        filter.set_name(_('ZIP files'));
+        filter.add_pattern('*.zip');
+        chooser.add_filter(filter);
+        chooser.set_filter(filter);
+
+        chooser.connect('response', (_dialog, response) => {
+            if (response === Gtk.ResponseType.ACCEPT) {
+                const file = chooser.get_file();
+                if (file) {
+                    const archivePath = file.get_path();
+                    this._promptTicketboothPlayImportMode().then(playImportMode => {
+                        if (!playImportMode) {
+                            return;
+                        }
+                        return this._importTicketboothFromFile(archivePath, { playImportMode });
+                    }).catch(error => {
+                        console.error('Failed to import Ticket Booth backup:', error);
+                        this._showToast(_('Failed to import Ticket Booth backup'), 4);
+                    });
+                }
+            }
+            chooser.destroy();
+        });
+
+        chooser.show();
+    }
+
+    _promptTicketboothPlayImportMode() {
+        const dialog = new Adw.AlertDialog({
+            heading: _('Import watched plays'),
+            body: _('If a watched title already has plays in Memento, should import add another play or skip it?'),
+            close_response: 'cancel',
+        });
+        dialog.add_response('add', _('Add new plays'));
+        dialog.add_response('skip', _('Skip existing'));
+        dialog.add_response('cancel', _('Cancel'));
+        dialog.set_response_appearance('add', Adw.ResponseAppearance.SUGGESTED);
+
+        return new Promise((resolve, reject) => {
+            dialog.choose(this.get_root(), null, (_dialog, result) => {
+                try {
+                    const response = dialog.choose_finish(result);
+                    if (response === 'add') {
+                        resolve(TICKETBOOTH_PLAY_MODE_ADD);
+                        return;
+                    }
+                    if (response === 'skip') {
+                        resolve(TICKETBOOTH_PLAY_MODE_SKIP_EXISTING);
+                        return;
+                    }
+                    resolve(null);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
     }
 
     async _exportBackupToFile(targetFile) {
@@ -310,6 +397,238 @@ export const MementoPreferencesDialog = GObject.registerClass({
         }
 
         this._showRestartPromptAfterImport();
+    }
+
+    async _importTicketboothFromFile(archivePath, options = {}) {
+        const playImportMode = options?.playImportMode || TICKETBOOTH_PLAY_MODE_ADD;
+        const tempDir = this._createTempDir('memento-ticketbooth-import-XXXXXX');
+        const extractedDataPath = GLib.build_filenamev([tempDir, TICKETBOOTH_DATA_FILENAME]);
+
+        try {
+            const ticketboothDataEntry = this._findArchiveEntryByBasename(
+                archivePath,
+                TICKETBOOTH_DATA_FILENAME
+            );
+            if (!ticketboothDataEntry) {
+                throw new Error('Ticket Booth backup is missing data.json.');
+            }
+
+            this._runSubprocess([
+                'unzip',
+                '-j',
+                '-o',
+                '-q',
+                archivePath,
+                ticketboothDataEntry,
+                '-d',
+                tempDir,
+            ]);
+
+            if (!GLib.file_test(extractedDataPath, GLib.FileTest.EXISTS)) {
+                throw new Error('Ticket Booth backup is missing data.json.');
+            }
+
+            const [, rawData] = GLib.file_get_contents(extractedDataPath);
+            const payload = JSON.parse(new TextDecoder().decode(rawData));
+
+            const movies = Array.isArray(payload?.movies) ? payload.movies : [];
+            const series = Array.isArray(payload?.series) ? payload.series : [];
+
+            for (const movie of movies) {
+                await this._importTicketboothMovie(movie, playImportMode);
+            }
+            for (const show of series) {
+                await this._importTicketboothSeries(show, playImportMode);
+            }
+        } finally {
+            this._removePathRecursive(tempDir);
+        }
+
+        this._showRestartPromptAfterImport();
+    }
+
+    _findArchiveEntryByBasename(archivePath, filename) {
+        const output = this._runSubprocessAndCaptureStdout([
+            'unzip',
+            '-Z1',
+            archivePath,
+        ]);
+        const entries = output
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line.length > 0);
+
+        for (const entry of entries) {
+            const baseName = entry.split('/').pop() || entry;
+            if (baseName === filename) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    async _importTicketboothMovie(movie, playImportMode) {
+        const tmdbId = Number(movie?.id);
+        if (!Number.isFinite(tmdbId)) {
+            return;
+        }
+
+        const titleId = await upsertMovieFromTmdb({
+            id: tmdbId,
+            title: movie?.title || movie?.original_title || null,
+            original_title: movie?.original_title || movie?.title || null,
+            overview: movie?.overview || null,
+            tagline: movie?.tagline || null,
+            original_language: movie?.original_language || null,
+            poster_path: this._normalizeTicketboothImagePath(movie?.poster_path),
+            backdrop_path: this._normalizeTicketboothImagePath(movie?.backdrop_path),
+            runtime: Number.isFinite(Number(movie?.runtime)) ? Number(movie.runtime) : null,
+            release_date: movie?.release_date || null,
+            vote_average: null,
+            vote_count: null,
+            budget: Number.isFinite(Number(movie?.budget)) ? Number(movie.budget) : null,
+            revenue: Number.isFinite(Number(movie?.revenue)) ? Number(movie.revenue) : null,
+            genres: this._toTmdbGenres(movie?.genres),
+        });
+
+        await addMovieToWatchlist(titleId);
+        if (Number(movie?.watched) === 1) {
+            if (playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING) {
+                const alreadyHasPlays = await hasMoviePlays(titleId);
+                if (alreadyHasPlays) {
+                    return;
+                }
+            }
+            await addPlay(titleId, null);
+        }
+    }
+
+    async _importTicketboothSeries(show, playImportMode) {
+        const tmdbId = Number(show?.id);
+        if (!Number.isFinite(tmdbId)) {
+            return;
+        }
+
+        const seasons = Array.isArray(show?.seasons) ? show.seasons : [];
+
+        const showId = await upsertTvShowFromTmdb({
+            id: tmdbId,
+            name: show?.title || show?.original_title || null,
+            original_name: show?.original_title || show?.title || null,
+            overview: show?.overview || null,
+            tagline: show?.tagline || null,
+            original_language: show?.original_language || null,
+            poster_path: this._normalizeTicketboothImagePath(show?.poster_path),
+            backdrop_path: this._normalizeTicketboothImagePath(show?.backdrop_path),
+            genres: this._toTmdbGenres(show?.genres),
+            first_air_date: show?.release_date || null,
+            last_air_date: show?.last_air_date || null,
+            status: show?.status || null,
+            number_of_seasons: Number.isFinite(Number(show?.seasons_number)) ? Number(show.seasons_number) : null,
+            number_of_episodes: Number.isFinite(Number(show?.episodes_number)) ? Number(show.episodes_number) : null,
+            seasons: seasons.map(season => ({
+                id: Number.isFinite(Number(season?.id)) ? Number(season.id) : null,
+                season_number: Number.isFinite(Number(season?.number)) ? Number(season.number) : 0,
+                name: season?.title || null,
+                overview: season?.overview || null,
+                poster_path: this._normalizeTicketboothImagePath(season?.poster_path),
+                episode_count: Number.isFinite(Number(season?.episodes_number)) ? Number(season.episodes_number) : null,
+            })),
+        });
+
+        await upsertTvSeasons(showId, seasons.map(season => ({
+            id: Number.isFinite(Number(season?.id)) ? Number(season.id) : null,
+            season_number: Number.isFinite(Number(season?.number)) ? Number(season.number) : 0,
+            name: season?.title || null,
+            overview: season?.overview || null,
+            poster_path: this._normalizeTicketboothImagePath(season?.poster_path),
+            episode_count: Number.isFinite(Number(season?.episodes_number)) ? Number(season.episodes_number) : null,
+        })));
+
+        for (const season of seasons) {
+            const seasonNumber = Number(season?.number);
+            if (!Number.isFinite(seasonNumber)) {
+                continue;
+            }
+
+            const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
+            await upsertSeasonEpisodes(showId, seasonNumber, episodes.map(episode => ({
+                id: Number.isFinite(Number(episode?.id)) ? Number(episode.id) : null,
+                episode_number: Number.isFinite(Number(episode?.number)) ? Number(episode.number) : 0,
+                name: episode?.title || null,
+                overview: episode?.overview || null,
+                runtime: Number.isFinite(Number(episode?.runtime)) ? Number(episode.runtime) : null,
+                season_number: seasonNumber,
+                still_path: this._normalizeTicketboothImagePath(episode?.still_path),
+            })));
+        }
+
+        const watchedEpisodes = await this._getImportedWatchedEpisodes(showId, seasons);
+        for (const episodeId of watchedEpisodes) {
+            if (playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING) {
+                const alreadyHasEpisodePlay = await hasTvEpisodePlay(showId, episodeId);
+                if (alreadyHasEpisodePlay) {
+                    continue;
+                }
+            }
+            await addTvEpisodePlay(showId, episodeId, null);
+        }
+
+        await addTvShowToWatchlist(showId);
+    }
+
+    async _getImportedWatchedEpisodes(showId, seasons) {
+        const watchedEpisodeIds = [];
+
+        for (const season of seasons) {
+            const seasonNumber = Number(season?.number);
+            if (!Number.isFinite(seasonNumber)) {
+                continue;
+            }
+            const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
+            for (const episode of episodes) {
+                if (Number(episode?.watched) !== 1) {
+                    continue;
+                }
+                const episodeNumber = Number(episode?.number);
+                if (!Number.isFinite(episodeNumber)) {
+                    continue;
+                }
+                const episodeRow = await getTvEpisodeByShowSeasonEpisode(showId, seasonNumber, episodeNumber);
+                if (episodeRow?.id) {
+                    watchedEpisodeIds.push(Number(episodeRow.id));
+                }
+            }
+        }
+
+        return watchedEpisodeIds;
+    }
+
+    _toTmdbGenres(rawGenres) {
+        if (!rawGenres) {
+            return [];
+        }
+
+        const genreNames = String(rawGenres)
+            .split(',')
+            .map(genre => genre.trim())
+            .filter(genre => genre.length > 0);
+
+        return genreNames.map(name => ({ name }));
+    }
+
+    _normalizeTicketboothImagePath(rawPath) {
+        const value = String(rawPath || '').trim();
+        if (!value) {
+            return null;
+        }
+
+        const filename = value.split('/').pop() || '';
+        if (!filename || !filename.includes('.')) {
+            return null;
+        }
+
+        return filename.startsWith('/') ? filename : `/${filename}`;
     }
 
     _serializeSettings() {
