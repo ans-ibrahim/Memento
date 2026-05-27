@@ -10,6 +10,7 @@ import {
     getAllTitlesForRefresh,
     getAllTitlesWithImdbIds,
     upsertMovieFromTmdb,
+    findMovieByTmdbId,
     upsertTvShowFromTmdb,
     upsertTvSeasons,
     upsertSeasonEpisodes,
@@ -25,6 +26,8 @@ import {
     hasMoviePlays,
     hasTvEpisodePlay,
     getTvEpisodeByShowSeasonEpisode,
+    getAllPlaces,
+    addPlace,
 } from '../utils/database-utils.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
@@ -37,6 +40,8 @@ const SETTINGS_FILENAME = 'settings.json';
 const TICKETBOOTH_DATA_FILENAME = 'data.json';
 const TICKETBOOTH_PLAY_MODE_ADD = 'add';
 const TICKETBOOTH_PLAY_MODE_SKIP_EXISTING = 'skip_existing';
+const MOVARY_IMPORT_MODE_HISTORY = 'history';
+const MOVARY_IMPORT_MODE_WATCHLIST = 'watchlist';
 
 export const MementoPreferencesDialog = GObject.registerClass({
     GTypeName: 'MementoPreferencesDialog',
@@ -57,6 +62,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         'export_backup_button',
         'import_backup_button',
         'import_ticketbooth_button',
+        'import_movary_button',
     ],
 }, class MementoPreferencesDialog extends Adw.Dialog {
     constructor(params = {}) {
@@ -72,6 +78,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._setupRefreshAllImdbRatings();
         this._setupBackupActions();
         this._setupTicketboothImportAction();
+        this._setupMovaryImportAction();
     }
 
     _loadPeopleMetricPreference() {
@@ -163,6 +170,12 @@ export const MementoPreferencesDialog = GObject.registerClass({
     _setupTicketboothImportAction() {
         this._import_ticketbooth_button.connect('clicked', () => {
             this._onImportTicketboothClicked();
+        });
+    }
+
+    _setupMovaryImportAction() {
+        this._import_movary_button.connect('clicked', () => {
+            this._onImportMovaryClicked();
         });
     }
 
@@ -270,6 +283,44 @@ export const MementoPreferencesDialog = GObject.registerClass({
         chooser.show();
     }
 
+    _onImportMovaryClicked() {
+        const chooser = new Gtk.FileChooserNative({
+            title: _('Import Movary CSV'),
+            action: Gtk.FileChooserAction.OPEN,
+            transient_for: this.get_root(),
+            modal: true,
+            accept_label: _('Import'),
+            cancel_label: _('Cancel'),
+        });
+
+        const filter = new Gtk.FileFilter();
+        filter.set_name(_('CSV files'));
+        filter.add_pattern('*.csv');
+        chooser.add_filter(filter);
+        chooser.set_filter(filter);
+
+        chooser.connect('response', (_dialog, response) => {
+            if (response === Gtk.ResponseType.ACCEPT) {
+                const file = chooser.get_file();
+                if (file) {
+                    const csvPath = file.get_path();
+                    this._promptMovaryImportMode().then(importMode => {
+                        if (!importMode) {
+                            return;
+                        }
+                        return this._importMovaryFromFile(csvPath, importMode);
+                    }).catch(error => {
+                        console.error('Failed to import Movary export:', error);
+                        this._showToast(_('Failed to import Movary export'), 4);
+                    });
+                }
+            }
+            chooser.destroy();
+        });
+
+        chooser.show();
+    }
+
     _promptTicketboothPlayImportMode() {
         const dialog = new Adw.AlertDialog({
             heading: _('Import watched plays'),
@@ -291,6 +342,37 @@ export const MementoPreferencesDialog = GObject.registerClass({
                     }
                     if (response === 'skip') {
                         resolve(TICKETBOOTH_PLAY_MODE_SKIP_EXISTING);
+                        return;
+                    }
+                    resolve(null);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    _promptMovaryImportMode() {
+        const dialog = new Adw.AlertDialog({
+            heading: _('Import Movary CSV'),
+            body: _('Select what this CSV contains.'),
+            close_response: 'cancel',
+        });
+        dialog.add_response('history', _('History (plays)'));
+        dialog.add_response('watchlist', _('Watchlist'));
+        dialog.add_response('cancel', _('Cancel'));
+        dialog.set_response_appearance('history', Adw.ResponseAppearance.SUGGESTED);
+
+        return new Promise((resolve, reject) => {
+            dialog.choose(this.get_root(), null, (_dialog, result) => {
+                try {
+                    const response = dialog.choose_finish(result);
+                    if (response === 'history') {
+                        resolve(MOVARY_IMPORT_MODE_HISTORY);
+                        return;
+                    }
+                    if (response === 'watchlist') {
+                        resolve(MOVARY_IMPORT_MODE_WATCHLIST);
                         return;
                     }
                     resolve(null);
@@ -445,6 +527,233 @@ export const MementoPreferencesDialog = GObject.registerClass({
         }
 
         this._showRestartPromptAfterImport();
+    }
+
+    async _importMovaryFromFile(csvPath, importMode) {
+        if (!csvPath || !GLib.file_test(csvPath, GLib.FileTest.EXISTS)) {
+            throw new Error('Movary CSV file does not exist.');
+        }
+        if (
+            importMode !== MOVARY_IMPORT_MODE_HISTORY &&
+            importMode !== MOVARY_IMPORT_MODE_WATCHLIST
+        ) {
+            throw new Error('Invalid Movary import mode.');
+        }
+
+        const movieIdCache = new Map();
+        const placeIdCache = await this._buildPlaceIdCache();
+
+        if (importMode === MOVARY_IMPORT_MODE_WATCHLIST) {
+            const watchlistRows = this._readCsvRows(csvPath);
+            for (const row of watchlistRows) {
+                const titleId = await this._resolveMovaryMovieId(row, movieIdCache);
+                if (!titleId) {
+                    continue;
+                }
+                await addMovieToWatchlist(titleId);
+            }
+            this._showRestartPromptAfterImport();
+            return;
+        }
+
+        if (importMode === MOVARY_IMPORT_MODE_HISTORY) {
+            const historyRows = this._readCsvRows(csvPath);
+            const datedRows = historyRows.filter(row => {
+                const watchedAt = String(row?.watchedAt || '').trim();
+                return /^\d{4}-\d{2}-\d{2}$/.test(watchedAt);
+            });
+
+            for (let index = datedRows.length - 1; index >= 0; index -= 1) {
+                const row = datedRows[index];
+                const titleId = await this._resolveMovaryMovieId(row, movieIdCache);
+                if (!titleId) {
+                    continue;
+                }
+                const watchedAt = String(row.watchedAt).trim();
+                const comment = this._toOptionalCsvField(row?.comment);
+                const placeId = await this._resolvePlaceId(row?.location, placeIdCache);
+                await addPlay(titleId, watchedAt, placeId, comment);
+            }
+        }
+
+        this._showRestartPromptAfterImport();
+    }
+
+    async _resolveMovaryMovieId(row, movieIdCache) {
+        const tmdbId = Number(row?.tmdbId);
+        if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
+            return null;
+        }
+
+        if (movieIdCache.has(tmdbId)) {
+            return movieIdCache.get(tmdbId);
+        }
+
+        const existingMovie = await findMovieByTmdbId(tmdbId);
+        if (existingMovie?.id) {
+            const existingId = Number(existingMovie.id);
+            movieIdCache.set(tmdbId, existingId);
+            return existingId;
+        }
+
+        const titleId = await upsertMovieFromTmdb(this._buildMovaryMoviePayload(row, tmdbId));
+        movieIdCache.set(tmdbId, titleId);
+        return titleId;
+    }
+
+    _buildMovaryMoviePayload(row, tmdbId) {
+        const title = this._toOptionalCsvField(row?.title) || 'Untitled';
+        const rawImdbId = this._toOptionalCsvField(row?.imdbId);
+        const normalizedImdbId = /^tt\d+$/.test(String(rawImdbId || '')) ? rawImdbId : null;
+
+        return {
+            id: tmdbId,
+            title,
+            original_title: title,
+            imdb_id: normalizedImdbId,
+            release_date: null,
+            overview: null,
+            tagline: null,
+            original_language: null,
+            poster_path: null,
+            runtime: null,
+            budget: null,
+            vote_average: null,
+            vote_count: null,
+            revenue: null,
+            genres: [],
+        };
+    }
+
+    _readCsvRows(csvPath) {
+        if (!GLib.file_test(csvPath, GLib.FileTest.EXISTS)) {
+            return [];
+        }
+
+        const [, rawData] = GLib.file_get_contents(csvPath);
+        const parsedRows = this._parseCsv(new TextDecoder().decode(rawData));
+        if (parsedRows.length === 0) {
+            return [];
+        }
+
+        const headers = parsedRows[0].map(header => String(header).trim());
+        const rows = [];
+        for (let rowIndex = 1; rowIndex < parsedRows.length; rowIndex += 1) {
+            const values = parsedRows[rowIndex];
+            const row = {};
+            let hasAnyValue = false;
+            for (let columnIndex = 0; columnIndex < headers.length; columnIndex += 1) {
+                const header = headers[columnIndex];
+                if (!header) {
+                    continue;
+                }
+                const value = values[columnIndex] ?? '';
+                if (String(value).trim().length > 0) {
+                    hasAnyValue = true;
+                }
+                row[header] = value;
+            }
+            if (hasAnyValue) {
+                rows.push(row);
+            }
+        }
+        return rows;
+    }
+
+    _parseCsv(content) {
+        const rows = [];
+        let currentRow = [];
+        let currentValue = '';
+        let insideQuotes = false;
+
+        for (let index = 0; index < content.length; index += 1) {
+            const character = content[index];
+
+            if (character === '"') {
+                const nextCharacter = content[index + 1];
+                if (insideQuotes && nextCharacter === '"') {
+                    currentValue += '"';
+                    index += 1;
+                    continue;
+                }
+                insideQuotes = !insideQuotes;
+                continue;
+            }
+
+            if (character === ',' && !insideQuotes) {
+                currentRow.push(currentValue);
+                currentValue = '';
+                continue;
+            }
+
+            if ((character === '\n' || character === '\r') && !insideQuotes) {
+                if (character === '\r' && content[index + 1] === '\n') {
+                    index += 1;
+                }
+                currentRow.push(currentValue);
+                rows.push(currentRow);
+                currentRow = [];
+                currentValue = '';
+                continue;
+            }
+
+            currentValue += character;
+        }
+
+        const hasTrailingData = currentValue.length > 0 || currentRow.length > 0;
+        if (hasTrailingData) {
+            currentRow.push(currentValue);
+            rows.push(currentRow);
+        }
+
+        return rows;
+    }
+
+    _toOptionalCsvField(value) {
+        const trimmedValue = String(value ?? '').trim();
+        return trimmedValue.length > 0 ? trimmedValue : null;
+    }
+
+    async _buildPlaceIdCache() {
+        const places = await getAllPlaces();
+        const placeIdCache = new Map();
+
+        for (const place of places) {
+            const normalizedName = this._normalizePlaceName(place?.name);
+            if (!normalizedName) {
+                continue;
+            }
+            placeIdCache.set(normalizedName, Number(place.id));
+        }
+
+        return placeIdCache;
+    }
+
+    async _resolvePlaceId(rawPlaceName, placeIdCache) {
+        const normalizedName = this._normalizePlaceName(rawPlaceName);
+        if (!normalizedName) {
+            return null;
+        }
+
+        if (placeIdCache.has(normalizedName)) {
+            return placeIdCache.get(normalizedName);
+        }
+
+        await addPlace(normalizedName, false);
+        const places = await getAllPlaces();
+        const createdPlace = places.find(place => this._normalizePlaceName(place?.name) === normalizedName);
+        const createdPlaceId = Number(createdPlace?.id);
+        if (!Number.isFinite(createdPlaceId) || createdPlaceId <= 0) {
+            throw new Error(`Failed to resolve place id for location '${normalizedName}'.`);
+        }
+
+        placeIdCache.set(normalizedName, createdPlaceId);
+        return createdPlaceId;
+    }
+
+    _normalizePlaceName(rawPlaceName) {
+        const trimmedName = String(rawPlaceName ?? '').trim();
+        return trimmedName.length > 0 ? trimmedName : null;
     }
 
     _findArchiveEntryByBasename(archivePath, filename) {

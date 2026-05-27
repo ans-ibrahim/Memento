@@ -196,6 +196,18 @@
                   </object>
                 </child>
                 <child>
+                  <object class="AdwActionRow" id="import_movary_row">
+                    <property name="title" translatable="yes">Import Movary</property>
+                    <property name="subtitle" translatable="yes">Import watched titles from history.csv or watchlist from watchlist.csv</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="import_movary_button">
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="AdwActionRow" id="refresh_imdb_progress_row">
                     <property name="title" translatable="yes">IMDb refresh progress</property>
                     <property name="visible">false</property>
