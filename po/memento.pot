@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: memento 1.2.0\n"
+"Project-Id-Version: memento 1.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 13:40+0500\n"
+"POT-Creation-Date: 2026-06-06 17:11+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,9 +113,9 @@ msgstr ""
 #: src/dialogs/places-dialog.js:124 src/dialogs/places-dialog.js:166
 #: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:926
 #: src/pages/movie-detail-page.js:1156 src/pages/movie-detail-page.js:1288
-#: src/pages/preferences-page.js:187 src/pages/preferences-page.js:221
-#: src/pages/preferences-page.js:253 src/pages/preferences-page.js:291
-#: src/pages/preferences-page.js:330 src/pages/preferences-page.js:361
+#: src/pages/preferences-page.js:179 src/pages/preferences-page.js:213
+#: src/pages/preferences-page.js:245 src/pages/preferences-page.js:283
+#: src/pages/preferences-page.js:322 src/pages/preferences-page.js:353
 #: src/pages/tv-detail-page.js:931 src/pages/tv-detail-page.js:1116
 #: src/pages/tv-detail-page.js:1243 src/widgets/play-card.js:190
 msgid "Cancel"
@@ -348,7 +348,7 @@ msgstr ""
 msgid "An unexpected error occurred while saving the play."
 msgstr ""
 
-#: src/pages/movie-detail-page.js:984 src/pages/preferences-page.js:1417
+#: src/pages/movie-detail-page.js:984 src/pages/preferences-page.js:1734
 #: src/pages/tv-detail-page.js:966 src/pages/tv-detail-page.js:990
 #: src/pages/tv-detail-page.js:1272
 msgid "OK"
@@ -402,7 +402,7 @@ msgid "Movie Details"
 msgstr ""
 
 #: src/pages/movie-detail-page.ui:71 src/pages/person-page.ui:209
-#: src/pages/preferences-page.js:360 src/pages/tv-detail-page.ui:64
+#: src/pages/preferences-page.js:352 src/pages/tv-detail-page.ui:64
 #: src/window.ui:170 src/window.ui:324
 msgid "Watchlist"
 msgstr ""
@@ -598,149 +598,150 @@ msgid ""
 "                      viewing history"
 msgstr ""
 
-#: src/pages/preferences-page.js:136
+#: src/pages/preferences-page.js:128
 msgid "API key saved"
 msgstr ""
 
-#: src/pages/preferences-page.js:182 src/pages/preferences-page.ui:164
+#: src/pages/preferences-page.js:174 src/pages/preferences-page.ui:164
 msgid "Export backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:186 src/pages/preferences-page.ui:168
+#: src/pages/preferences-page.js:178 src/pages/preferences-page.ui:168
 msgid "Export"
 msgstr ""
 
-#: src/pages/preferences-page.js:193 src/pages/preferences-page.js:225
+#: src/pages/preferences-page.js:185 src/pages/preferences-page.js:217
 msgid "Backup files"
 msgstr ""
 
-#: src/pages/preferences-page.js:204
+#: src/pages/preferences-page.js:196
 msgid "Failed to export backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:216 src/pages/preferences-page.ui:176
+#: src/pages/preferences-page.js:208 src/pages/preferences-page.ui:176
 msgid "Import backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:220 src/pages/preferences-page.js:252
-#: src/pages/preferences-page.js:290 src/pages/preferences-page.ui:180
+#: src/pages/preferences-page.js:212 src/pages/preferences-page.js:244
+#: src/pages/preferences-page.js:282 src/pages/preferences-page.ui:180
 #: src/pages/preferences-page.ui:192 src/pages/preferences-page.ui:204
 msgid "Import"
 msgstr ""
 
-#: src/pages/preferences-page.js:236
+#: src/pages/preferences-page.js:228
 msgid "Failed to import backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:248
+#: src/pages/preferences-page.js:240
 msgid "Import Ticket Booth backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:257
+#: src/pages/preferences-page.js:249
 msgid "ZIP files"
 msgstr ""
 
-#: src/pages/preferences-page.js:274
+#: src/pages/preferences-page.js:266
 msgid "Failed to import Ticket Booth backup"
 msgstr ""
 
-#: src/pages/preferences-page.js:286 src/pages/preferences-page.js:355
+#: src/pages/preferences-page.js:278 src/pages/preferences-page.js:347
 msgid "Import Movary CSV"
 msgstr ""
 
-#: src/pages/preferences-page.js:295
+#: src/pages/preferences-page.js:287
 msgid "CSV files"
 msgstr ""
 
-#: src/pages/preferences-page.js:312
+#: src/pages/preferences-page.js:304
 msgid "Failed to import Movary export"
 msgstr ""
 
-#: src/pages/preferences-page.js:324
+#: src/pages/preferences-page.js:316
 msgid "Import watched plays"
 msgstr ""
 
-#: src/pages/preferences-page.js:325
+#: src/pages/preferences-page.js:317
 msgid ""
 "If a watched title already has plays in Memento, should import add another "
 "play or skip it?"
 msgstr ""
 
-#: src/pages/preferences-page.js:328
+#: src/pages/preferences-page.js:320
 msgid "Add new plays"
 msgstr ""
 
-#: src/pages/preferences-page.js:329
+#: src/pages/preferences-page.js:321
 msgid "Skip existing"
 msgstr ""
 
-#: src/pages/preferences-page.js:356
+#: src/pages/preferences-page.js:348
 msgid "Select what this CSV contains."
 msgstr ""
 
-#: src/pages/preferences-page.js:359
+#: src/pages/preferences-page.js:351
 msgid "History (plays)"
 msgstr ""
 
-#: src/pages/preferences-page.js:417
+#: src/pages/preferences-page.js:409
 msgid "Backup exported successfully"
 msgstr ""
 
-#: src/pages/preferences-page.js:1166 src/pages/preferences-page.js:1234
+#: src/pages/preferences-page.js:1483 src/pages/preferences-page.js:1551
 msgid "Starting..."
 msgstr ""
 
-#: src/pages/preferences-page.js:1174 src/pages/preferences-page.js:1242
+#: src/pages/preferences-page.js:1491 src/pages/preferences-page.js:1559
 msgid "Failed to load titles list"
 msgstr ""
 
-#: src/pages/preferences-page.js:1181
+#: src/pages/preferences-page.js:1498
 msgid "No titles to refresh"
 msgstr ""
 
-#: src/pages/preferences-page.js:1217
+#: src/pages/preferences-page.js:1534
 #, javascript-format
 msgid "Refreshed %d/%d titles (%d failed)"
 msgstr ""
 
-#: src/pages/preferences-page.js:1223
+#: src/pages/preferences-page.js:1540
 #, javascript-format
 msgid "Refreshed %d titles"
 msgstr ""
 
-#: src/pages/preferences-page.js:1249
+#: src/pages/preferences-page.js:1566
 msgid "No titles with IMDb IDs to refresh"
 msgstr ""
 
-#: src/pages/preferences-page.js:1280
+#: src/pages/preferences-page.js:1597
 #, javascript-format
 msgid "Refreshed %d/%d IMDb ratings (%d failed)"
 msgstr ""
 
-#: src/pages/preferences-page.js:1286
+#: src/pages/preferences-page.js:1603
 #, javascript-format
 msgid "Refreshed %d IMDb ratings"
 msgstr ""
 
-#: src/pages/preferences-page.js:1413
+#: src/pages/preferences-page.js:1730
 msgid "Notice"
 msgstr ""
 
-#: src/pages/preferences-page.js:1423
+#: src/pages/preferences-page.js:1740
 msgid "Backup imported"
 msgstr ""
 
-#: src/pages/preferences-page.js:1424
+#: src/pages/preferences-page.js:1741
 msgid ""
-"Import completed successfully. Restart the app now to reload the imported "
-"data."
+"Import completed successfully. You might need to refresh the TMDB database "
+"from Preferences to see the imported data. Restart the app now to reload the "
+"imported data."
 msgstr ""
 
-#: src/pages/preferences-page.js:1428
+#: src/pages/preferences-page.js:1745
 msgid "Later"
 msgstr ""
 
-#: src/pages/preferences-page.js:1429
+#: src/pages/preferences-page.js:1746
 msgid "Restart now"
 msgstr ""
 

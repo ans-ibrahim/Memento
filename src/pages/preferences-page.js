@@ -7,10 +7,10 @@ import GLib from 'gi://GLib';
 import { getTitleDetails, getTitleCredits, getTvSeasonDetails } from '../services/tmdb-service.js';
 import { scrapeImdbRating } from '../services/imdb-service.js';
 import {
+    initializeDatabase,
     getAllTitlesForRefresh,
     getAllTitlesWithImdbIds,
     upsertMovieFromTmdb,
-    findMovieByTmdbId,
     upsertTvShowFromTmdb,
     upsertTvSeasons,
     upsertSeasonEpisodes,
@@ -19,15 +19,7 @@ import {
     upsertTvCredits,
     updateMovieImdbRating,
     updateTvShowImdbRating,
-    addMovieToWatchlist,
-    addTvShowToWatchlist,
-    addPlay,
-    addTvEpisodePlay,
-    hasMoviePlays,
-    hasTvEpisodePlay,
-    getTvEpisodeByShowSeasonEpisode,
-    getAllPlaces,
-    addPlace,
+    executeTransaction,
 } from '../utils/database-utils.js';
 
 const SETTINGS_SCHEMA_ID = (GLib.getenv('FLATPAK_ID') || '').endsWith('.Devel')
@@ -483,126 +475,6 @@ export const MementoPreferencesDialog = GObject.registerClass({
         this._showRestartPromptAfterImport();
     }
 
-    async _importTicketboothFromFile(archivePath, options = {}) {
-        const playImportMode = options?.playImportMode || TICKETBOOTH_PLAY_MODE_ADD;
-        const tempDir = this._createTempDir('memento-ticketbooth-import-XXXXXX');
-        const extractedDataPath = GLib.build_filenamev([tempDir, TICKETBOOTH_DATA_FILENAME]);
-
-        try {
-            const ticketboothDataEntry = this._findArchiveEntryByBasename(
-                archivePath,
-                TICKETBOOTH_DATA_FILENAME
-            );
-            if (!ticketboothDataEntry) {
-                throw new Error('Ticket Booth backup is missing data.json.');
-            }
-
-            this._runSubprocess([
-                'unzip',
-                '-j',
-                '-o',
-                '-q',
-                archivePath,
-                ticketboothDataEntry,
-                '-d',
-                tempDir,
-            ]);
-
-            if (!GLib.file_test(extractedDataPath, GLib.FileTest.EXISTS)) {
-                throw new Error('Ticket Booth backup is missing data.json.');
-            }
-
-            const [, rawData] = GLib.file_get_contents(extractedDataPath);
-            const payload = JSON.parse(new TextDecoder().decode(rawData));
-
-            const movies = Array.isArray(payload?.movies) ? payload.movies : [];
-            const series = Array.isArray(payload?.series) ? payload.series : [];
-
-            for (const movie of movies) {
-                await this._importTicketboothMovie(movie, playImportMode);
-            }
-            for (const show of series) {
-                await this._importTicketboothSeries(show, playImportMode);
-            }
-        } finally {
-            this._removePathRecursive(tempDir);
-        }
-
-        this._showRestartPromptAfterImport();
-    }
-
-    async _importMovaryFromFile(csvPath, importMode) {
-        if (!csvPath || !GLib.file_test(csvPath, GLib.FileTest.EXISTS)) {
-            throw new Error('Movary CSV file does not exist.');
-        }
-        if (
-            importMode !== MOVARY_IMPORT_MODE_HISTORY &&
-            importMode !== MOVARY_IMPORT_MODE_WATCHLIST
-        ) {
-            throw new Error('Invalid Movary import mode.');
-        }
-
-        const movieIdCache = new Map();
-        const placeIdCache = await this._buildPlaceIdCache();
-
-        if (importMode === MOVARY_IMPORT_MODE_WATCHLIST) {
-            const watchlistRows = this._readCsvRows(csvPath);
-            for (const row of watchlistRows) {
-                const titleId = await this._resolveMovaryMovieId(row, movieIdCache);
-                if (!titleId) {
-                    continue;
-                }
-                await addMovieToWatchlist(titleId);
-            }
-            this._showRestartPromptAfterImport();
-            return;
-        }
-
-        if (importMode === MOVARY_IMPORT_MODE_HISTORY) {
-            const historyRows = this._readCsvRows(csvPath);
-            const datedRows = historyRows.filter(row => {
-                const watchedAt = String(row?.watchedAt || '').trim();
-                return /^\d{4}-\d{2}-\d{2}$/.test(watchedAt);
-            });
-
-            for (let index = datedRows.length - 1; index >= 0; index -= 1) {
-                const row = datedRows[index];
-                const titleId = await this._resolveMovaryMovieId(row, movieIdCache);
-                if (!titleId) {
-                    continue;
-                }
-                const watchedAt = String(row.watchedAt).trim();
-                const comment = this._toOptionalCsvField(row?.comment);
-                const placeId = await this._resolvePlaceId(row?.location, placeIdCache);
-                await addPlay(titleId, watchedAt, placeId, comment);
-            }
-        }
-
-        this._showRestartPromptAfterImport();
-    }
-
-    async _resolveMovaryMovieId(row, movieIdCache) {
-        const tmdbId = Number(row?.tmdbId);
-        if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
-            return null;
-        }
-
-        if (movieIdCache.has(tmdbId)) {
-            return movieIdCache.get(tmdbId);
-        }
-
-        const existingMovie = await findMovieByTmdbId(tmdbId);
-        if (existingMovie?.id) {
-            const existingId = Number(existingMovie.id);
-            movieIdCache.set(tmdbId, existingId);
-            return existingId;
-        }
-
-        const titleId = await upsertMovieFromTmdb(this._buildMovaryMoviePayload(row, tmdbId));
-        movieIdCache.set(tmdbId, titleId);
-        return titleId;
-    }
-
     _buildMovaryMoviePayload(row, tmdbId) {
         const title = this._toOptionalCsvField(row?.title) || 'Untitled';
         const rawImdbId = this._toOptionalCsvField(row?.imdbId);
@@ -716,46 +588,39 @@ export const MementoPreferencesDialog = GObject.registerClass({
         return trimmedValue.length > 0 ? trimmedValue : null;
     }
 
-    async _buildPlaceIdCache() {
-        const places = await getAllPlaces();
-        const placeIdCache = new Map();
-
-        for (const place of places) {
-            const normalizedName = this._normalizePlaceName(place?.name);
-            if (!normalizedName) {
-                continue;
-            }
-            placeIdCache.set(normalizedName, Number(place.id));
-        }
-
-        return placeIdCache;
-    }
-
-    async _resolvePlaceId(rawPlaceName, placeIdCache) {
-        const normalizedName = this._normalizePlaceName(rawPlaceName);
-        if (!normalizedName) {
-            return null;
-        }
-
-        if (placeIdCache.has(normalizedName)) {
-            return placeIdCache.get(normalizedName);
-        }
-
-        await addPlace(normalizedName, false);
-        const places = await getAllPlaces();
-        const createdPlace = places.find(place => this._normalizePlaceName(place?.name) === normalizedName);
-        const createdPlaceId = Number(createdPlace?.id);
-        if (!Number.isFinite(createdPlaceId) || createdPlaceId <= 0) {
-            throw new Error(`Failed to resolve place id for location '${normalizedName}'.`);
-        }
-
-        placeIdCache.set(normalizedName, createdPlaceId);
-        return createdPlaceId;
-    }
-
     _normalizePlaceName(rawPlaceName) {
         const trimmedName = String(rawPlaceName ?? '').trim();
         return trimmedName.length > 0 ? trimmedName : null;
+    }
+
+    _normalizeIsoDate(rawDate) {
+        if (typeof rawDate !== 'string') {
+            return null;
+        }
+
+        const trimmedDate = rawDate.trim();
+        const dateMatch = trimmedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!dateMatch) {
+            return null;
+        }
+
+        const year = Number(dateMatch[1]);
+        const month = Number(dateMatch[2]);
+        const day = Number(dateMatch[3]);
+        if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+            return null;
+        }
+
+        const normalizedDate = new Date(Date.UTC(year, month - 1, day));
+        if (
+            normalizedDate.getUTCFullYear() !== year ||
+            normalizedDate.getUTCMonth() !== month - 1 ||
+            normalizedDate.getUTCDate() !== day
+        ) {
+            return null;
+        }
+
+        return trimmedDate;
     }
 
     _findArchiveEntryByBasename(archivePath, filename) {
@@ -778,51 +643,175 @@ export const MementoPreferencesDialog = GObject.registerClass({
         return null;
     }
 
-    async _importTicketboothMovie(movie, playImportMode) {
-        const tmdbId = Number(movie?.id);
-        if (!Number.isFinite(tmdbId)) {
-            return;
+    async _importTicketboothFromFile(archivePath, options = {}) {
+        const playImportMode = options?.playImportMode || TICKETBOOTH_PLAY_MODE_ADD;
+
+        const ticketboothDataEntry = this._findArchiveEntryByBasename(
+            archivePath,
+            TICKETBOOTH_DATA_FILENAME
+        );
+        if (!ticketboothDataEntry) {
+            throw new Error('Ticket Booth backup is missing data.json.');
         }
 
-        const titleId = await upsertMovieFromTmdb({
-            id: tmdbId,
-            title: movie?.title || movie?.original_title || null,
-            original_title: movie?.original_title || movie?.title || null,
-            overview: movie?.overview || null,
-            tagline: movie?.tagline || null,
-            original_language: movie?.original_language || null,
-            poster_path: this._normalizeTicketboothImagePath(movie?.poster_path),
-            backdrop_path: this._normalizeTicketboothImagePath(movie?.backdrop_path),
-            runtime: Number.isFinite(Number(movie?.runtime)) ? Number(movie.runtime) : null,
-            release_date: movie?.release_date || null,
-            vote_average: null,
-            vote_count: null,
-            budget: Number.isFinite(Number(movie?.budget)) ? Number(movie.budget) : null,
-            revenue: Number.isFinite(Number(movie?.revenue)) ? Number(movie.revenue) : null,
-            genres: this._toTmdbGenres(movie?.genres),
-        });
+        const tempDir = this._createTempDir('memento-ticketbooth-import-XXXXXX');
+        const extractedDataPath = GLib.build_filenamev([tempDir, TICKETBOOTH_DATA_FILENAME]);
 
-        await addMovieToWatchlist(titleId);
-        if (Number(movie?.watched) === 1) {
-            if (playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING) {
-                const alreadyHasPlays = await hasMoviePlays(titleId);
-                if (alreadyHasPlays) {
-                    return;
-                }
+        try {
+            this._runSubprocess([
+                'unzip',
+                '-j',
+                '-o',
+                '-q',
+                archivePath,
+                ticketboothDataEntry,
+                '-d',
+                tempDir,
+            ]);
+
+            if (!GLib.file_test(extractedDataPath, GLib.FileTest.EXISTS)) {
+                throw new Error('Ticket Booth backup is missing data.json.');
             }
-            await addPlay(titleId, null);
+
+            const [, rawData] = GLib.file_get_contents(extractedDataPath);
+            const payload = JSON.parse(new TextDecoder().decode(rawData));
+            const statements = [];
+            const movies = Array.isArray(payload?.movies) ? payload.movies : [];
+            const series = Array.isArray(payload?.series) ? payload.series : [];
+
+            for (const movie of movies) {
+                statements.push(...this._buildTicketboothMovieStatements(movie, playImportMode));
+            }
+            for (const show of series) {
+                statements.push(...this._buildTicketboothSeriesStatements(show, playImportMode));
+            }
+
+            await this._runImportTransaction(statements);
+        } finally {
+            this._removePathRecursive(tempDir);
         }
+
+        this._showRestartPromptAfterImport();
     }
 
-    async _importTicketboothSeries(show, playImportMode) {
-        const tmdbId = Number(show?.id);
-        if (!Number.isFinite(tmdbId)) {
+    async _importMovaryFromFile(csvPath, importMode) {
+        if (!csvPath || !GLib.file_test(csvPath, GLib.FileTest.EXISTS)) {
+            throw new Error('Movary CSV file does not exist.');
+        }
+        if (
+            importMode !== MOVARY_IMPORT_MODE_HISTORY &&
+            importMode !== MOVARY_IMPORT_MODE_WATCHLIST
+        ) {
+            throw new Error('Invalid Movary import mode.');
+        }
+
+        const rows = this._readCsvRows(csvPath);
+        const statements = [];
+
+        if (importMode === MOVARY_IMPORT_MODE_WATCHLIST) {
+            for (const row of rows) {
+                const tmdbId = Number(row?.tmdbId);
+                if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
+                    continue;
+                }
+                statements.push(this._buildMovieUpsertSql(this._buildMovaryMoviePayload(row, tmdbId)));
+                statements.push(this._buildMovieWatchlistSql(tmdbId));
+            }
+        } else {
+            const datedRows = rows.filter(row => this._normalizeIsoDate(row?.watchedAt) !== null);
+
+            for (let index = datedRows.length - 1; index >= 0; index -= 1) {
+                const row = datedRows[index];
+                const tmdbId = Number(row?.tmdbId);
+                if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
+                    continue;
+                }
+
+                const watchedAt = this._normalizeIsoDate(row?.watchedAt);
+                if (!watchedAt) {
+                    continue;
+                }
+                const comment = this._toOptionalCsvField(row?.comment);
+                const placeName = this._normalizePlaceName(row?.location);
+                const placeExpression = placeName
+                    ? `(SELECT id FROM places WHERE name = ${this._toSqlLiteral(placeName)})`
+                    : 'NULL';
+
+                statements.push(this._buildMovieUpsertSql(this._buildMovaryMoviePayload(row, tmdbId)));
+                if (placeName) {
+                    statements.push(this._buildPlaceInsertSql(placeName));
+                }
+                statements.push(this._buildMoviePlaySql(
+                    tmdbId,
+                    watchedAt,
+                    placeExpression,
+                    this._toSqlLiteral(comment),
+                    false
+                ));
+            }
+        }
+
+        await this._runImportTransaction(statements);
+        this._showRestartPromptAfterImport();
+    }
+
+    async _runImportTransaction(statements) {
+        await initializeDatabase();
+
+        if (!Array.isArray(statements) || statements.length === 0) {
             return;
         }
 
+        executeTransaction(statements.join('\n'));
+    }
+
+    _buildTicketboothMovieStatements(movie, playImportMode) {
+        const tmdbId = Number(movie?.id);
+        if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
+            return [];
+        }
+
+        const statements = [
+            this._buildMovieUpsertSql({
+                id: tmdbId,
+                title: movie?.title || movie?.original_title || null,
+                original_title: movie?.original_title || movie?.title || null,
+                overview: movie?.overview || null,
+                tagline: movie?.tagline || null,
+                original_language: movie?.original_language || null,
+                poster_path: this._normalizeTicketboothImagePath(movie?.poster_path),
+                runtime: this._normalizeNumber(movie?.runtime),
+                release_date: movie?.release_date || null,
+                budget: this._normalizeNumber(movie?.budget),
+                revenue: this._normalizeNumber(movie?.revenue),
+                genres: this._toTmdbGenres(movie?.genres),
+            }),
+            this._buildMovieWatchlistSql(tmdbId),
+        ];
+
+        if (Number(movie?.watched) === 1) {
+            statements.push(this._buildMoviePlaySql(
+                tmdbId,
+                null,
+                'NULL',
+                'NULL',
+                playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING
+            ));
+        }
+
+        return statements;
+    }
+
+    _buildTicketboothSeriesStatements(show, playImportMode) {
+        const tmdbId = Number(show?.id);
+        if (!Number.isFinite(tmdbId) || tmdbId <= 0) {
+            return [];
+        }
+
+        const statements = [];
         const seasons = Array.isArray(show?.seasons) ? show.seasons : [];
 
-        const showId = await upsertTvShowFromTmdb({
+        statements.push(this._buildTvShowUpsertSql({
             id: tmdbId,
             name: show?.title || show?.original_title || null,
             original_name: show?.original_title || show?.title || null,
@@ -835,84 +824,412 @@ export const MementoPreferencesDialog = GObject.registerClass({
             first_air_date: show?.release_date || null,
             last_air_date: show?.last_air_date || null,
             status: show?.status || null,
-            number_of_seasons: Number.isFinite(Number(show?.seasons_number)) ? Number(show.seasons_number) : null,
-            number_of_episodes: Number.isFinite(Number(show?.episodes_number)) ? Number(show.episodes_number) : null,
-            seasons: seasons.map(season => ({
-                id: Number.isFinite(Number(season?.id)) ? Number(season.id) : null,
-                season_number: Number.isFinite(Number(season?.number)) ? Number(season.number) : 0,
-                name: season?.title || null,
-                overview: season?.overview || null,
-                poster_path: this._normalizeTicketboothImagePath(season?.poster_path),
-                episode_count: Number.isFinite(Number(season?.episodes_number)) ? Number(season.episodes_number) : null,
-            })),
-        });
-
-        await upsertTvSeasons(showId, seasons.map(season => ({
-            id: Number.isFinite(Number(season?.id)) ? Number(season.id) : null,
-            season_number: Number.isFinite(Number(season?.number)) ? Number(season.number) : 0,
-            name: season?.title || null,
-            overview: season?.overview || null,
-            poster_path: this._normalizeTicketboothImagePath(season?.poster_path),
-            episode_count: Number.isFinite(Number(season?.episodes_number)) ? Number(season.episodes_number) : null,
-        })));
+            number_of_seasons: this._normalizeNumber(show?.seasons_number),
+            number_of_episodes: this._normalizeNumber(show?.episodes_number),
+        }));
 
         for (const season of seasons) {
-            const seasonNumber = Number(season?.number);
-            if (!Number.isFinite(seasonNumber)) {
+            statements.push(this._buildTvSeasonUpsertSql(tmdbId, season));
+        }
+
+        for (const season of seasons) {
+            const rawSeasonNumber = Number(season?.number);
+            if (!Number.isFinite(rawSeasonNumber)) {
                 continue;
             }
 
-            const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
-            await upsertSeasonEpisodes(showId, seasonNumber, episodes.map(episode => ({
-                id: Number.isFinite(Number(episode?.id)) ? Number(episode.id) : null,
-                episode_number: Number.isFinite(Number(episode?.number)) ? Number(episode.number) : 0,
-                name: episode?.title || null,
-                overview: episode?.overview || null,
-                runtime: Number.isFinite(Number(episode?.runtime)) ? Number(episode.runtime) : null,
-                season_number: seasonNumber,
-                still_path: this._normalizeTicketboothImagePath(episode?.still_path),
-            })));
-        }
-
-        const watchedEpisodes = await this._getImportedWatchedEpisodes(showId, seasons);
-        for (const episodeId of watchedEpisodes) {
-            if (playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING) {
-                const alreadyHasEpisodePlay = await hasTvEpisodePlay(showId, episodeId);
-                if (alreadyHasEpisodePlay) {
-                    continue;
-                }
-            }
-            await addTvEpisodePlay(showId, episodeId, null);
-        }
-
-        await addTvShowToWatchlist(showId);
-    }
-
-    async _getImportedWatchedEpisodes(showId, seasons) {
-        const watchedEpisodeIds = [];
-
-        for (const season of seasons) {
-            const seasonNumber = Number(season?.number);
-            if (!Number.isFinite(seasonNumber)) {
-                continue;
-            }
             const episodes = Array.isArray(season?.episodes) ? season.episodes : [];
             for (const episode of episodes) {
+                statements.push(this._buildTvEpisodeUpsertSql(tmdbId, rawSeasonNumber, episode));
+
                 if (Number(episode?.watched) !== 1) {
                     continue;
                 }
-                const episodeNumber = Number(episode?.number);
-                if (!Number.isFinite(episodeNumber)) {
-                    continue;
-                }
-                const episodeRow = await getTvEpisodeByShowSeasonEpisode(showId, seasonNumber, episodeNumber);
-                if (episodeRow?.id) {
-                    watchedEpisodeIds.push(Number(episodeRow.id));
-                }
+
+                statements.push(this._buildTvEpisodePlaySql(
+                    tmdbId,
+                    rawSeasonNumber,
+                    this._normalizeEpisodeNumber(episode?.number),
+                    null,
+                    'NULL',
+                    'NULL',
+                    playImportMode === TICKETBOOTH_PLAY_MODE_SKIP_EXISTING
+                ));
             }
         }
 
-        return watchedEpisodeIds;
+        statements.push(this._buildTvWatchlistSql(tmdbId));
+        return statements;
+    }
+
+    _buildMovieUpsertSql(details) {
+        const genres = Array.isArray(details?.genres)
+            ? details.genres
+                .map(genre => genre?.name)
+                .filter(genreName => Boolean(genreName))
+                .join(', ')
+            : String(details?.genres || '');
+        const now = new Date().toISOString();
+
+        return `
+INSERT INTO movies (
+    title,
+    original_title,
+    imdb_id,
+    tmdb_id,
+    poster,
+    tagline,
+    overview,
+    original_language,
+    genres,
+    runtime,
+    release_date,
+    budget,
+    tmdb_average,
+    tmdb_vote_count,
+    revenue,
+    created_at,
+    updated_at
+) VALUES (
+    ${this._toSqlLiteral(details?.title || details?.original_title || details?.name || 'Untitled')},
+    ${this._toSqlLiteral(details?.original_title || details?.title || null)},
+    ${this._toSqlLiteral(details?.imdb_id || null)},
+    ${this._toSqlLiteral(details?.id)},
+    ${this._toSqlLiteral(details?.poster_path || details?.poster || null)},
+    ${this._toSqlLiteral(details?.tagline || null)},
+    ${this._toSqlLiteral(details?.overview || null)},
+    ${this._toSqlLiteral(details?.original_language || null)},
+    ${this._toSqlLiteral(genres)},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.runtime))},
+    ${this._toSqlLiteral(details?.release_date || null)},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.budget))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.vote_average))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.vote_count))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.revenue))},
+    ${this._toSqlLiteral(now)},
+    ${this._toSqlLiteral(now)}
+)
+ON CONFLICT(tmdb_id) DO UPDATE SET
+    title = excluded.title,
+    original_title = excluded.original_title,
+    imdb_id = excluded.imdb_id,
+    poster = excluded.poster,
+    tagline = excluded.tagline,
+    overview = excluded.overview,
+    original_language = excluded.original_language,
+    genres = excluded.genres,
+    runtime = excluded.runtime,
+    release_date = excluded.release_date,
+    budget = excluded.budget,
+    tmdb_average = excluded.tmdb_average,
+    tmdb_vote_count = excluded.tmdb_vote_count,
+    revenue = excluded.revenue,
+    updated_at = excluded.updated_at;
+`;
+    }
+
+    _buildMovieWatchlistSql(tmdbId) {
+        const now = new Date().toISOString();
+        return `
+INSERT INTO watchlist (movie_id, created_at)
+SELECT id, ${this._toSqlLiteral(now)}
+FROM movies
+WHERE tmdb_id = ${this._toSqlLiteral(tmdbId)}
+  AND NOT EXISTS (
+    SELECT 1
+    FROM watchlist
+    WHERE movie_id = movies.id
+);
+`;
+    }
+
+    _buildMoviePlaySql(tmdbId, watchedAt, placeExpression = 'NULL', commentExpression = 'NULL', skipExisting = false) {
+        const watchedAtLiteral = this._toSqlLiteral(watchedAt);
+        const watchOrderExpression = this._buildWatchOrderSql(watchedAt);
+        const existingPlayCondition = skipExisting
+            ? '  AND NOT EXISTS (SELECT 1 FROM plays WHERE movie_id = movies.id)\n'
+            : '';
+
+        return `
+INSERT INTO plays (movie_id, watched_at, watch_order, place_id, comment)
+SELECT
+    movies.id,
+    ${watchedAtLiteral},
+    ${watchOrderExpression},
+    ${placeExpression},
+    ${commentExpression}
+FROM movies
+WHERE movies.tmdb_id = ${this._toSqlLiteral(tmdbId)}
+${existingPlayCondition};`;
+    }
+
+    _buildTvShowUpsertSql(details) {
+        const genres = Array.isArray(details?.genres)
+            ? details.genres
+                .map(genre => genre?.name)
+                .filter(genreName => Boolean(genreName))
+                .join(', ')
+            : String(details?.genres || '');
+        const now = new Date().toISOString();
+
+        return `
+INSERT INTO tv_shows (
+    tmdb_id,
+    imdb_id,
+    name,
+    original_name,
+    poster_path,
+    backdrop_path,
+    tagline,
+    overview,
+    original_language,
+    genres,
+    first_air_date,
+    last_air_date,
+    status,
+    number_of_seasons,
+    number_of_episodes,
+    tmdb_average,
+    tmdb_vote_count,
+    created_at,
+    updated_at
+) VALUES (
+    ${this._toSqlLiteral(details?.id)},
+    ${this._toSqlLiteral(details?.imdb_id || details?.external_ids?.imdb_id || null)},
+    ${this._toSqlLiteral(details?.name || details?.title || 'Untitled')},
+    ${this._toSqlLiteral(details?.original_name || details?.name || null)},
+    ${this._toSqlLiteral(details?.poster_path || null)},
+    ${this._toSqlLiteral(details?.backdrop_path || null)},
+    ${this._toSqlLiteral(details?.tagline || null)},
+    ${this._toSqlLiteral(details?.overview || null)},
+    ${this._toSqlLiteral(details?.original_language || null)},
+    ${this._toSqlLiteral(genres)},
+    ${this._toSqlLiteral(details?.first_air_date || null)},
+    ${this._toSqlLiteral(details?.last_air_date || null)},
+    ${this._toSqlLiteral(details?.status || null)},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.number_of_seasons))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.number_of_episodes))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.vote_average))},
+    ${this._toSqlLiteral(this._normalizeNumber(details?.vote_count))},
+    ${this._toSqlLiteral(now)},
+    ${this._toSqlLiteral(now)}
+)
+ON CONFLICT(tmdb_id) DO UPDATE SET
+    imdb_id = excluded.imdb_id,
+    name = excluded.name,
+    original_name = excluded.original_name,
+    poster_path = excluded.poster_path,
+    backdrop_path = excluded.backdrop_path,
+    tagline = excluded.tagline,
+    overview = excluded.overview,
+    original_language = excluded.original_language,
+    genres = excluded.genres,
+    first_air_date = excluded.first_air_date,
+    last_air_date = excluded.last_air_date,
+    status = excluded.status,
+    number_of_seasons = excluded.number_of_seasons,
+    number_of_episodes = excluded.number_of_episodes,
+    tmdb_average = excluded.tmdb_average,
+    tmdb_vote_count = excluded.tmdb_vote_count,
+    updated_at = excluded.updated_at;
+`;
+    }
+
+    _buildTvWatchlistSql(tmdbId) {
+        const now = new Date().toISOString();
+        return `
+INSERT INTO tv_watchlist (show_id, created_at)
+SELECT id, ${this._toSqlLiteral(now)}
+FROM tv_shows
+WHERE tmdb_id = ${this._toSqlLiteral(tmdbId)}
+  AND NOT EXISTS (
+    SELECT 1
+    FROM tv_watchlist
+    WHERE show_id = tv_shows.id
+);
+`;
+    }
+
+    _buildTvSeasonUpsertSql(showTmdbId, season) {
+        const now = new Date().toISOString();
+        const seasonNumber = this._normalizeSeasonNumber(season?.number);
+
+        return `
+INSERT INTO tv_seasons (
+    show_id,
+    tmdb_season_id,
+    season_number,
+    name,
+    overview,
+    air_date,
+    poster_path,
+    episode_count,
+    vote_average,
+    vote_count,
+    updated_at
+) VALUES (
+    (SELECT id FROM tv_shows WHERE tmdb_id = ${this._toSqlLiteral(showTmdbId)}),
+    ${this._toSqlLiteral(this._normalizeNumber(season?.id))},
+    ${this._toSqlLiteral(seasonNumber)},
+    ${this._toSqlLiteral(season?.title || season?.name || null)},
+    ${this._toSqlLiteral(season?.overview || null)},
+    ${this._toSqlLiteral(season?.air_date || null)},
+    ${this._toSqlLiteral(this._normalizeTicketboothImagePath(season?.poster_path))},
+    ${this._toSqlLiteral(this._normalizeNumber(season?.episodes_number))},
+    ${this._toSqlLiteral(this._normalizeNumber(season?.vote_average))},
+    ${this._toSqlLiteral(this._normalizeNumber(season?.vote_count))},
+    ${this._toSqlLiteral(now)}
+)
+ON CONFLICT(show_id, season_number) DO UPDATE SET
+    tmdb_season_id = excluded.tmdb_season_id,
+    name = excluded.name,
+    overview = excluded.overview,
+    air_date = excluded.air_date,
+    poster_path = excluded.poster_path,
+    episode_count = excluded.episode_count,
+    vote_average = excluded.vote_average,
+    vote_count = excluded.vote_count,
+    updated_at = excluded.updated_at;
+`;
+    }
+
+    _buildTvEpisodeUpsertSql(showTmdbId, seasonNumber, episode) {
+        const now = new Date().toISOString();
+        const episodeNumber = this._normalizeEpisodeNumber(episode?.number);
+
+        return `
+INSERT INTO tv_episodes (
+    show_id,
+    season_id,
+    tmdb_episode_id,
+    season_number,
+    episode_number,
+    name,
+    overview,
+    air_date,
+    runtime,
+    still_path,
+    director_names,
+    writer_names,
+    vote_average,
+    vote_count,
+    updated_at
+) VALUES (
+    (SELECT id FROM tv_shows WHERE tmdb_id = ${this._toSqlLiteral(showTmdbId)}),
+    (
+        SELECT id
+        FROM tv_seasons
+        WHERE show_id = (SELECT id FROM tv_shows WHERE tmdb_id = ${this._toSqlLiteral(showTmdbId)})
+          AND season_number = ${this._toSqlLiteral(seasonNumber)}
+    ),
+    ${this._toSqlLiteral(this._normalizeNumber(episode?.id))},
+    ${this._toSqlLiteral(seasonNumber)},
+    ${this._toSqlLiteral(episodeNumber)},
+    ${this._toSqlLiteral(episode?.title || episode?.name || 'Untitled Episode')},
+    ${this._toSqlLiteral(episode?.overview || null)},
+    ${this._toSqlLiteral(episode?.air_date || null)},
+    ${this._toSqlLiteral(this._normalizeNumber(episode?.runtime))},
+    ${this._toSqlLiteral(this._normalizeTicketboothImagePath(episode?.still_path))},
+    ${this._toSqlLiteral(episode?.director_names || null)},
+    ${this._toSqlLiteral(episode?.writer_names || null)},
+    ${this._toSqlLiteral(this._normalizeNumber(episode?.vote_average))},
+    ${this._toSqlLiteral(this._normalizeNumber(episode?.vote_count))},
+    ${this._toSqlLiteral(now)}
+)
+ON CONFLICT(show_id, season_number, episode_number) DO UPDATE SET
+    tmdb_episode_id = excluded.tmdb_episode_id,
+    name = excluded.name,
+    overview = excluded.overview,
+    air_date = excluded.air_date,
+    runtime = excluded.runtime,
+    still_path = excluded.still_path,
+    director_names = excluded.director_names,
+    writer_names = excluded.writer_names,
+    vote_average = excluded.vote_average,
+    vote_count = excluded.vote_count,
+    updated_at = excluded.updated_at;
+`;
+    }
+
+    _buildTvEpisodePlaySql(showTmdbId, seasonNumber, episodeNumber, watchedAt, placeExpression = 'NULL', commentExpression = 'NULL', skipExisting = false) {
+        const watchedAtLiteral = this._toSqlLiteral(watchedAt);
+        const watchOrderExpression = this._buildWatchOrderSql(watchedAt);
+        const existingPlayCondition = skipExisting
+            ? '  AND NOT EXISTS (SELECT 1 FROM tv_episode_plays WHERE show_id = tv_shows.id AND episode_id = tv_episodes.id)\n'
+            : '';
+
+        return `
+INSERT INTO tv_episode_plays (show_id, episode_id, watched_at, watch_order, place_id, comment)
+SELECT
+    tv_shows.id,
+    tv_episodes.id,
+    ${watchedAtLiteral},
+    ${watchOrderExpression},
+    ${placeExpression},
+    ${commentExpression}
+FROM tv_shows
+JOIN tv_episodes ON tv_episodes.show_id = tv_shows.id
+WHERE tv_shows.tmdb_id = ${this._toSqlLiteral(showTmdbId)}
+  AND tv_episodes.season_number = ${this._toSqlLiteral(seasonNumber)}
+  AND tv_episodes.episode_number = ${this._toSqlLiteral(episodeNumber)}
+${existingPlayCondition};`;
+    }
+
+    _buildWatchOrderSql(watchedAt) {
+        const watchedAtFilter = watchedAt === null || watchedAt === undefined
+            ? 'watched_at IS NULL'
+            : `watched_at = ${this._toSqlLiteral(watchedAt)}`;
+
+        return `(
+    SELECT COALESCE(MAX(watch_order), 0) + 1
+    FROM (
+        SELECT watch_order FROM plays WHERE ${watchedAtFilter}
+        UNION ALL
+        SELECT watch_order FROM tv_episode_plays WHERE ${watchedAtFilter}
+    )
+)`;
+    }
+
+    _buildPlaceInsertSql(placeName) {
+        const now = new Date().toISOString();
+        return `
+INSERT OR IGNORE INTO places (name, is_cinema, created_at)
+VALUES (${this._toSqlLiteral(placeName)}, 0, ${this._toSqlLiteral(now)});
+`;
+    }
+
+    _toSqlLiteral(value) {
+        if (value === null || value === undefined) {
+            return 'NULL';
+        }
+        if (typeof value === 'number') {
+            return Number.isFinite(value) ? String(value) : 'NULL';
+        }
+        if (typeof value === 'boolean') {
+            return value ? '1' : '0';
+        }
+        return `'${String(value).replace(/'/g, "''")}'`;
+    }
+
+    _normalizeNumber(rawValue) {
+        const normalizedValue = Number(rawValue);
+        return Number.isFinite(normalizedValue) ? normalizedValue : null;
+    }
+
+    _normalizeSeasonNumber(rawValue) {
+        const normalizedValue = Number(rawValue);
+        if (!Number.isFinite(normalizedValue)) {
+            return 0;
+        }
+        return normalizedValue;
+    }
+
+    _normalizeEpisodeNumber(rawValue) {
+        const normalizedValue = Number(rawValue);
+        if (!Number.isFinite(normalizedValue)) {
+            return 0;
+        }
+        return normalizedValue;
     }
 
     _toTmdbGenres(rawGenres) {
@@ -1421,7 +1738,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
     _showRestartPromptAfterImport() {
         const dialog = new Adw.AlertDialog({
             heading: _('Backup imported'),
-            body: _('Import completed successfully. Restart the app now to reload the imported data.'),
+            body: _('Import completed successfully. You might need to refresh the TMDB database from Preferences to see the imported data. Restart the app now to reload the imported data.'),
             close_response: 'later',
         });
 

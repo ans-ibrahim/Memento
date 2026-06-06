@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: memento\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-06 13:40+0500\n"
+"POT-Creation-Date: 2026-06-06 17:11+0500\n"
 "PO-Revision-Date: 2026-02-28 21:21+0500\n"
 "Last-Translator: خودکار طور پر تیار شدہ\n"
 "Language-Team: اردو پاکستان\n"
@@ -117,9 +117,9 @@ msgstr "کیا یہ سینما ہے"
 #: src/dialogs/places-dialog.js:124 src/dialogs/places-dialog.js:166
 #: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:926
 #: src/pages/movie-detail-page.js:1156 src/pages/movie-detail-page.js:1288
-#: src/pages/preferences-page.js:187 src/pages/preferences-page.js:221
-#: src/pages/preferences-page.js:253 src/pages/preferences-page.js:291
-#: src/pages/preferences-page.js:330 src/pages/preferences-page.js:361
+#: src/pages/preferences-page.js:179 src/pages/preferences-page.js:213
+#: src/pages/preferences-page.js:245 src/pages/preferences-page.js:283
+#: src/pages/preferences-page.js:322 src/pages/preferences-page.js:353
 #: src/pages/tv-detail-page.js:931 src/pages/tv-detail-page.js:1116
 #: src/pages/tv-detail-page.js:1243 src/widgets/play-card.js:190
 msgid "Cancel"
@@ -352,7 +352,7 @@ msgstr "اندراج محفوظ نہ ہو سکا"
 msgid "An unexpected error occurred while saving the play."
 msgstr "اندراج محفوظ کرتے وقت غیر متوقع خرابی پیش آئی۔"
 
-#: src/pages/movie-detail-page.js:984 src/pages/preferences-page.js:1417
+#: src/pages/movie-detail-page.js:984 src/pages/preferences-page.js:1734
 #: src/pages/tv-detail-page.js:966 src/pages/tv-detail-page.js:990
 #: src/pages/tv-detail-page.js:1272
 msgid "OK"
@@ -406,7 +406,7 @@ msgid "Movie Details"
 msgstr "فلم کی تفصیلات"
 
 #: src/pages/movie-detail-page.ui:71 src/pages/person-page.ui:209
-#: src/pages/preferences-page.js:360 src/pages/tv-detail-page.ui:64
+#: src/pages/preferences-page.js:352 src/pages/tv-detail-page.ui:64
 #: src/window.ui:170 src/window.ui:324
 msgid "Watchlist"
 msgstr "دیکھنے کی فہرست"
@@ -604,153 +604,155 @@ msgstr ""
 "اپنی فلم دیکھنے کی تاریخ\n"
 "                      کا ریکارڈ رکھنا شروع کریں"
 
-#: src/pages/preferences-page.js:136
+#: src/pages/preferences-page.js:128
 msgid "API key saved"
 msgstr "اے پی آئی کلید محفوظ ہو گئی"
 
-#: src/pages/preferences-page.js:182 src/pages/preferences-page.ui:164
+#: src/pages/preferences-page.js:174 src/pages/preferences-page.ui:164
 msgid "Export backup"
 msgstr "محفوظ نقل برآمد کریں"
 
-#: src/pages/preferences-page.js:186 src/pages/preferences-page.ui:168
+#: src/pages/preferences-page.js:178 src/pages/preferences-page.ui:168
 msgid "Export"
 msgstr "برآمد کریں"
 
-#: src/pages/preferences-page.js:193 src/pages/preferences-page.js:225
+#: src/pages/preferences-page.js:185 src/pages/preferences-page.js:217
 msgid "Backup files"
 msgstr "محفوظ نقل کی فائلیں"
 
-#: src/pages/preferences-page.js:204
+#: src/pages/preferences-page.js:196
 msgid "Failed to export backup"
 msgstr "محفوظ نقل برآمد نہ ہو سکی"
 
-#: src/pages/preferences-page.js:216 src/pages/preferences-page.ui:176
+#: src/pages/preferences-page.js:208 src/pages/preferences-page.ui:176
 msgid "Import backup"
 msgstr "محفوظ نقل درآمد کریں"
 
-#: src/pages/preferences-page.js:220 src/pages/preferences-page.js:252
-#: src/pages/preferences-page.js:290 src/pages/preferences-page.ui:180
+#: src/pages/preferences-page.js:212 src/pages/preferences-page.js:244
+#: src/pages/preferences-page.js:282 src/pages/preferences-page.ui:180
 #: src/pages/preferences-page.ui:192 src/pages/preferences-page.ui:204
 msgid "Import"
 msgstr "درآمد کریں"
 
-#: src/pages/preferences-page.js:236
+#: src/pages/preferences-page.js:228
 msgid "Failed to import backup"
 msgstr "محفوظ نقل درآمد نہ ہو سکی"
 
-#: src/pages/preferences-page.js:248
+#: src/pages/preferences-page.js:240
 msgid "Import Ticket Booth backup"
 msgstr "ٹکٹ بوتھ کی محفوظ نقل درآمد کریں"
 
-#: src/pages/preferences-page.js:257
+#: src/pages/preferences-page.js:249
 msgid "ZIP files"
 msgstr "زپ فائلیں"
 
-#: src/pages/preferences-page.js:274
+#: src/pages/preferences-page.js:266
 msgid "Failed to import Ticket Booth backup"
 msgstr "ٹکٹ بوتھ کی محفوظ نقل درآمد نہ ہو سکی"
 
-#: src/pages/preferences-page.js:286 src/pages/preferences-page.js:355
+#: src/pages/preferences-page.js:278 src/pages/preferences-page.js:347
 msgid "Import Movary CSV"
 msgstr "موواری سی ایس وی درآمد کریں"
 
-#: src/pages/preferences-page.js:295
+#: src/pages/preferences-page.js:287
 msgid "CSV files"
 msgstr "سی ایس وی فائلیں"
 
-#: src/pages/preferences-page.js:312
+#: src/pages/preferences-page.js:304
 msgid "Failed to import Movary export"
 msgstr "موواری فائل درآمد نہ ہو سکی"
 
-#: src/pages/preferences-page.js:324
+#: src/pages/preferences-page.js:316
 msgid "Import watched plays"
 msgstr "دیکھی گئی اندراجات درآمد کریں"
 
-#: src/pages/preferences-page.js:325
+#: src/pages/preferences-page.js:317
 msgid ""
 "If a watched title already has plays in Memento, should import add another "
 "play or skip it?"
 msgstr ""
-"اگر کسی دیکھی گئی فلم یا سیریز کے لیے میمنٹو میں پہلے سے اندراجات موجود "
-"ہوں، تو کیا درآمد مزید اندراج شامل کرے یا موجودہ کو چھوڑ دے؟"
+"اگر کسی دیکھی گئی فلم یا سیریز کے لیے میمنٹو میں پہلے سے اندراجات موجود ہوں، "
+"تو کیا درآمد مزید اندراج شامل کرے یا موجودہ کو چھوڑ دے؟"
 
-#: src/pages/preferences-page.js:328
+#: src/pages/preferences-page.js:320
 msgid "Add new plays"
 msgstr "نئے اندراجات شامل کریں"
 
-#: src/pages/preferences-page.js:329
+#: src/pages/preferences-page.js:321
 msgid "Skip existing"
 msgstr "موجودہ چھوڑ دیں"
 
-#: src/pages/preferences-page.js:356
+#: src/pages/preferences-page.js:348
 msgid "Select what this CSV contains."
 msgstr "منتخب کریں کہ اس سی ایس وی میں کیا موجود ہے۔"
 
-#: src/pages/preferences-page.js:359
+#: src/pages/preferences-page.js:351
 msgid "History (plays)"
 msgstr "تاریخچہ (اندراجات)"
 
-#: src/pages/preferences-page.js:417
+#: src/pages/preferences-page.js:409
 msgid "Backup exported successfully"
 msgstr "محفوظ نقل کامیابی سے برآمد ہو گئی"
 
-#: src/pages/preferences-page.js:1166 src/pages/preferences-page.js:1234
+#: src/pages/preferences-page.js:1483 src/pages/preferences-page.js:1551
 msgid "Starting..."
 msgstr "شروع ہو رہا ہے..."
 
-#: src/pages/preferences-page.js:1174 src/pages/preferences-page.js:1242
+#: src/pages/preferences-page.js:1491 src/pages/preferences-page.js:1559
 msgid "Failed to load titles list"
 msgstr "عنوانات کی فہرست لوڈ نہ ہو سکی"
 
-#: src/pages/preferences-page.js:1181
+#: src/pages/preferences-page.js:1498
 msgid "No titles to refresh"
 msgstr "تازہ کرنے کے لیے کوئی عنوان نہیں"
 
-#: src/pages/preferences-page.js:1217
+#: src/pages/preferences-page.js:1534
 #, javascript-format
 msgid "Refreshed %d/%d titles (%d failed)"
 msgstr "%d/%d عنوانات تازہ ہوئے (%d ناکام)"
 
-#: src/pages/preferences-page.js:1223
+#: src/pages/preferences-page.js:1540
 #, javascript-format
 msgid "Refreshed %d titles"
 msgstr "%d عنوانات تازہ ہوئے"
 
-#: src/pages/preferences-page.js:1249
+#: src/pages/preferences-page.js:1566
 msgid "No titles with IMDb IDs to refresh"
 msgstr "تازہ کرنے کے لیے IMDb شناخت والے کوئی عنوانات نہیں"
 
-#: src/pages/preferences-page.js:1280
+#: src/pages/preferences-page.js:1597
 #, javascript-format
 msgid "Refreshed %d/%d IMDb ratings (%d failed)"
 msgstr "%d/%d آئی ایم ڈی بی درجہ بندیاں تازہ ہوئیں (%d ناکام)"
 
-#: src/pages/preferences-page.js:1286
+#: src/pages/preferences-page.js:1603
 #, javascript-format
 msgid "Refreshed %d IMDb ratings"
 msgstr "%d آئی ایم ڈی بی درجہ بندیاں تازہ ہوئیں"
 
-#: src/pages/preferences-page.js:1413
+#: src/pages/preferences-page.js:1730
 msgid "Notice"
 msgstr "اطلاع"
 
-#: src/pages/preferences-page.js:1423
+#: src/pages/preferences-page.js:1740
 msgid "Backup imported"
 msgstr "محفوظ نقل درآمد ہو گئی"
 
-#: src/pages/preferences-page.js:1424
+#: src/pages/preferences-page.js:1741
 msgid ""
-"Import completed successfully. Restart the app now to reload the imported "
-"data."
+"Import completed successfully. You might need to refresh the TMDB database "
+"from Preferences to see the imported data. Restart the app now to reload the "
+"imported data."
 msgstr ""
-"درآمد کامیابی سے مکمل ہو گئی۔ درآمد شدہ ڈیٹا دوبارہ لوڈ کرنے کے لیے ایپ "
-"ابھی دوبارہ شروع کریں۔"
+"درآمد کامیابی سے مکمل ہو گئی۔ درآمد شدہ ڈیٹا دیکھنے کے لیے آپ کو ترجیحات سے "
+"TMDB ڈیٹابیس تازہ کرنے کی ضرورت پڑ سکتی ہے۔ درآمد شدہ ڈیٹا دوبارہ لوڈ کرنے کے "
+"لیے ابھی ایپ دوبارہ شروع کریں۔"
 
-#: src/pages/preferences-page.js:1428
+#: src/pages/preferences-page.js:1745
 msgid "Later"
 msgstr "بعد میں"
 
-#: src/pages/preferences-page.js:1429
+#: src/pages/preferences-page.js:1746
 msgid "Restart now"
 msgstr "ابھی دوبارہ شروع کریں"
 

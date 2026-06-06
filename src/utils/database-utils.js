@@ -266,6 +266,11 @@ function getDatabasePath() {
 function runSql(sql, options = {}) {
     const databasePath = getDatabasePath();
     const args = ['sqlite3', '-batch'];
+    if (Array.isArray(options.shellCommands)) {
+        for (const shellCommand of options.shellCommands) {
+            args.push('-cmd', shellCommand);
+        }
+    }
     if (options.expectJson)
         args.push('-json');
     args.push(databasePath);
@@ -307,6 +312,15 @@ function executeStatements(sql) {
 
 function execute(sql) {
     runSql(sql);
+}
+
+export function executeTransaction(sqlStatements) {
+    const transactionSql = `
+BEGIN IMMEDIATE;
+${sqlStatements}
+COMMIT;
+`;
+    runSql(transactionSql, { shellCommands: ['.bail on'] });
 }
 
 function queryAll(sql) {
