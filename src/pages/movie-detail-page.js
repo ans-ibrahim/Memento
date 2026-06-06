@@ -819,7 +819,17 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
         contentArea.append(dateLabel);
 
+        const useDateCheck = new Gtk.CheckButton({
+            label: _('Don’t store watch date'),
+            active: false,
+        });
+        contentArea.append(useDateCheck);
+
         const calendar = new Gtk.Calendar();
+        calendar.set_sensitive(!useDateCheck.get_active());
+        useDateCheck.connect('toggled', checkButton => {
+            calendar.set_sensitive(!checkButton.get_active());
+        });
         contentArea.append(calendar);
 
         const getSelectedDateIsoString = () => {
@@ -918,7 +928,9 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
-                const isoDate = getSelectedDateIsoString();
+                const isoDate = useDateCheck.get_active()
+                    ? null
+                    : getSelectedDateIsoString();
                 
                 // Get selected place
                 const selectedIndex = placeDropdown.get_selected();
@@ -1163,8 +1175,6 @@ export const MementoMovieDetailPage = GObject.registerClass({
     }
 
     async _showEditPlayDialog(play) {
-        console.log('Opening edit dialog for play:', play.id);
-        
         const dialog = new Gtk.Dialog({
             title: _('Edit Play'),
             modal: true,
@@ -1185,27 +1195,36 @@ export const MementoMovieDetailPage = GObject.registerClass({
         });
         contentArea.append(dateLabel);
 
+        const watchedDateText = String(play.watched_at || '').trim();
+        const hasExistingDate = /^\d{4}-\d{2}-\d{2}$/.test(watchedDateText);
+        const useDateCheck = new Gtk.CheckButton({
+            label: _('Don’t store watch date'),
+            active: !hasExistingDate,
+        });
+        contentArea.append(useDateCheck);
+
         const calendar = new Gtk.Calendar();
-        
-        // Set calendar to the play's date - GTK4 API uses GDateTime directly
-        try {
-            const watchedDateText = String(play.watched_at || '').trim();
-            const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-            const playYear = dateMatch ? Number(dateMatch[1]) : NaN;
-            const playMonth = dateMatch ? Number(dateMatch[2]) : NaN;
-            const playDay = dateMatch ? Number(dateMatch[3]) : NaN;
-            if (!Number.isFinite(playYear) || !Number.isFinite(playMonth) || !Number.isFinite(playDay)) {
-                throw new Error('Invalid watched_at date');
+        calendar.set_sensitive(!useDateCheck.get_active());
+        useDateCheck.connect('toggled', checkButton => {
+            calendar.set_sensitive(!checkButton.get_active());
+        });
+
+        if (hasExistingDate) {
+            try {
+                const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                const playYear = Number(dateMatch[1]);
+                const playMonth = Number(dateMatch[2]);
+                const playDay = Number(dateMatch[3]);
+                const gDateTime = GLib.DateTime.new_local(
+                    playYear,
+                    playMonth,
+                    playDay,
+                    0, 0, 0
+                );
+                calendar.select_day(gDateTime);
+            } catch (error) {
+                console.error('Failed to prefill watched date:', error);
             }
-            const gDateTime = GLib.DateTime.new_local(
-                playYear,
-                playMonth,
-                playDay,
-                0, 0, 0
-            );
-            calendar.select_day(gDateTime);
-        } catch (error) {
-            console.error('Failed to set calendar date:', error);
         }
         
         contentArea.append(calendar);
@@ -1271,8 +1290,11 @@ export const MementoMovieDetailPage = GObject.registerClass({
 
         dialog.connect('response', async (dlg, response) => {
             if (response === Gtk.ResponseType.OK) {
-                const date = calendar.get_date();
-                const isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                let isoDate = null;
+                if (!useDateCheck.get_active()) {
+                    const date = calendar.get_date();
+                    isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+                }
                 
                 // Get selected place
                 const selectedIndex = placeDropdown.get_selected();
@@ -1296,7 +1318,6 @@ export const MementoMovieDetailPage = GObject.registerClass({
             dlg.close();
         });
 
-        console.log('Presenting edit dialog');
         dialog.present();
     }
 

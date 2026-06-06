@@ -787,7 +787,23 @@ export const MementoTvDetailPage = GObject.registerClass({
         contentArea.set_margin_bottom(24);
         contentArea.set_spacing(12);
 
+        const dateLabel = new Gtk.Label({
+            label: _('Watch Date:'),
+            xalign: 0,
+        });
+        contentArea.append(dateLabel);
+
+        const useDateCheck = new Gtk.CheckButton({
+            label: _('Don’t store watch date'),
+            active: false,
+        });
+        contentArea.append(useDateCheck);
+
         const calendar = new Gtk.Calendar();
+        calendar.set_sensitive(!useDateCheck.get_active());
+        useDateCheck.connect('toggled', checkButton => {
+            calendar.set_sensitive(!checkButton.get_active());
+        });
         contentArea.append(calendar);
 
         const episodesBySeason = await getTvSeasonsWithEpisodes(this._showId);
@@ -929,8 +945,11 @@ export const MementoTvDetailPage = GObject.registerClass({
             }
             const isEpisodeMode = Number(logTypeDropdown.get_selected()) === 0;
 
-            const date = calendar.get_date();
-            const watchedAt = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+            let watchedAt = null;
+            if (!useDateCheck.get_active()) {
+                const date = calendar.get_date();
+                watchedAt = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+            }
             const placeIndex = Number(placeDropdown.get_selected());
             const placeId = placeIndex > 0 ? places[placeIndex - 1].id : null;
             const comment = commentEntry.get_text().trim() || null;
@@ -1137,9 +1156,20 @@ export const MementoTvDetailPage = GObject.registerClass({
         });
         contentArea.append(dateLabel);
 
+        const watchedDateText = String(play.watched_at || '').trim();
+        const hasExistingDate = /^\d{4}-\d{2}-\d{2}$/.test(watchedDateText);
+        const useDateCheck = new Gtk.CheckButton({
+            label: _('Don’t store watch date'),
+            active: !hasExistingDate,
+        });
+        contentArea.append(useDateCheck);
+
         const calendar = new Gtk.Calendar();
+        calendar.set_sensitive(!useDateCheck.get_active());
+        useDateCheck.connect('toggled', checkButton => {
+            calendar.set_sensitive(!checkButton.get_active());
+        });
         try {
-            const watchedDateText = String(play.watched_at || '').trim();
             const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
             const playYear = dateMatch ? Number(dateMatch[1]) : NaN;
             const playMonth = dateMatch ? Number(dateMatch[2]) : NaN;
@@ -1219,8 +1249,11 @@ export const MementoTvDetailPage = GObject.registerClass({
                 return;
             }
 
-            const date = calendar.get_date();
-            const isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+            let isoDate = null;
+            if (!useDateCheck.get_active()) {
+                const date = calendar.get_date();
+                isoDate = `${date.get_year()}-${String(date.get_month()).padStart(2, '0')}-${String(date.get_day_of_month()).padStart(2, '0')}`;
+            }
             const selectedIndex = Number(placeDropdown.get_selected());
             const placeId = selectedIndex > 0 ? places[selectedIndex - 1].id : null;
             const watchOrder = orderSpinButton.get_value_as_int();

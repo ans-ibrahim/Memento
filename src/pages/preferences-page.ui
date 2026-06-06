@@ -160,6 +160,54 @@
                   </object>
                 </child>
                 <child>
+                  <object class="AdwActionRow" id="export_backup_row">
+                    <property name="title" translatable="yes">Export backup</property>
+                    <property name="subtitle" translatable="yes">Export settings and database into a .backup file</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="export_backup_button">
+                        <property name="label" translatable="yes">Export</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow" id="import_backup_row">
+                    <property name="title" translatable="yes">Import backup</property>
+                    <property name="subtitle" translatable="yes">Restore settings and database from a .backup file</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="import_backup_button">
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow" id="import_ticketbooth_row">
+                    <property name="title" translatable="yes">Import Ticket Booth</property>
+                    <property name="subtitle" translatable="yes">Import watchlist and watched titles from a Ticket Booth .zip export</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="import_ticketbooth_button">
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="AdwActionRow" id="import_movary_row">
+                    <property name="title" translatable="yes">Import Movary</property>
+                    <property name="subtitle" translatable="yes">Import watched titles from history.csv or watchlist from watchlist.csv</property>
+                    <child type="suffix">
+                      <object class="GtkButton" id="import_movary_button">
+                        <property name="label" translatable="yes">Import</property>
+                        <property name="valign">center</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="AdwActionRow" id="refresh_imdb_progress_row">
                     <property name="title" translatable="yes">IMDb refresh progress</property>
                     <property name="visible">false</property>
