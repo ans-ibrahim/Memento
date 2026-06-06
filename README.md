@@ -91,6 +91,3 @@ Some of the features are borrowed from [Movary](https://github.com/leepeuker/mov
 
 GPL-3.0-or-later. See `COPYING`.
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
