@@ -1,0 +1,1185 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the memento package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: memento\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-22 03:56+0500\n"
+"PO-Revision-Date: 2026-03-02 16:23+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+#: data/io.github.ans_ibrahim.Memento.desktop.in:2 src/main.js:57
+#: src/window.ui:6
+msgid "Memento"
+msgstr "Memento"
+
+#: data/io.github.ans_ibrahim.Memento.desktop.in:8
+msgid "movies;watchlist;tracker;cinema;tmdb;"
+msgstr "filmy;lista do obejrzenia;tracker;kino;tmdb;"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:6
+msgid "TMDB API Key"
+msgstr "Klucz API TMDB"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:7
+msgid "API key for The Movie Database (TMDB) service"
+msgstr "Klucz API dla serwisu The Movie Database (TMDB)"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:11
+msgid "Auto-remove from watchlist"
+msgstr "Automatyczne usuwanie z listy do obejrzenia"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:12
+msgid "Automatically remove movie from watchlist when adding a play"
+msgstr ""
+"Automatycznie usuwa film z listy do obejrzenia po dodaniu obejrzenia"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:16
+#: src/pages/preferences-page.ui:62
+msgid "Enable TMDB rating"
+msgstr "Włącz oceny TMDB"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:17
+msgid "Show TMDB ratings in the movie details ratings section"
+msgstr ""
+"Wyświetla oceny TMDB w sekcji szczegółów filmu"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:21
+#: src/pages/preferences-page.ui:73
+msgid "Enable IMDb rating"
+msgstr "Włącz oceny IMDb"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:22
+msgid "Show and fetch IMDb ratings in the movie details ratings section"
+msgstr ""
+"Pobiera i wyświetla oceny IMDb w sekcji szczegółów filmu"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:26
+msgid "Dashboard people metric"
+msgstr "Metryka osób w panelu"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:27
+msgid ""
+"Default people metric for dashboard and top people page (total or unique)"
+msgstr ""
+"Domyślna metryka osób dla panelu i strony najpopularniejszych osób (łącznie lub unikalne)"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:31
+msgid "TV people counting mode"
+msgstr "Tryb liczenia osób w serialach TV"
+
+#: data/io.github.ans_ibrahim.Memento.gschema.xml:32
+msgid "If enabled, TV people stats count episodes; otherwise TV shows"
+msgstr "Jeśli włączone, statystyki osób w TV liczą odcinki; w przeciwnym razie seriale"
+
+#: src/dialogs/places-dialog.js:70
+msgid "🎬 Cinema"
+msgstr "🎬 Kino"
+
+#: src/dialogs/places-dialog.js:70
+msgid "🏠 Home"
+msgstr "🏠 Dom"
+
+#: src/dialogs/places-dialog.js:78
+msgid "Edit"
+msgstr "Edytuj"
+
+#: src/dialogs/places-dialog.js:92 src/pages/movie-detail-page.js:1137
+#: src/widgets/play-card.js:191
+msgid "Delete"
+msgstr "Usuń"
+
+#: src/dialogs/places-dialog.js:107 src/dialogs/places-dialog.ui:16
+msgid "Add Place"
+msgstr "Dodaj miejsce"
+
+#: src/dialogs/places-dialog.js:108
+msgid "Enter the place name"
+msgstr "Wprowadź nazwę miejsca"
+
+#: src/dialogs/places-dialog.js:112 src/dialogs/places-dialog.js:152
+msgid "Place Name"
+msgstr "Nazwa miejsca"
+
+#: src/dialogs/places-dialog.js:116 src/dialogs/places-dialog.js:157
+msgid "Is Cinema"
+msgstr "Kino"
+
+#: src/dialogs/places-dialog.js:124 src/dialogs/places-dialog.js:166
+#: src/dialogs/search-dialog.ui:17 src/pages/movie-detail-page.js:908
+#: src/pages/movie-detail-page.js:1136 src/pages/movie-detail-page.js:1261
+#: src/pages/tv-detail-page.js:915 src/pages/tv-detail-page.js:1194
+#: src/widgets/play-card.js:190
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: src/dialogs/places-dialog.js:125 src/pages/movie-detail-page.js:909
+msgid "Add"
+msgstr "Dodaj"
+
+#: src/dialogs/places-dialog.js:147
+msgid "Edit Place"
+msgstr "Edytuj miejsce"
+
+#: src/dialogs/places-dialog.js:148
+msgid "Update the place details"
+msgstr "Zaktualizuj szczegóły miejsca"
+
+#: src/dialogs/places-dialog.js:167 src/pages/movie-detail-page.js:1262
+#: src/pages/tv-detail-page.js:916 src/pages/tv-detail-page.js:1195
+msgid "Save"
+msgstr "Zapisz"
+
+#: src/dialogs/places-dialog.ui:6
+msgid "Places"
+msgstr "Miejsca"
+
+#: src/dialogs/places-dialog.ui:41
+msgid "My Places"
+msgstr "Moje miejsca"
+
+#: src/dialogs/places-dialog.ui:42
+msgid "Manage your viewing locations"
+msgstr "Zarządzaj lokacjami seansów"
+
+#: src/dialogs/search-dialog.js:191
+msgid "Unknown Title"
+msgstr "Nieznany tytuł"
+
+#: src/dialogs/search-dialog.js:240
+msgid "TV"
+msgstr "TV"
+
+#: src/dialogs/search-dialog.js:240 src/widgets/movie-card.js:139
+#: src/widgets/play-card.js:162
+#, fuzzy
+msgid "Movie"
+msgstr "Film"
+
+#: src/dialogs/search-dialog.js:252
+msgid "Unknown Year"
+msgstr "Nieznany rok"
+
+#: src/dialogs/search-dialog.ui:6 src/window.ui:21
+#, fuzzy
+msgid "Add Title"
+msgstr "Dodaj tytuł"
+
+#: src/dialogs/search-dialog.ui:33
+#, fuzzy
+msgid "Search movies or TV shows..."
+msgstr "Szukaj filmów lub seriali..."
+
+#: src/dialogs/search-dialog.ui:47
+#, fuzzy
+msgid "Search for Titles"
+msgstr "Szukaj tytułów"
+
+#: src/dialogs/search-dialog.ui:48
+#, fuzzy
+msgid "Type a movie or TV show name to search"
+msgstr "Wpisz nazwę filmu lub serialu, aby wyszukać"
+
+#: src/dialogs/search-dialog.ui:98
+msgid "No Results"
+msgstr "Brak wyników"
+
+#: src/dialogs/search-dialog.ui:99
+msgid "Try a different search term"
+msgstr "Spróbuj innego terminu wyszukiwania"
+
+#: src/main.js:67
+msgid "translator-credits"
+msgstr "Dawid-DD <github.com/Dawid-DD>"
+
+#: src/pages/movie-detail-page.js:259
+#, fuzzy
+msgid "Error loading title"
+msgstr "Błąd podczas ładowania tytułu"
+
+#: src/pages/movie-detail-page.js:260
+#, fuzzy
+msgid "An error occurred while loading title details."
+msgstr "Wystąpił błąd podczas ładowania szczegółów tytułu."
+
+#: src/pages/movie-detail-page.js:280
+#, fuzzy
+msgid "Failed to load title data from database."
+msgstr "Nie udało się załadować danych tytułu z bazy danych."
+
+#: src/pages/movie-detail-page.js:291
+#, fuzzy
+msgid "Error refreshing title"
+msgstr "Błąd odświeżania tytułu"
+
+#: src/pages/movie-detail-page.js:292
+#, fuzzy
+msgid "An error occurred while refreshing title details."
+msgstr "Wystąpił błąd podczas odświeżania szczegółów tytułu."
+
+#: src/pages/movie-detail-page.js:301 src/pages/person-page.js:170
+#: src/pages/tv-detail-page.js:200
+#, fuzzy
+msgid "Refreshing..."
+msgstr "Odświeżanie..."
+
+#: src/pages/movie-detail-page.js:301 src/pages/movie-detail-page.ui:14
+#: src/pages/person-page.js:170 src/pages/person-page.ui:13
+#: src/pages/preferences-page.ui:125 src/pages/preferences-page.ui:137
+#: src/pages/tv-detail-page.js:200 src/pages/tv-detail-page.ui:14
+msgid "Refresh"
+msgstr "Odśwież"
+
+#. Title and tagline
+#: src/pages/movie-detail-page.js:487 src/widgets/movie-card.js:103
+#: src/widgets/person-stat-card.js:81 src/widgets/play-card.js:115
+#: src/widgets/play-card.js:185
+msgid "Unknown"
+msgstr "Nieznany"
+
+#: src/pages/movie-detail-page.js:522
+#, fuzzy
+msgid "Episode Runtime"
+msgstr "Czas trwania odcinka"
+
+#: src/pages/movie-detail-page.js:522 src/pages/movie-detail-page.ui:196
+msgid "Runtime"
+msgstr "Czas trwania"
+
+#: src/pages/movie-detail-page.js:548 src/pages/tv-detail-page.ui:286
+msgid "Seasons"
+msgstr "Sezony"
+
+#: src/pages/movie-detail-page.js:550 src/pages/tv-detail-page.js:315
+#, fuzzy, javascript-format
+msgid "%d seasons • %d episodes"
+msgstr "%d sezonów • %d odcinków"
+
+#: src/pages/movie-detail-page.js:557 src/pages/movie-detail-page.ui:214
+msgid "Budget"
+msgstr "Budżet"
+
+#: src/pages/movie-detail-page.js:569 src/pages/tv-detail-page.ui:200
+#, fuzzy
+msgid "Status"
+msgstr "Status"
+
+#: src/pages/movie-detail-page.js:578
+msgid "Revenue"
+msgstr "Przychód"
+
+#: src/pages/movie-detail-page.js:626 src/pages/tv-detail-page.js:441
+#: src/pages/tv-detail-page.ui:218
+msgid "Ratings"
+msgstr "Oceny"
+
+#: src/pages/movie-detail-page.js:770 src/pages/tv-detail-page.js:755
+msgid "Remove from Watchlist"
+msgstr "Usuń z listy do obejrzenia"
+
+#: src/pages/movie-detail-page.js:774 src/pages/movie-detail-page.ui:80
+#: src/pages/tv-detail-page.js:759 src/pages/tv-detail-page.ui:73
+msgid "Add to Watchlist"
+msgstr "Dodaj do listy do obejrzenia"
+
+#: src/pages/movie-detail-page.js:795 src/pages/movie-detail-page.ui:104
+msgid "Add a Play"
+msgstr "Dodaj seans"
+
+#: src/pages/movie-detail-page.js:809 src/pages/movie-detail-page.js:1175
+#: src/pages/tv-detail-page.js:1116
+msgid "Watch Date:"
+msgstr "Data seansu:"
+
+#: src/pages/movie-detail-page.js:828
+msgid "What to log:"
+msgstr "Co zarejestrować:"
+
+#: src/pages/movie-detail-page.js:840
+msgid "Select target"
+msgstr "Wybierz cel"
+
+#: src/pages/movie-detail-page.js:845 src/pages/tv-detail-page.js:555
+#: src/pages/tv-detail-page.js:819
+#, javascript-format
+msgid "Season %d"
+msgstr "Sezon %d"
+
+#: src/pages/movie-detail-page.js:847
+#, javascript-format
+msgid "%s (all %d episodes)"
+msgstr "%s (wszystkie %d odcinki)"
+
+#: src/pages/movie-detail-page.js:857 src/pages/movie-detail-page.js:1054
+#: src/pages/tv-detail-page.js:640 src/pages/tv-detail-page.js:848
+#: src/pages/tv-detail-page.js:1031 src/widgets/play-card.js:143
+msgid "Untitled Episode"
+msgstr "Odcinek bez tytułu"
+
+#: src/pages/movie-detail-page.js:875 src/pages/movie-detail-page.js:1219
+#: src/pages/tv-detail-page.js:1159
+msgid "Place (optional):"
+msgstr "Miejsce (opcjonalne):"
+
+#: src/pages/movie-detail-page.js:887 src/pages/movie-detail-page.js:1231
+#: src/pages/tv-detail-page.js:905 src/pages/tv-detail-page.js:1168
+msgid "None"
+msgstr "Brak"
+
+#: src/pages/movie-detail-page.js:897 src/pages/movie-detail-page.js:1249
+#: src/pages/tv-detail-page.js:1182
+msgid "Comment (optional):"
+msgstr "Komentarz (opcjonalne):"
+
+#: src/pages/movie-detail-page.js:904 src/pages/movie-detail-page.js:1256
+#: src/pages/tv-detail-page.js:1189
+msgid "Add a note about this play"
+msgstr "Dodaj notatkę o tym seansie"
+
+#: src/pages/movie-detail-page.js:941
+msgid "Please select an episode or season."
+msgstr "Proszę wybrać odcinek lub sezon."
+
+#: src/pages/movie-detail-page.js:961 src/pages/tv-detail-page.js:944
+#: src/pages/tv-detail-page.js:968
+msgid "Could not save play"
+msgstr "Nie udało się zapisać obejrzenia"
+
+#: src/pages/movie-detail-page.js:962
+#, fuzzy
+msgid "An unexpected error occurred while saving the play."
+msgstr "Wystąpił nieoczekiwany błąd podczas zapisywania seansu."
+
+#: src/pages/movie-detail-page.js:964 src/pages/tv-detail-page.js:947
+#: src/pages/tv-detail-page.js:971 src/pages/tv-detail-page.js:1220
+msgid "OK"
+msgstr "OK"
+
+#: src/pages/movie-detail-page.js:990 src/pages/movie-detail-page.ui:117
+#: src/pages/tv-detail-page.js:1006 src/pages/tv-detail-page.ui:108
+msgid "No plays recorded"
+msgstr "Brak zarejestrowanych seansów"
+
+#: src/pages/movie-detail-page.js:993
+msgid "1 play recorded"
+msgstr "1 zarejestrowany seans"
+
+#: src/pages/movie-detail-page.js:994
+#, javascript-format
+msgid "%d plays recorded"
+msgstr "%d zarejestrowanych seansów"
+
+#: src/pages/movie-detail-page.js:998
+#, javascript-format
+msgid "%d play logs • %d/%d episodes watched • %d/%d seasons completed"
+msgstr "%d wpisów • %d/%d obejrzanych odcinków • %d/%d ukończonych sezonów"
+
+#: src/pages/movie-detail-page.js:1108 src/pages/movie-detail-page.js:1161
+#: src/pages/tv-detail-page.js:1075 src/pages/tv-detail-page.js:1103
+msgid "Edit Play"
+msgstr "Edytuj seans"
+
+#: src/pages/movie-detail-page.js:1124 src/pages/tv-detail-page.js:1086
+#: src/widgets/play-card.js:177 src/widgets/play-entry.ui:22
+msgid "Delete Play"
+msgstr "Usuń seans"
+
+#: src/pages/movie-detail-page.js:1130 src/widgets/play-card.js:183
+msgid "Delete Play?"
+msgstr "Usunąć seans?"
+
+#: src/pages/movie-detail-page.js:1131
+#, javascript-format
+msgid "Are you sure you want to delete this play from %s?"
+msgstr "Czy na pewno chcesz usunąć ten seans z %s?"
+
+#: src/pages/movie-detail-page.js:1207 src/pages/tv-detail-page.js:1144
+msgid "Watch Order:"
+msgstr "Kolejność oglądania:"
+
+#: src/pages/movie-detail-page.ui:6
+msgid "Movie Details"
+msgstr "Szczegóły filmu"
+
+#: src/pages/movie-detail-page.ui:71 src/pages/person-page.ui:209
+#: src/pages/tv-detail-page.ui:64 src/window.ui:170 src/window.ui:324
+msgid "Watchlist"
+msgstr "Do obejrzenia"
+
+#: src/pages/movie-detail-page.ui:95 src/pages/plays-page.ui:6
+#: src/pages/tv-detail-page.ui:86
+msgid "Viewing History"
+msgstr "Historia seansów"
+
+#: src/pages/movie-detail-page.ui:156
+msgid "Movie Title"
+msgstr "Tytuł filmu"
+
+#: src/pages/movie-detail-page.ui:166
+msgid "Tagline"
+msgstr "Slogan"
+
+#: src/pages/movie-detail-page.ui:181 src/pages/tv-detail-page.ui:167
+msgid "Details"
+msgstr "Szczegóły"
+
+#: src/pages/movie-detail-page.ui:184
+msgid "Release Year"
+msgstr "Rok premiery"
+
+#: src/pages/movie-detail-page.ui:190 src/pages/tv-detail-page.ui:170
+msgid "Original Title"
+msgstr "Tytuł oryginalny"
+
+#: src/pages/movie-detail-page.ui:202 src/pages/tv-detail-page.ui:188
+msgid "Original Language"
+msgstr "Język oryginalny"
+
+#: src/pages/movie-detail-page.ui:208
+msgid "Genre"
+msgstr "Gatunek"
+
+#: src/pages/movie-detail-page.ui:220 src/pages/watchlist-page.ui:31
+msgid "Rating"
+msgstr "Ocena"
+
+#: src/pages/movie-detail-page.ui:226
+msgid "Box Office"
+msgstr "Box Office"
+
+#: src/pages/movie-detail-page.ui:241 src/pages/tv-detail-page.ui:232
+msgid "Overview"
+msgstr "Opis"
+
+#: src/pages/movie-detail-page.ui:250
+msgid "Movie overview"
+msgstr "Opis filmu"
+
+#: src/pages/movie-detail-page.ui:262 src/pages/tv-detail-page.ui:250
+msgid "External Links"
+msgstr "Linki zewnętrzne"
+
+#: src/pages/movie-detail-page.ui:273 src/pages/tv-detail-page.ui:261
+msgid "IMDb"
+msgstr "IMDb"
+
+#: src/pages/movie-detail-page.ui:274 src/pages/tv-detail-page.ui:262
+msgid "Open on IMDb"
+msgstr "Otwórz w IMDb"
+
+#: src/pages/movie-detail-page.ui:282 src/pages/tv-detail-page.ui:271
+msgid "TMDB"
+msgstr "TMDB"
+
+#: src/pages/movie-detail-page.ui:283 src/pages/tv-detail-page.ui:272
+msgid "Open on TMDB"
+msgstr "Otwórz w TMDB"
+
+#: src/pages/movie-detail-page.ui:291
+msgid "Letterboxd"
+msgstr "Letterboxd"
+
+#: src/pages/movie-detail-page.ui:292
+msgid "Open on Letterboxd"
+msgstr "Otwórz w Letterboxd"
+
+#: src/pages/movie-detail-page.ui:318 src/pages/tv-detail-page.ui:311
+msgid "Directed By"
+msgstr "Reżyseria"
+
+#: src/pages/movie-detail-page.ui:342 src/pages/tv-detail-page.ui:337
+msgid "Produced By"
+msgstr "Produkcja"
+
+#: src/pages/movie-detail-page.ui:366 src/pages/person-page.ui:172
+#: src/pages/person-page.ui:227 src/pages/person-page.ui:282
+#: src/pages/top-people-page.ui:31
+msgid "Cinematography"
+msgstr "Zdjęcia"
+
+#: src/pages/movie-detail-page.ui:390 src/pages/tv-detail-page.ui:389
+msgid "Music By"
+msgstr "Muzyka"
+
+#: src/pages/movie-detail-page.ui:414 src/pages/top-people-page.ui:29
+#: src/pages/tv-detail-page.ui:412
+msgid "Cast"
+msgstr "Obsada"
+
+#: src/pages/person-page.js:154 src/pages/person-page.js:324
+#, fuzzy
+msgid "Click to explore more titles..."
+msgstr "Kliknij, aby odkryć więcej tytułów..."
+
+#: src/pages/person-page.js:316
+#, fuzzy
+msgid "Failed to load titles."
+msgstr "Nie udało się załadować tytułów."
+
+#: src/pages/person-page.js:349
+#, fuzzy
+msgid "No other titles found."
+msgstr "Nie znaleziono innych tytułów."
+
+#: src/pages/person-page.js:377
+#, javascript-format
+msgid "%d years"
+msgstr "%d lat"
+
+#: src/pages/person-page.js:382
+#, javascript-format
+msgid "%d years old"
+msgstr "wiek: %d lat"
+
+#: src/pages/person-page.js:399
+#, javascript-format
+msgid "Known for: %s"
+msgstr "Znany z: %s"
+
+#: src/pages/person-page.js:497 src/pages/tv-detail-page.js:478
+#: src/pages/tv-detail-page.js:512 src/pages/tv-detail-page.js:540
+#, javascript-format
+msgid "%d episodes"
+msgstr "%d odcinków"
+
+#: src/pages/person-page.ui:4
+msgid "Person Details"
+msgstr "Szczegóły osoby"
+
+#: src/pages/person-page.ui:115
+msgid "Biography"
+msgstr "Biografia"
+
+#: src/pages/person-page.ui:154
+msgid "Watched"
+msgstr "Obejrzane"
+
+#: src/pages/person-page.ui:169 src/pages/person-page.ui:224
+#: src/pages/person-page.ui:279
+msgid "Directing"
+msgstr "Reżyseria"
+
+#: src/pages/person-page.ui:170 src/pages/person-page.ui:225
+#: src/pages/person-page.ui:280
+msgid "Acting"
+msgstr "Aktorstwo"
+
+#: src/pages/person-page.ui:171 src/pages/person-page.ui:226
+#: src/pages/person-page.ui:281
+msgid "Production"
+msgstr "Produkcja"
+
+#: src/pages/person-page.ui:173 src/pages/person-page.ui:228
+#: src/pages/person-page.ui:283
+msgid "Music"
+msgstr "Muzyka"
+
+#: src/pages/person-page.ui:182
+msgid "No watched movies found."
+msgstr "Nie znaleziono obejrzanych filmów."
+
+#: src/pages/person-page.ui:237
+msgid "No movies in watchlist found."
+msgstr "Brak filmów na liście do obejrzenia."
+
+#: src/pages/person-page.ui:264
+msgid "Explore More"
+msgstr "Odkryj więcej"
+
+#: src/pages/person-page.ui:292
+msgid "Click to explore more movies..."
+msgstr "Kliknij, aby odkryć więcej filmów..."
+
+#: src/pages/plays-page.ui:23 src/window.ui:394
+msgid "No Plays Recorded"
+msgstr "Brak zarejestrowanych seansów"
+
+#: src/pages/plays-page.ui:24
+msgid ""
+"Start tracking your movie\n"
+"                      viewing history"
+msgstr ""
+"Zacznij śledzić swoją\n"
+"                      historię seansów"
+
+#: src/pages/preferences-page.js:112
+msgid "API key saved"
+msgstr "Klucz API zapisany"
+
+#: src/pages/preferences-page.js:162 src/pages/preferences-page.js:230
+msgid "Starting..."
+msgstr "Uruchamianie..."
+
+#: src/pages/preferences-page.js:170 src/pages/preferences-page.js:238
+#, fuzzy
+msgid "Failed to load titles list"
+msgstr "Nie udało się załadować listy tytułów"
+
+#: src/pages/preferences-page.js:177
+#, fuzzy
+msgid "No titles to refresh"
+msgstr "Brak tytułów do odświeżenia"
+
+#: src/pages/preferences-page.js:213
+#, fuzzy, javascript-format
+msgid "Refreshed %d/%d titles (%d failed)"
+msgstr "Odświeżono %d/%d tytułów (nie powiodło się: %d)"
+
+#: src/pages/preferences-page.js:219
+#, fuzzy, javascript-format
+msgid "Refreshed %d titles"
+msgstr "Odświeżono %d tytułów"
+
+#: src/pages/preferences-page.js:245
+#, fuzzy
+msgid "No titles with IMDb IDs to refresh"
+msgstr "Brak tytułów z ID IMDb do odświeżenia"
+
+#: src/pages/preferences-page.js:276
+#, javascript-format
+msgid "Refreshed %d/%d IMDb ratings (%d failed)"
+msgstr "Odświeżono %d/%d ocen IMDb (nie powiodło się: %d)"
+
+#: src/pages/preferences-page.js:282
+#, javascript-format
+msgid "Refreshed %d IMDb ratings"
+msgstr "Odświeżono %d ocen IMDb"
+
+#: src/pages/preferences-page.ui:6
+msgid "Preferences"
+msgstr "Preferencje"
+
+#: src/pages/preferences-page.ui:20
+msgid "The Movie Database (TMDB)"
+msgstr "The Movie Database (TMDB)"
+
+#: src/pages/preferences-page.ui:21
+#, fuzzy
+msgid "Configure your TMDB API key for movie and TV search"
+msgstr ""
+"Skonfiguruj klucz API TMDB aby wyszukiwaniwać filmy i seriale"
+
+#: src/pages/preferences-page.ui:24
+msgid "API Key"
+msgstr "Klucz API"
+
+#: src/pages/preferences-page.ui:31
+msgid "Get API Key"
+msgstr "Pobierz klucz API"
+
+#: src/pages/preferences-page.ui:32
+msgid "Visit themoviedb.org to create a free account and generate an API key"
+msgstr ""
+"Odwiedź themoviedb.org, aby utworzyć bezpłatne konto i wygenerować klucz API"
+
+#: src/pages/preferences-page.ui:48
+msgid "Behavior"
+msgstr "Zachowanie"
+
+#: src/pages/preferences-page.ui:51
+msgid "Auto-remove from Watchlist"
+msgstr "Automatyczne usuwanie z listy do obejrzenia"
+
+#: src/pages/preferences-page.ui:52
+#, fuzzy
+msgid "Automatically remove titles from watchlist when you add a play"
+msgstr ""
+"Automatycznie usuwa tytuły z listy do obejrzenia po dodaniu seansu"
+
+#: src/pages/preferences-page.ui:63
+msgid "Show TMDB rating in the ratings section"
+msgstr "Wyświetlaj ocenę TMDB w sekcji ocen"
+
+#: src/pages/preferences-page.ui:74
+msgid "Fetch and show IMDb rating in the ratings section"
+msgstr "Pobieraj i wyświetlaj ocenę IMDb w sekcji ocen"
+
+#: src/pages/preferences-page.ui:84
+msgid "People metric default"
+msgstr "Domyślne ustawienia wskaźników dotyczących osób"
+
+#: src/pages/preferences-page.ui:85
+msgid "Choose the default metric used on dashboard and Top People page"
+msgstr "Wybierz domyślną metrykę używaną w panelu i na stronie najpopularniejszych osób"
+
+#: src/pages/preferences-page.ui:92
+#, fuzzy
+msgid "Total plays"
+msgstr "Łączna liczba seansów"
+
+#: src/pages/preferences-page.ui:93
+#, fuzzy
+msgid "Unique titles"
+msgstr "Unikalne tytuły"
+
+#: src/pages/preferences-page.ui:103
+msgid "TV people counting level"
+msgstr "Sposób liczenia osób w TV"
+
+#: src/pages/preferences-page.ui:104
+msgid "Count TV contribution by episodes instead of TV shows"
+msgstr "Licz udział w TV według odcinków zamiast seriali"
+
+#: src/pages/preferences-page.ui:118
+msgid "Data"
+msgstr "Dane"
+
+#: src/pages/preferences-page.ui:121
+#, fuzzy
+msgid "Refresh all titles"
+msgstr "Odśwież wszystkie tytuły"
+
+#: src/pages/preferences-page.ui:122
+#, fuzzy
+msgid "Re-download details and credits for every saved movie or TV show"
+msgstr "Pobierz ponownie szczegóły i obsadę dla każdego zapisanego filmu lub serialu"
+
+#: src/pages/preferences-page.ui:133
+msgid "Refresh all IMDb ratings"
+msgstr "Odśwież wszystkie oceny IMDb"
+
+#: src/pages/preferences-page.ui:134
+#, fuzzy
+msgid "Update cached IMDb ratings for all saved titles"
+msgstr "Zaktualizuj zapisane oceny IMDb dla wszystkich tytułów"
+
+#: src/pages/preferences-page.ui:145
+msgid "Refresh progress"
+msgstr "Postęp odświeżania"
+
+#: src/pages/preferences-page.ui:164
+msgid "IMDb refresh progress"
+msgstr "Postęp odświeżania IMDb"
+
+#: src/pages/top-people-page.js:181 src/window.js:453 src/window.js:489
+#, fuzzy, javascript-format
+msgid "%d movies"
+msgstr "%d filmów"
+
+#: src/pages/top-people-page.js:185 src/window.js:457 src/window.js:493
+#, javascript-format
+msgid "%d unique episodes • %d TV shows"
+msgstr "%d unikalnych odcinków • %d seriali"
+
+#: src/pages/top-people-page.js:188 src/pages/top-people-page.js:199
+#: src/window.js:460 src/window.js:471 src/window.js:496 src/window.js:507
+#, javascript-format
+msgid "%d TV shows"
+msgstr "%d seriali"
+
+#: src/pages/top-people-page.js:192 src/window.js:464 src/window.js:500
+#, fuzzy, javascript-format
+msgid "%d movie plays"
+msgstr "%d seansów filmowych"
+
+#: src/pages/top-people-page.js:196 src/window.js:468 src/window.js:504
+#, javascript-format
+msgid "%d episode plays • %d TV shows"
+msgstr "%d obejrzanych odcinków • %d seriali"
+
+#: src/pages/top-people-page.js:220 src/pages/watchlist-page.js:140
+#: src/window.js:372
+#, javascript-format
+msgid "Page %d of %d"
+msgstr "Strona %d z %d"
+
+#: src/pages/top-people-page.ui:20
+msgid "Search people"
+msgstr "Szukaj osób"
+
+#: src/pages/top-people-page.ui:28
+msgid "Directors"
+msgstr "Reżyserzy"
+
+#: src/pages/top-people-page.ui:30
+msgid "Producers"
+msgstr "Producenci"
+
+#: src/pages/top-people-page.ui:32
+msgid "Music Composers"
+msgstr "Kompozytorzy"
+
+#: src/pages/top-people-page.ui:43
+msgid "Total Appearances (High-Low)"
+msgstr "Łączna liczba występów (od największej)"
+
+#: src/pages/top-people-page.ui:44
+msgid "Total Appearances (Low-High)"
+msgstr "Łączna liczba występów (od najmniejszej)"
+
+#: src/pages/top-people-page.ui:45
+#, fuzzy
+msgid "Unique Titles (High-Low)"
+msgstr "Unikalne tytuły (od najwyższej)"
+
+#: src/pages/top-people-page.ui:46
+#, fuzzy
+msgid "Unique Titles (Low-High)"
+msgstr "Unikalne tytuły (od najniższej)"
+
+#: src/pages/top-people-page.ui:47
+msgid "Name (A-Z)"
+msgstr "Nazwisko (A-Z)"
+
+#: src/pages/top-people-page.ui:65
+msgid "No People Found"
+msgstr "Nie znaleziono osób"
+
+#: src/pages/top-people-page.ui:66
+msgid "Try a different search or filter"
+msgstr "Spróbuj innego wyszukiwania lub filtra"
+
+#: src/pages/top-people-page.ui:106 src/pages/watchlist-page.ui:90
+#: src/window.ui:435
+msgid "Previous"
+msgstr "Poprzednia"
+
+#: src/pages/top-people-page.ui:111 src/pages/watchlist-page.ui:95
+#: src/window.ui:440
+msgid "Page 1 of 1"
+msgstr "Strona 1 z 1"
+
+#: src/pages/top-people-page.ui:119 src/pages/watchlist-page.ui:103
+#: src/window.ui:448
+msgid "Next"
+msgstr "Następna"
+
+#: src/pages/tv-detail-page.js:143 src/pages/tv-detail-page.js:687
+#, fuzzy
+msgid "Error loading TV show"
+msgstr "Błąd ładowania serialu"
+
+#: src/pages/tv-detail-page.js:144 src/pages/tv-detail-page.js:688
+msgid "Could not load TV show details."
+msgstr "Nie udało się załadować szczegółów serialu."
+
+#: src/pages/tv-detail-page.js:292
+#, fuzzy
+msgid "Unknown TV Show"
+msgstr "Nieznany serial"
+
+#: src/pages/tv-detail-page.js:322
+#, javascript-format
+msgid "%d/%d episodes watched"
+msgstr "obejrzano %d/%d odcinków"
+
+#: src/pages/tv-detail-page.js:544 src/pages/tv-detail-page.js:614
+#, javascript-format
+msgid "TMDB %s/10"
+msgstr "TMDB %s/10"
+
+#: src/pages/tv-detail-page.js:593
+msgid "Log whole season"
+msgstr "Zarejestruj cały sezon"
+
+#: src/pages/tv-detail-page.js:610
+#, javascript-format
+msgid "%d min"
+msgstr "%d minut"
+
+#: src/pages/tv-detail-page.js:623
+#, javascript-format
+msgid "Dir: %s"
+msgstr "Reż: %s"
+
+#: src/pages/tv-detail-page.js:626
+#, javascript-format
+msgid "Writer: %s"
+msgstr "Scen: %s"
+
+#: src/pages/tv-detail-page.js:638 src/pages/tv-detail-page.js:846
+#, javascript-format
+msgid "E%s • %s"
+msgstr "O%s • %s"
+
+#: src/pages/tv-detail-page.js:669
+msgid "Log this episode"
+msgstr "Zarejestruj ten odcinek"
+
+#: src/pages/tv-detail-page.js:778
+#, fuzzy
+msgid "Log TV Plays"
+msgstr "Zarejestruj seanse TV"
+
+#: src/pages/tv-detail-page.js:796
+msgid "Log type"
+msgstr "Typ wpisu"
+
+#: src/pages/tv-detail-page.js:802 src/pages/tv-detail-page.js:827
+msgid "Episode"
+msgstr "Odcinek"
+
+#: src/pages/tv-detail-page.js:803 src/pages/tv-detail-page.js:809
+msgid "Season"
+msgstr "Sezon"
+
+#: src/pages/tv-detail-page.js:817
+#, javascript-format
+msgid "S%s • %s"
+msgstr "S%s • %s"
+
+#: src/pages/tv-detail-page.js:857
+msgid "No episodes available"
+msgstr "Brak dostępnych odcinków"
+
+#: src/pages/tv-detail-page.js:912
+#, fuzzy
+msgid "Comment (optional)"
+msgstr "Komentarz (opcjonalne)"
+
+#: src/pages/tv-detail-page.js:945
+msgid "Please select an episode to log."
+msgstr "Wybierz odcinek do rejestracji."
+
+#: src/pages/tv-detail-page.js:969
+#, fuzzy
+msgid "An unexpected error occurred while saving play logs."
+msgstr "Wystąpił nieoczekiwany błąd podczas zapisywania historii seansów."
+
+#: src/pages/tv-detail-page.js:1011
+#, javascript-format
+msgid "%d play logs • %d/%d episodes watched"
+msgstr "%d wpisów • %d/%d obejrzanych odcinków"
+
+#: src/pages/tv-detail-page.js:1028
+#, javascript-format
+msgid "S%sE%s • %s"
+msgstr "S%sO%s • %s"
+
+#: src/pages/tv-detail-page.js:1217
+msgid "Could not update play"
+msgstr "Nie udało się zaktualizować seansu"
+
+#: src/pages/tv-detail-page.js:1218
+#, fuzzy
+msgid "An unexpected error occurred while updating play logs."
+msgstr "Wystąpił nieoczekiwany błąd podczas aktualizacji historii seansów."
+
+#: src/pages/tv-detail-page.ui:6
+#, fuzzy
+msgid "TV Show Details"
+msgstr "Szczegóły serialu"
+
+#: src/pages/tv-detail-page.ui:95
+msgid "Log Episode / Season"
+msgstr "Zarejestruj odcinek / sezon"
+
+#: src/pages/tv-detail-page.ui:144 src/widgets/movie-card.js:139
+#: src/widgets/play-card.js:162
+msgid "TV Show"
+msgstr "Serial TV"
+
+#: src/pages/tv-detail-page.ui:176
+msgid "First Air Date"
+msgstr "Data pierwszej emisji"
+
+#: src/pages/tv-detail-page.ui:182
+msgid "Last Air Date"
+msgstr "Data ostatniej emisji"
+
+#: src/pages/tv-detail-page.ui:194
+#, fuzzy
+msgid "Genres"
+msgstr "Gatunki"
+
+#: src/pages/tv-detail-page.ui:206
+msgid "Seasons / Episodes"
+msgstr "Sezony / Odcinki"
+
+#: src/pages/tv-detail-page.ui:212
+msgid "Progress"
+msgstr "Postęp"
+
+#: src/pages/tv-detail-page.ui:363
+#, fuzzy
+msgid "Cinematography By"
+msgstr "Zdjęcia"
+
+#: src/pages/watchlist-page.ui:20
+msgid "Search watchlist"
+msgstr "Przeszukaj listę do obejrzenia"
+
+#: src/pages/watchlist-page.ui:28
+msgid "Recently Added"
+msgstr "Ostatnio dodane"
+
+#: src/pages/watchlist-page.ui:29 src/window.ui:376
+msgid "Title (A–Z)"
+msgstr "Tytuł (A–Z)"
+
+#: src/pages/watchlist-page.ui:30
+msgid "Release Date"
+msgstr "Data premiery"
+
+#: src/pages/watchlist-page.ui:49
+msgid "Your Watchlist is Empty"
+msgstr "Twoja lista do obejrzenia jest pusta"
+
+#: src/pages/watchlist-page.ui:50
+#, fuzzy
+msgid "Click the + button to add movies or TV shows"
+msgstr "Kliknij przycisk +, aby dodać filmy lub seriale"
+
+#: src/shortcuts-dialog.ui:6
+msgid "Shortcuts"
+msgstr "Skróty"
+
+#: src/shortcuts-dialog.ui:9
+msgctxt "shortcut window"
+msgid "Show Shortcuts"
+msgstr "Pokaż skróty"
+
+#: src/shortcuts-dialog.ui:15
+msgctxt "shortcut window"
+msgid "Quit"
+msgstr "Zakończ"
+
+#: src/widgets/person-stat-card.js:123
+#, javascript-format
+msgid "%d plays"
+msgstr "%d seansów"
+
+#: src/widgets/person-stat-card.js:129
+#, javascript-format
+msgid "%d plays • %d unique"
+msgstr "%d seansów • %d unikalnych"
+
+#: src/widgets/play-card.js:184
+#, javascript-format
+msgid "Are you sure you want to delete this play of \"%s\" from %s?"
+msgstr "Czy na pewno chcesz usunąć seans „%s” z %s?"
+
+#: src/widgets/play-entry.ui:15
+msgid "Date"
+msgstr "Data"
+
+#: src/window.js:435 src/window.js:436 src/window.ui:125 src/window.ui:179
+#: src/window.ui:233 src/window.ui:279
+msgid "See all"
+msgstr "Zobacz wszystko"
+
+#: src/window.js:523
+#, fuzzy
+msgid "Movie Plays"
+msgstr "Seanse filmowe"
+
+#: src/window.js:524
+msgid "TV Episode Plays"
+msgstr "Obejrzane odcinki TV"
+
+#: src/window.js:525
+#, fuzzy
+msgid "Movies Watched"
+msgstr "Obejrzane filmy"
+
+#: src/window.js:526
+#, fuzzy
+msgid "TV Shows Watched"
+msgstr "Obejrzane seriale"
+
+#: src/window.js:527
+#, fuzzy
+msgid "Movie Watchlist"
+msgstr "Lista filmów do obejrzenia"
+
+#: src/window.js:528
+#, fuzzy
+msgid "TV Watchlist"
+msgstr "Lista seriali do obejrzenia"
+
+#: src/window.js:529
+msgid "Total Time Watched"
+msgstr "Całkowity czas oglądania"
+
+#: src/window.ui:13 src/window.ui:57
+msgid "Dashboard"
+msgstr "Pulpit nawigacyjny"
+
+#: src/window.ui:36
+msgid "Main Menu"
+msgstr "Menu główne"
+
+#: src/window.ui:83
+msgid "Stats"
+msgstr "Statystyki"
+
+#: src/window.ui:116
+msgid "Recent Plays"
+msgstr "Ostatnie seanse"
+
+#: src/window.ui:136
+msgid "No plays recorded yet."
+msgstr "Brak zarejestrowanych seansów."
+
+#: src/window.ui:190
+msgid "Your watchlist is empty."
+msgstr "Twoja lista do obejrzenia jest pusta."
+
+#: src/window.ui:224
+msgid "Top Directors"
+msgstr "Najlepsi reżyserzy"
+
+#: src/window.ui:244
+msgid "No director stats yet."
+msgstr "Brak statystyk reżyserów."
+
+#: src/window.ui:270
+msgid "Top Cast"
+msgstr "Najlepsza obsada"
+
+#: src/window.ui:290
+msgid "No cast stats yet."
+msgstr "Brak statystyk obsady."
+
+#: src/window.ui:336
+msgid "People"
+msgstr "Ludzie"
+
+#: src/window.ui:348
+msgid "Plays"
+msgstr "Seanse"
+
+#: src/window.ui:366
+msgid "Search plays"
+msgstr "Szukaj seansów"
+
+#: src/window.ui:374
+msgid "Newest"
+msgstr "Najnowsze"
+
+#: src/window.ui:375
+msgid "Oldest"
+msgstr "Najstarsze"
+
+#: src/window.ui:395
+msgid "Start tracking your movie viewing history"
+msgstr "Zacznij śledzić swoją historię seansów filmowych"
+
+#: src/window.ui:477
+msgid "_Places"
+msgstr "_Miejsca"
+
+#: src/window.ui:481
+msgid "_Preferences"
+msgstr "_Preferencje"
+
+#: src/window.ui:485
+msgid "_Keyboard Shortcuts"
+msgstr "Skróty _klawiszowe"
+
+#: src/window.ui:489
+msgid "_About Memento"
+msgstr "_O programie Memento"
+
+#~ msgid "Watch Time"
+#~ msgstr "Czas oglądania"
