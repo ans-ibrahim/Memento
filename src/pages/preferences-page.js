@@ -125,9 +125,7 @@ export const MementoPreferencesDialog = GObject.registerClass({
     _loadApiKey() {
         // Load API key into entry (load on demand, don't bind for security)
         const apiKey = this._settings.get_string('tmdb-api-key');
-        if (apiKey) {
-            this._api_key_row.set_text(apiKey);
-        }
+        this._api_key_row.set_text(apiKey || '');
     }
 
     _onApiKeyApply() {
@@ -465,6 +463,8 @@ export const MementoPreferencesDialog = GObject.registerClass({
             try {
                 this._copyFile(extractedDatabasePath, destinationDatabasePath);
                 this._applyImportSettingsState(importSettingsState);
+                this._loadApiKey();
+                this._loadPeopleMetricPreference();
             } catch (error) {
                 if (hadExistingDatabase) {
                     this._copyFile(existingDatabasePath, destinationDatabasePath);
@@ -472,6 +472,8 @@ export const MementoPreferencesDialog = GObject.registerClass({
                     Gio.File.new_for_path(destinationDatabasePath).delete(null);
                 }
                 this._applyImportSettingsState(currentSettingsState);
+                this._loadApiKey();
+                this._loadPeopleMetricPreference();
                 throw error;
             }
         } finally {

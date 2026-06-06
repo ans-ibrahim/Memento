@@ -389,9 +389,34 @@ FROM (
     return (Number(row?.max_order) || 0) + 1;
 }
 
+function isValidIsoDate(watchedDate) {
+    if (typeof watchedDate !== 'string') {
+        return false;
+    }
+
+    const dateMatch = watchedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!dateMatch) {
+        return false;
+    }
+
+    const year = Number(dateMatch[1]);
+    const month = Number(dateMatch[2]);
+    const day = Number(dateMatch[3]);
+    if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+        return false;
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return (
+        date.getUTCFullYear() === year &&
+        date.getUTCMonth() === month - 1 &&
+        date.getUTCDate() === day
+    );
+}
+
 function getNormalizedWatchedDate(watchedDate) {
     const trimmedDate = String(watchedDate ?? '').trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedDate)) {
+    if (isValidIsoDate(trimmedDate)) {
         return trimmedDate;
     }
     return null;

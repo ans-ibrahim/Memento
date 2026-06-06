@@ -1208,20 +1208,23 @@ export const MementoMovieDetailPage = GObject.registerClass({
         useDateCheck.connect('toggled', checkButton => {
             calendar.set_sensitive(!checkButton.get_active());
         });
-        
-        // Prefill only when the stored date is valid.
+
         if (hasExistingDate) {
-            const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-            const playYear = Number(dateMatch[1]);
-            const playMonth = Number(dateMatch[2]);
-            const playDay = Number(dateMatch[3]);
-            const gDateTime = GLib.DateTime.new_local(
-                playYear,
-                playMonth,
-                playDay,
-                0, 0, 0
-            );
-            calendar.select_day(gDateTime);
+            try {
+                const dateMatch = watchedDateText.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                const playYear = Number(dateMatch[1]);
+                const playMonth = Number(dateMatch[2]);
+                const playDay = Number(dateMatch[3]);
+                const gDateTime = GLib.DateTime.new_local(
+                    playYear,
+                    playMonth,
+                    playDay,
+                    0, 0, 0
+                );
+                calendar.select_day(gDateTime);
+            } catch (error) {
+                console.error('Failed to prefill watched date:', error);
+            }
         }
         
         contentArea.append(calendar);
