@@ -47,7 +47,7 @@ Prerequisites:
 
 - `flatpak`
 - `flatpak-builder`
-- GNOME Platform/Sdk `49`
+- GNOME Platform/Sdk `51`
 
 ### Install From Releases
 
@@ -68,7 +68,7 @@ flatpak run io.github.ans_ibrahim.Memento
 
 ```bash
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-flatpak install flathub org.gnome.Platform//49 org.gnome.Sdk//49
+flatpak install flathub org.gnome.Platform//51 org.gnome.Sdk//51
 ```
 
 Build and install:
@@ -90,4 +90,3 @@ Some of the features are borrowed from [Movary](https://github.com/leepeuker/mov
 ## License
 
 GPL-3.0-or-later. See `COPYING`.
-
