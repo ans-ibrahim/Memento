@@ -68,6 +68,17 @@
   </screenshots>
 
   <releases>
+    <release version="1.3.1" date="2026-11-18">
+      <description>
+        <p>Primer</p>
+        <ul>
+          <li>Updated the application icon with a refreshed design</li>
+          <li>Added a dedicated development icon and build profile</li>
+          <li>Updated the Flatpak runtime and SDK to GNOME 51</li>
+        </ul>
+      </description>
+      <url type="details">https://github.com/ans-ibrahim/Memento/releases/tag/v1.3.1</url>
+    </release>
     <release version="1.3.0" date="2026-06-06">
       <description>
         <p>A Clockwork Orange</p>
